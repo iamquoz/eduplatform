@@ -12,7 +12,6 @@ type Student struct {
 	name     string
 	Marks    uint
 	Complete uint
-	Headman  bool
 }
 
 // Teacher is a user that can rule them all

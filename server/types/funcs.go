@@ -2,9 +2,15 @@ package types
 
 import (
 	"bytes"
-	"math/rand"
 	"strings"
+	"sync"
 )
+
+var mux sync.Mutex
+
+// this 🤡 is 🤡 my 🤡 db 🤡
+var studentsPOGGERS []Student = make([]Student, 0, 30)
+var teachersPOGGERS []Teacher = make([]Teacher, 0, 2)
 
 // Short shortens user name for displaying it somewhere with reduced screen real estate
 func Short(s string) string {
@@ -24,27 +30,35 @@ func Short(s string) string {
 }
 
 // MakeTeacher creates a new teacher
-func MakeTeacher(name string) Teacher {
-	// write to db
-	return Teacher{
-		id:   uint64(rand.Int63()),
+func MakeTeacher(name string) *Teacher {
+	mux.Lock()
+	i := uint64(len(teachersPOGGERS))
+	teachersPOGGERS = append(teachersPOGGERS, Teacher{
+		id:   i,
 		name: name,
-	}
+	})
+	mux.Unlock()
+	return &teachersPOGGERS[i]
 }
 
 // MakeStudent creates a new student
-func MakeStudent(name string) Student {
-	// write to db
-	return Student{
-		id:       uint64(rand.Int63()),
+func MakeStudent(name string) *Student {
+	mux.Lock()
+	i := uint64(len(studentsPOGGERS))
+	studentsPOGGERS = append(studentsPOGGERS, Student{
+		id:       i,
 		name:     name,
 		Marks:    0,
 		Complete: 0,
-		Headman:  false,
-	}
+	})
+	mux.Unlock()
+	return &studentsPOGGERS[i]
 }
 
-// MakeGroup creates new group, returns it descriptor and headman student
-func MakeGroup(c Course, t Teacher, name string) (Group, Student) {
+// MakeGroup creates new group, returns it descriptor and headman student.
+// Why? Because i think first group will be created even before first student is registered.
+// Let's think about existing students addition functionality later.
+func MakeGroup(c Course, t Teacher, name string) (*Group, *Student) {
+	// db work
 
 }
