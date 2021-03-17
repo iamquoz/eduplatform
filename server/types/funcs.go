@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"context"
 	"strings"
 	"sync"
 )
@@ -30,7 +31,8 @@ func Short(s string) string {
 }
 
 // MakeTeacher creates a new teacher
-func MakeTeacher(name string) *Teacher {
+// TODO create contexts
+func MakeTeacher(ctx context.Context, name string) *Teacher {
 	mux.Lock()
 	i := uint64(len(teachersPOGGERS))
 	teachersPOGGERS = append(teachersPOGGERS, Teacher{
@@ -42,7 +44,7 @@ func MakeTeacher(name string) *Teacher {
 }
 
 // MakeStudent creates a new student
-func MakeStudent(name string) *Student {
+func MakeStudent(ctx context.Context, name string) *Student {
 	mux.Lock()
 	i := uint64(len(studentsPOGGERS))
 	studentsPOGGERS = append(studentsPOGGERS, Student{
@@ -58,7 +60,7 @@ func MakeStudent(name string) *Student {
 // MakeGroup creates new group, returns it descriptor and headman student.
 // Why? Because i think first group will be created even before first student is registered.
 // Let's think about existing students addition functionality later.
-func MakeGroup(c Course, t Teacher, name string) (*Group, *Student) {
+func MakeGroup(ctx context.Context, c Course, t Teacher, name string) (*Group, *Student) {
 	// db work
 
 }

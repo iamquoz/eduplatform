@@ -1,0 +1,60 @@
+CurriculumID, ClassID, StudentID глобальны для всей системы. Обычный числовой тип -- локальный ИД.
+
+Пр. (Контекст) Название метода
+	<- Принимает
+	-> Возвращает
+	Описание метода, пр. -- приоритет его реализации. Чем выше, тем раньше нужно сделать. Определяем на ходу порог. Входящей стрелки может не быть.
+
+10 (Teacher) Classes
+	-> Classes map[ClassID]string
+	Возвращает список всех групп, доступных преподавателю.
+
+10 (Teacher) NewClass
+	-> HeadmanInvite string
+	Создаёт новую группу и возвращает ссылку на приглашение старосты.
+	
+9 (Teacher) NewCurriculum
+	<- Name string
+	-> ID CurriculumID
+	Создаёт новый курс.
+	
+9 (Teacher) NewTest
+	<- ID CurriculumID, Name string
+	-> ID uint
+	Создаёт новый тест в курсе.
+
+9 (Teacher) UploadTest
+	<- ID CurriculumID, Test TestMarkup
+	-> nil
+	А вот тут мы подумаем, потому что нет смысла грузить по-одному каждое задание. Предлагаю сейчас придумать примитивный язык разметки для тестов наподобие Маркдауна и заставлять препода писать задания в нём. Редактор заданий мы не потянем.
+
+8 (Student) GetTest
+	-> Test TestData
+	TestMarkup /= TestData. Первое с ответами и текст, второе без и ЖСОН.
+	
+4 (Headman) KillStudent
+	<- ID StudentID
+	-> nil
+	Удаляет студента из системы.
+
+4 (Headman) EditStudent 
+	<- ID StudentID, Name string
+	-> ResetLink string
+	Изменяет данные студента. Возвращает ссылку для сброса пароля. Сам пароль до перехода по ссылке не сбрасывается.
+
+0 (Teacher) EditClassName 
+	<- ID ClassID, Name string
+	-> nil
+	Очевидно
+
+0 (Headman) MoveStudent
+	<- SID StudentID, CID ClassID
+	-> nil
+	Перемещает студента в другую группу не удаляя его из системы.
+
+0 (Teacher) KillClass
+	<- ID ClassID
+	-> nil
+	Удаляет группу из системы.
+
+

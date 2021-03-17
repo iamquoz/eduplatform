@@ -19,11 +19,16 @@ type Group struct {
 func main() {
 	v := Group{
 		Teacher:   "Булычева Юлия Владимировна",
-		GroupName: "Мне похуй",
-		Students: []Student{{
-			Name:  "Коул Милена Ричардовна",
-			Score: 310,
-		},
+		GroupName: "ДИПНРБ-21/1",
+		Students: []Student{
+			{
+				Name:  "Коул Милена Ричардовна",
+				Score: 310,
+			},
+			{
+				Name:  "Досов Арман Руфатович",
+				Score: -9999, // пососи.
+			},
 			{
 				Name:  "Коколов Андрей Валерьевич",
 				Score: 0,
@@ -31,7 +36,8 @@ func main() {
 			{
 				Name:  "Селимов Загидин Мурадович",
 				Score: 9001,
-			}},
+			},
+		},
 	}
 	s, _ := json.Marshal(v)
 	fmt.Printf("%s\n", s)
