@@ -15,8 +15,13 @@ CurriculumID, ClassID, StudentID глобальны для всей систем
 
 10 (Teacher) ClassPerf
 	<- ID ClassID
-	-> IDs []StudentID, Names []string, Marks []uint
+	-> IDs []StudentID, Marks []uint
 	Возвращает список успеваемости группы.
+	
+10 (Teacher) Students
+	<- ID ClassID
+	-> Students map[StudentID]string
+	Возвращает имена студентов.
 	
 9 (Teacher) Tests
 	<- ID CurriculumID
@@ -26,7 +31,7 @@ CurriculumID, ClassID, StudentID глобальны для всей систем
 9 (Teacher) StudentPerf
 	<- CID CurriculumID, SID StudentID
 	-> Marks []uint, Next StudentID
-	Возвращает все оценки студента в текущем курсе и ИД следующего студента в списке группы. Если Next = 0, то студент был последним в группе. В сочетании с Tests и ClassPerf предоставляет механизм построения таблицы успеваемости.
+	Возвращает все оценки студента в текущем курсе и ИД следующего студента в списке группы. Если Next = 0, то студент был последним в группе. В сочетании с Tests и Students предоставляет механизм построения таблицы успеваемости.
 	
 	Фактически, нам нужно иметь отображение студент -> группа. Посмотрим, как это будет реализовано.
 	
