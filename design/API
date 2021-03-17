@@ -12,6 +12,23 @@ CurriculumID, ClassID, StudentID глобальны для всей систем
 10 (Teacher) NewClass
 	-> HeadmanInvite string
 	Создаёт новую группу и возвращает ссылку на приглашение старосты.
+
+10 (Teacher) ClassPerf
+	<- ID ClassID
+	-> IDs []StudentID, Names []string, Marks []uint
+	Возвращает список успеваемости группы.
+	
+9 (Teacher) Tests
+	<- ID CurriculumID
+	-> Tests map[uint]string
+	Возвращает список названий тестов для курса.
+
+9 (Teacher) StudentPerf
+	<- CID CurriculumID, SID StudentID
+	-> Marks []uint, Next StudentID
+	Возвращает все оценки студента в текущем курсе и ИД следующего студента в списке группы. Если Next = 0, то студент был последним в группе. В сочетании с Tests и ClassPerf предоставляет механизм построения таблицы успеваемости.
+	
+	Фактически, нам нужно иметь отображение студент -> группа. Посмотрим, как это будет реализовано.
 	
 9 (Teacher) NewCurriculum
 	<- Name string
@@ -24,13 +41,18 @@ CurriculumID, ClassID, StudentID глобальны для всей систем
 	Создаёт новый тест в курсе.
 
 9 (Teacher) UploadTest
-	<- ID CurriculumID, Test TestMarkup
+	<- ID CurriculumID, TestID uint, Test TestMarkup
 	-> nil
 	А вот тут мы подумаем, потому что нет смысла грузить по-одному каждое задание. Предлагаю сейчас придумать примитивный язык разметки для тестов наподобие Маркдауна и заставлять препода писать задания в нём. Редактор заданий мы не потянем.
 
 8 (Student) GetTest
 	-> Test TestData
 	TestMarkup /= TestData. Первое с ответами и текст, второе без и ЖСОН.
+	
+8 (Student) SendTest
+	<- Test TestData
+	-> Score uint
+	Ну вот тут вот в тестдате будут ответы, да...
 	
 4 (Headman) KillStudent
 	<- ID StudentID
