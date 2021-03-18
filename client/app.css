@@ -7,7 +7,7 @@ body {
     padding: 0;
 }
 
-.toolbardemoBasicUsage md-toolbar md-icon.md-default-theme {
-    color: white; }
-  
-  
+.gridStyle {
+    min-height: 70%;
+    max-width: 100%;
+}

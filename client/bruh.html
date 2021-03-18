@@ -1,27 +1,30 @@
 <html ng-app="platform">
    <head>
         <meta charset="UTF-8">
-    	<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.js"></script>
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimal-ui" />
+		<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.js"></script>
 		<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.js"></script>
 		<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.js"></script>  
-		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+		<script src="//cdn.rawgit.com/angular-ui/ng-grid/v2.0.14/build/ng-grid.js"></script>
 		<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-aria.js"></script>
 		<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-messages.js"></script>
 		<script src = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/t-114/svg-assets-cache.js"></script>
 		<script src = "https://cdn.gitcdn.link/cdn/angular/bower-material/v1.0.8/angular-material.js"></script>
-		<script src = "node_modules/chart.js/dist/Chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 		<script src = "toolbar.js"></script>
+		<link rel="stylesheet" href="https://material.angularjs.org/1.0.8/docs.css">
+		<link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.0.8/angular-material.css">
+		<link rel="stylesheet" href="//cdn.rawgit.com/angular-ui/ng-grid/v2.0.14/ng-grid.css">
 		<link rel="stylesheet" href="app.css">
-	  <link rel="stylesheet" href="https://material.angularjs.org/1.0.8/docs.css">
-	  <link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.0.8/angular-material.css">
    </head>
    
 	<body>    
-		<div ng-controller="mainToolbar" class="someBar">
+		<div ng-controller="mainSidebar" class="someBar" layout="column" flex>
 			<md-content>
-			  <md-toolbar>
+			  <md-toolbar class="md-whiteframe-1dp" layout="row" >
 				<div class="md-toolbar-tools">
-				  <md-button class="md-icon-button" ng-click="openLeft()" aria-label="Settings">
+				  <md-button class="md-icon-button" ng-click="toggleLeft()" aria-label="Settings">
 					<md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
 				  </md-button>
 				  <h2>
@@ -32,31 +35,30 @@
 			  </md-toolbar>
 			</md-content>
 		</div>
-			<div layout-fill layout="vertical" ng-controller="mainSidebar" ng-swipe-right="openLeft()" ng-swipe-left="closeLeft()" style="position:fixed;">
-				<section flex layout="horizontal">
-				  <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" flex>
-					<md-content class="md-padding" ng-controller="LeftCtrl">
-					  <md-button class="md-primary" hide-gt-md ng-click="close()">
-						закрыть
-					  </md-button>
-					  <p hide show-gt-md>
-						показывается по умолчанию на больших экранах (>= 1280 px)
-					  </p>
-					</md-content>
-				  </md-sidenav>
-				  <md-content class="md-padding" flex>
-					<div layout-align="center center" layout-wrap layout="vertical">
-					  <p>
-						левое показывается на экранах >=1280 px
-					  </p>
-					  <div>
-						<md-button class="md-primary" hide-gt-md ng-click="toggleLeft()">
-						  открыть
-						</md-button>
-					  </div>
-					</div>
-				  </md-content>
-				</section>
-			  </div>
+		<div layout-fill layout="vertical">
+			<section flex layout="horizontal" ng-controller="mainSidebar" ng-swipe-right="openLeft()" ng-swipe-left="closeLeft()" >
+			  <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" flex>
+				<md-content class="md-padding" ng-controller="LeftCtrl">
+				  <md-button class="md-primary" hide-gt-md ng-click="close()">
+					закрыть
+				  </md-button>
+				  <p hide show-gt-md>
+					показывается по умолчанию на больших экранах (>= 1280 px)
+				  </p>
+				</md-content>
+			  </md-sidenav>
+			  <md-content class="md-padding" flex>
+				<div class="md-primary" ng-controller = "mainDiary" style="min-width: 100%;">
+				
+					<p> Преподаватель: {{teacher}} </p>
+					<p> Группа: {{group}}</p>
+					<section ng-controller = "tableCtrl">
+						<div class = "gridStyle" ng-grid="gridOptions"></div>
+					</section>
+					<br><br><br><br><br><br>
+				</div>
+			  </md-content>
+			</section>
+		 </div>
    </body>
 </html>
