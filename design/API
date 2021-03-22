@@ -10,7 +10,7 @@ CurriculumID, ClassID, StudentID глобальны для всей систем
 	Возвращает список всех групп, доступных преподавателю.
 
 10 (Teacher) NewClass
-	-> HeadmanInvite string
+	-> ID ClassID, HeadmanInvite string
 	Создаёт новую группу и возвращает ссылку на приглашение старосты.
 
 10 (Teacher) ClassPerf
