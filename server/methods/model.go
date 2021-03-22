@@ -1,6 +1,9 @@
 package methods
 
-import "sync"
+import (
+	"math/rand"
+	"sync"
+)
 
 // UserID is used to discriminate users in database
 type UserID uint
@@ -31,13 +34,59 @@ var Last struct {
 // TODO maybe they're needed to be saved in some type of cold store? db?
 type AuthStore struct {
 	sync.Mutex
-	Map map[uint64]UserID
+	Map      map[uint64]UserID
+	teachers map[UserID]struct{} // flex
+	headmen  map[UserID]struct{}
 }
 
-// Get is concurrent-safe access to AuthStore
-func (a *AuthStore) Get(k uint64) (u UserID, ok bool) {
+// GetAuth is concurrent-safe access to AuthStore
+func (a *AuthStore) GetAuth(k uint64) (u UserID, ok bool) {
 	a.Lock()
 	u, ok = a.Map[k]
 	a.Unlock()
 	return
+}
+
+// MakeAuth creates a token for sucsessfully authorized user.
+// Authorizations are checked somewhere else.
+func (a *AuthStore) MakeAuth(u UserID) (token uint64) {
+	a.Lock()
+	defer a.Unlock()
+again:
+	token = rand.Uint64()
+	_, k := a.Map[token]
+	if k {
+		goto again
+	}
+	return token
+}
+
+// IsTeacher is simultaneously a statement and a predicate!!!
+// Action < 0 is remove, action > 0 is add.
+// This is fucking awful, I admit it.
+func (a *AuthStore) IsTeacher(u UserID, action int) bool {
+	a.Lock()
+	defer a.Unlock()
+	_, e := a.teachers[u]
+	switch {
+	case action < 0:
+		delete(a.teachers, u)
+	case action > 0:
+		a.teachers[u] = struct{}{}
+	}
+	return e
+}
+
+// IsHeadman is a same miserable shit as the IsTeacher. See its description.
+func (a *AuthStore) IsHeadman(u UserID, action int) bool {
+	a.Lock()
+	defer a.Unlock()
+	_, e := a.headmen[u]
+	switch {
+	case action < 0:
+		delete(a.headmen, u)
+	case action > 0:
+		a.headmen[u] = struct{}{}
+	}
+	return e
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,8 +13,6 @@ import (
 
 var auths *meth.AuthStore
 var dbconn *pgx.ConnPool
-var teachers []meth.TeacherID
-var headmans []meth.StudentID
 
 func initTeachers(db *pgx.ConnPool) (t []meth.TeacherID) {
 	t = make([]meth.TeacherID, 0, 50)
@@ -32,6 +31,23 @@ func initTeachers(db *pgx.ConnPool) (t []meth.TeacherID) {
 	return t
 }
 
+func initHeadmen(db *pgx.ConnPool) (h []meth.StudentID) {
+	h = make([]meth.StudentID, 0, 50)
+	rows, err := db.Query("select ID from Users where Role = 2")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var id meth.StudentID
+		err := rows.Scan(id)
+		if err != nil {
+			log.Print(err)
+		}
+		h = append(h, id)
+	}
+	return h
+}
+
 func init() {
 	var err error
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
@@ -45,13 +61,34 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	teachers = initTeachers(dbconn)
 
+}
+
+func tryAuthorize(id meth.UserID, passw uint64, db *pgx.ConnPool, a *meth.AuthStore) bool {
+	row := db.QueryRow("select Passw from Users where ID = " + fmt.Sprint(id))
+	var rpassw uint64
+	row.Scan(rpassw)
+	defer a.MakeAuth(id)
+	return rpassw == passw
 }
 
 func main() {
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
-
+		q := r.URL.Query()
+		id, err := strconv.ParseUint(q.Get("id"), 10, 64)
+		if err != nil {
+			log.Print(err)
+		}
+		// Andrew, you will send me hashes. No questions.
+		passw, err := strconv.ParseUint(q.Get("passw"), 10, 64)
+		if err != nil {
+			log.Print(err)
+		}
+		if tryAuthorize(meth.UserID(id), passw, dbconn, auths) {
+			// make goroutine or something
+		} else {
+			// 403
+		}
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		s, err := r.Cookie("token")
@@ -64,9 +101,11 @@ func main() {
 			// TODO return 403
 			return
 		}
-		v, ok := auths.Get(tok)
+		_, ok := auths.GetAuth(tok)
 		if ok {
-
+			// handle method
+		} else {
+			// 403
 		}
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))
