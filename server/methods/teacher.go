@@ -52,3 +52,13 @@ func (t *Teacher) NewClass(ClassName string) (ClassID, string) {
 	}
 	return Last.ClassID, s
 }
+
+// NewCurriculum creates a new curriculum
+// Curriculums are not stored in DB, rather as pure markup files uploaded by the teacher
+func (t *Teacher) NewCurriculum(name string) CurriculumID {
+	Last.Lock()
+	Last.CurriculumID++
+	Last.Unlock()
+	// TODO impl
+	return 0
+}
