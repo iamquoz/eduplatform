@@ -12,12 +12,12 @@ import (
 type Teacher struct {
 	ID          TeacherID
 	Pool        *pgx.ConnPool
-	InviteMaker func(ClassID) string
+	InviteMaker func(ClassID) (string, error)
 }
 
 // Classes returns a list of all available classes
 func (t *Teacher) Classes() map[ClassID]string {
-	rows, err := t.Pool.Query("select ClassID, ClassName from Index where TeacherID = " + fmt.Sprint(t.ID))
+	rows, err := t.Pool.Query("select ClassID, ClassName from ClassIndex where TeacherID = " + fmt.Sprint(t.ID))
 	if err != nil {
 		log.Print(err)
 		return nil
@@ -33,6 +33,22 @@ func (t *Teacher) Classes() map[ClassID]string {
 }
 
 // NewClass creates a new class and returns a headman invite link
-func (t *Teacher) NewClass() (ClassID, string) {
+func (t *Teacher) NewClass(ClassName string) (ClassID, string) {
+	Last.Lock()
+	Last.ClassID++
+	Last.Unlock()
 
+	_, err := t.Pool.Query("insert into ClassIndex (ClassID, ClassName) values (" +
+		fmt.Sprint(Last.ClassID, ", ", ClassName) + " )")
+	if err != nil {
+		log.Print(err)
+		return 0, ""
+	}
+
+	s, err := t.InviteMaker(Last.ClassID)
+	if err != nil {
+		log.Print(err)
+		return 0, ""
+	}
+	return Last.ClassID, s
 }
