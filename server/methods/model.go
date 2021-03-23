@@ -35,15 +35,15 @@ var Last struct {
 	CurriculumID
 }
 
-// AuthStore stores current users authorizations
+// TokenStore stores current users authorizations
 // TODO maybe they're needed to be saved in some type of cold store? db?
-type AuthStore struct {
+type TokenStore struct {
 	sync.Mutex
 	Map map[uint64]Player
 }
 
 // GetAuth is concurrent-safe access to AuthStore
-func (a *AuthStore) GetAuth(k uint64) (u UserID, ok bool) {
+func (a *TokenStore) GetAuth(k uint64) (u UserID, ok bool) {
 	a.Lock()
 	g, ok := a.Map[k]
 	u = g.UserID
@@ -51,10 +51,10 @@ func (a *AuthStore) GetAuth(k uint64) (u UserID, ok bool) {
 	return
 }
 
-// MakeAuth creates a token for sucsessfully authorized user.
+// MakeToken creates a token for a sucsessfully authorized user.
 // Authorizations are checked somewhere else.
-// It's possible to have multiple tokens for one user
-func (a *AuthStore) MakeAuth(u UserID, role int) (token uint64) {
+// It's possible to have multiple tokens for one user.
+func (a *TokenStore) MakeToken(u UserID, role int) (token uint64) {
 	a.Lock()
 	defer a.Unlock()
 again:

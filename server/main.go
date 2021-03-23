@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-var auths *meth.AuthStore
+var auths *meth.TokenStore
 var dbconn *pgx.ConnPool
 
 /*
@@ -136,7 +136,7 @@ func main() {
 		uid, ok := auths.GetAuth(tok)
 		if ok {
 			send[uid] <- r.URL.Query()
-			// DUH that's alternative to a mutex, because they're going to
+			// DUH that's an alternative to a mutex, because they're going to
 			// be running simultaneously
 			w.Write(<-recv[uid])
 		} else {
