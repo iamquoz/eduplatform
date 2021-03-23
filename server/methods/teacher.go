@@ -1,7 +1,6 @@
 package methods
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/jackc/pgx"
@@ -17,7 +16,11 @@ type Teacher struct {
 
 // Classes returns a list of all available classes
 func (t *Teacher) Classes() map[ClassID]string {
-	rows, err := t.Pool.Query("select ClassID, ClassName from ClassIndex where TeacherID = " + fmt.Sprint(t.ID))
+	rows, err := t.Pool.Query(`
+		select ClassID, ClassName 
+		from ClassIndex 
+		where TeacherID = $1;`,
+		t.ID)
 	if err != nil {
 		log.Print(err)
 		return nil
@@ -38,8 +41,11 @@ func (t *Teacher) NewClass(ClassName string) (ClassID, string) {
 	Last.ClassID++
 	Last.Unlock()
 
-	_, err := t.Pool.Query("insert into ClassIndex (ClassID, ClassName) values (" +
-		fmt.Sprint(Last.ClassID, ", ", ClassName) + " )")
+	_, err := t.Pool.Query(`
+		insert
+		into ClassIndex (ClassID, Name)
+		values ($1, $2);`,
+		Last.ClassID, ClassName)
 	if err != nil {
 		log.Print(err)
 		return 0, ""

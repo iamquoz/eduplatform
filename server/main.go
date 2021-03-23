@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"crypto/sha512"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -65,48 +66,94 @@ func init() {
 }
 
 func tryAuthorize(id meth.UserID, passw uint64, db *pgx.ConnPool, a *meth.AuthStore) bool {
-	row := db.QueryRow("select Passw from Users where ID = " + fmt.Sprint(id))
+	row := db.QueryRow("select Passw, Role from UserIndex where ID = $1;", id)
 	var rpassw uint64
-	row.Scan(rpassw)
-	defer a.MakeAuth(id)
-	return rpassw == passw
+	var role int
+	row.Scan(rpassw, role)
+	if rpassw == passw {
+		a.MakeAuth(id, role)
+		return true
+	}
+	return false
+}
+
+// no need in being concurrent -- accessed only there
+var send map[meth.UserID]chan url.Values
+var recv map[meth.UserID]chan []byte
+
+func handleTeacher(in chan<- url.Values, out <-chan []byte) {
+	t := meth.Teacher{
+
+		Pool: dbconn,
+	}
+}
+
+func handleStudent(in chan<- url.Values, out <-chan []byte) {
+
 }
 
 func main() {
+	var hasher = sha512.New()
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		id, err := strconv.ParseUint(q.Get("id"), 10, 64)
 		if err != nil {
 			log.Print(err)
+			return
 		}
 		// Andrew, you will send me hashes. No questions.
-		passw, err := strconv.ParseUint(q.Get("passw"), 10, 64)
-		if err != nil {
+		passw := q.Get("passw")
+		if passw == "" {
 			log.Print(err)
+			return
 		}
-		if tryAuthorize(meth.UserID(id), passw, dbconn, auths) {
-			// make goroutine or something
+		// Okay, send me fucking plaintext password...
+		hashs := hasher.Sum([]byte(passw))
+		hash := uint64(hashs[1]) |
+			uint64(hashs[2])<<8 |
+			uint64(hashs[3])<<16 |
+			uint64(hashs[4])<<24
+		// You'll regret this.
+		uid := meth.UserID(id)
+		if tryAuthorize(uid, hash, dbconn, auths) {
+			send[uid] = make(chan url.Values, 0)
+			recv[uid] = make(chan []byte, 0)
+			if auths.IsTeacher(uid, 0) {
+				go handleTeacher(send[uid], recv[uid])
+			} else {
+				go handleStudent(send[uid], recv[uid])
+			}
 		} else {
-			// 403
+			w.WriteHeader(403)
+			w.Write([]byte("Incorrect credentials"))
+			return
 		}
 	})
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
+		goto skip
+	fail:
+		w.WriteHeader(401)
+		w.Write([]byte("{}"))
+		return
+	skip:
 		s, err := r.Cookie("token")
 		if err != nil {
-			// TODO return 403
-			return
+			goto fail
 		}
 		tok, err := strconv.ParseUint(s.Value, 16, 64)
 		if err != nil {
-			// TODO return 403
-			return
+			goto fail
 		}
-		_, ok := auths.GetAuth(tok)
+		uid, ok := auths.GetAuth(tok)
 		if ok {
-			// handle method
+			send[uid] <- r.URL.Query()
+			// DUH that's alternative to a mutex, because they're going to
+			// be running simultaneously
+			w.Write(<-recv[uid])
 		} else {
-			// 403
+			goto fail
 		}
+		return
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

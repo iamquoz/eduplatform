@@ -49,7 +49,7 @@ func (a *AuthStore) GetAuth(k uint64) (u UserID, ok bool) {
 
 // MakeAuth creates a token for sucsessfully authorized user.
 // Authorizations are checked somewhere else.
-func (a *AuthStore) MakeAuth(u UserID) (token uint64) {
+func (a *AuthStore) MakeAuth(u UserID, role int) (token uint64) {
 	a.Lock()
 	defer a.Unlock()
 again:
@@ -58,6 +58,15 @@ again:
 	if k {
 		goto again
 	}
+	switch role {
+	case 0:
+		// student
+	case 1:
+		a.IsHeadman(u, +1)
+	case 2:
+		a.IsTeacher(u, +1)
+	}
+
 	return token
 }
 
