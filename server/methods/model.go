@@ -8,11 +8,18 @@ import (
 // UserID is used to discriminate users in database
 type UserID uint
 
-// StudentID is equivalent to UserID in context of student's methods
-type StudentID UserID
+// Roles of users
+const (
+	RoleTeacher = iota
+	RoleStudent
+	RoleHeadman
+)
 
-// TeacherID is equivalent to UserID in context of teacher's methods
-type TeacherID UserID
+// Player is a user with its role
+type Player struct {
+	UserID
+	Role int
+}
 
 // ClassID discriminates classes (groups) of students
 type ClassID uint
@@ -24,8 +31,6 @@ type CurriculumID uint
 var Last struct {
 	sync.Mutex
 	UserID
-	StudentID
-	TeacherID
 	ClassID
 	CurriculumID
 }
@@ -34,21 +39,21 @@ var Last struct {
 // TODO maybe they're needed to be saved in some type of cold store? db?
 type AuthStore struct {
 	sync.Mutex
-	Map      map[uint64]UserID
-	teachers map[UserID]struct{} // flex
-	headmen  map[UserID]struct{}
+	Map map[uint64]Player
 }
 
 // GetAuth is concurrent-safe access to AuthStore
 func (a *AuthStore) GetAuth(k uint64) (u UserID, ok bool) {
 	a.Lock()
-	u, ok = a.Map[k]
+	g, ok := a.Map[k]
+	u = g.UserID
 	a.Unlock()
 	return
 }
 
 // MakeAuth creates a token for sucsessfully authorized user.
 // Authorizations are checked somewhere else.
+// It's possible to have multiple tokens for one user
 func (a *AuthStore) MakeAuth(u UserID, role int) (token uint64) {
 	a.Lock()
 	defer a.Unlock()
@@ -57,45 +62,9 @@ again:
 	_, k := a.Map[token]
 	if k {
 		goto again
-	}
-	switch role {
-	case 0:
-		// student
-	case 1:
-		a.IsHeadman(u, +1)
-	case 2:
-		a.IsTeacher(u, +1)
+	} else {
+		a.Map[token] = Player{u, role}
 	}
 
 	return token
-}
-
-// IsTeacher is simultaneously a statement and a predicate!!!
-// Action < 0 is remove, action > 0 is add.
-// This is fucking awful, I admit it.
-func (a *AuthStore) IsTeacher(u UserID, action int) bool {
-	a.Lock()
-	defer a.Unlock()
-	_, e := a.teachers[u]
-	switch {
-	case action < 0:
-		delete(a.teachers, u)
-	case action > 0:
-		a.teachers[u] = struct{}{}
-	}
-	return e
-}
-
-// IsHeadman is a same miserable shit as the IsTeacher. See its description.
-func (a *AuthStore) IsHeadman(u UserID, action int) bool {
-	a.Lock()
-	defer a.Unlock()
-	_, e := a.headmen[u]
-	switch {
-	case action < 0:
-		delete(a.headmen, u)
-	case action > 0:
-		a.headmen[u] = struct{}{}
-	}
-	return e
 }

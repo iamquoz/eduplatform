@@ -9,14 +9,14 @@ import (
 // Teacher is a container entity for an authorized teacher.
 // Other entities just can't call its methods and gets 404 trying.
 type Teacher struct {
-	ID          TeacherID
-	Pool        *pgx.ConnPool
+	ID          UserID
+	pool        *pgx.ConnPool
 	InviteMaker func(ClassID) (string, error)
 }
 
 // Classes returns a list of all available classes
 func (t *Teacher) Classes() map[ClassID]string {
-	rows, err := t.Pool.Query(`
+	rows, err := t.pool.Query(`
 		select ClassID, ClassName 
 		from ClassIndex 
 		where TeacherID = $1;`,
@@ -41,7 +41,7 @@ func (t *Teacher) NewClass(ClassName string) (ClassID, string) {
 	Last.ClassID++
 	Last.Unlock()
 
-	_, err := t.Pool.Query(`
+	_, err := t.pool.Query(`
 		insert
 		into ClassIndex (ClassID, Name)
 		values ($1, $2);`,

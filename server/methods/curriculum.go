@@ -3,7 +3,7 @@ package methods
 const storePath string = "./c/"
 
 type Curriculum struct {
-	Owner TeacherID
+	Owner UserID
 	ID    CurriculumID
 }
 

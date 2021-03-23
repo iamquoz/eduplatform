@@ -15,6 +15,7 @@ import (
 var auths *meth.AuthStore
 var dbconn *pgx.ConnPool
 
+/*
 func initTeachers(db *pgx.ConnPool) (t []meth.TeacherID) {
 	t = make([]meth.TeacherID, 0, 50)
 	rows, err := db.Query("select ID from Users where Role = 0")
@@ -48,6 +49,7 @@ func initHeadmen(db *pgx.ConnPool) (h []meth.StudentID) {
 	}
 	return h
 }
+*/
 
 func init() {
 	var err error
@@ -65,32 +67,9 @@ func init() {
 
 }
 
-func tryAuthorize(id meth.UserID, passw uint64, db *pgx.ConnPool, a *meth.AuthStore) bool {
-	row := db.QueryRow("select Passw, Role from UserIndex where ID = $1;", id)
-	var rpassw uint64
-	var role int
-	row.Scan(rpassw, role)
-	if rpassw == passw {
-		a.MakeAuth(id, role)
-		return true
-	}
-	return false
-}
-
 // no need in being concurrent -- accessed only there
 var send map[meth.UserID]chan url.Values
 var recv map[meth.UserID]chan []byte
-
-func handleTeacher(in chan<- url.Values, out <-chan []byte) {
-	t := meth.Teacher{
-
-		Pool: dbconn,
-	}
-}
-
-func handleStudent(in chan<- url.Values, out <-chan []byte) {
-
-}
 
 func main() {
 	var hasher = sha512.New()
@@ -115,14 +94,24 @@ func main() {
 			uint64(hashs[4])<<24
 		// You'll regret this.
 		uid := meth.UserID(id)
-		if tryAuthorize(uid, hash, dbconn, auths) {
+
+		row := dbconn.QueryRow("select Passw, Role from UserIndex where ID = $1;", uid)
+		var rpassw uint64
+		var role int
+		row.Scan(rpassw, role)
+
+		if rpassw == hash {
+			auths.MakeAuth(uid, role)
+
 			send[uid] = make(chan url.Values, 0)
 			recv[uid] = make(chan []byte, 0)
-			if auths.IsTeacher(uid, 0) {
+
+			/*if auths.IsTeacher(uid, 0) {
 				go handleTeacher(send[uid], recv[uid])
 			} else {
 				go handleStudent(send[uid], recv[uid])
 			}
+			*/
 		} else {
 			w.WriteHeader(403)
 			w.Write([]byte("Incorrect credentials"))
