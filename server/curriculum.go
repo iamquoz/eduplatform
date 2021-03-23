@@ -1,7 +1,8 @@
-package methods
+package main
 
 const storePath string = "./c/"
 
+// Curriculum is
 type Curriculum struct {
 	Owner UserID
 	ID    CurriculumID

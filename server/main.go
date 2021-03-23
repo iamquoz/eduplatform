@@ -8,22 +8,21 @@ import (
 	"strconv"
 	"time"
 
-	meth "github.com/iamquoz/matstat/server/methods"
 	"github.com/jackc/pgx"
 )
 
-var auths *meth.TokenStore
+var auths *TokenStore
 var dbconn *pgx.ConnPool
 
 /*
-func initTeachers(db *pgx.ConnPool) (t []meth.TeacherID) {
-	t = make([]meth.TeacherID, 0, 50)
+func initTeachers(db *pgx.ConnPool) (t []TeacherID) {
+	t = make([]TeacherID, 0, 50)
 	rows, err := db.Query("select ID from Users where Role = 0")
 	if err != nil {
 		log.Fatal(err)
 	}
 	for rows.Next() {
-		var id meth.TeacherID
+		var id TeacherID
 		err := rows.Scan(id)
 		if err != nil {
 			log.Print(err)
@@ -33,14 +32,14 @@ func initTeachers(db *pgx.ConnPool) (t []meth.TeacherID) {
 	return t
 }
 
-func initHeadmen(db *pgx.ConnPool) (h []meth.StudentID) {
-	h = make([]meth.StudentID, 0, 50)
+func initHeadmen(db *pgx.ConnPool) (h []StudentID) {
+	h = make([]StudentID, 0, 50)
 	rows, err := db.Query("select ID from Users where Role = 2")
 	if err != nil {
 		log.Fatal(err)
 	}
 	for rows.Next() {
-		var id meth.StudentID
+		var id StudentID
 		err := rows.Scan(id)
 		if err != nil {
 			log.Print(err)
@@ -68,8 +67,8 @@ func init() {
 }
 
 // no need in being concurrent -- accessed only there
-var send map[meth.UserID]chan url.Values
-var recv map[meth.UserID]chan []byte
+var send map[UserID]chan url.Values
+var recv map[UserID]chan []byte
 
 func main() {
 	var hasher = sha512.New()
@@ -93,7 +92,7 @@ func main() {
 			uint64(hashs[3])<<16 |
 			uint64(hashs[4])<<24
 		// You'll regret this.
-		uid := meth.UserID(id)
+		uid := UserID(id)
 
 		row := dbconn.QueryRow("select Passw, Role from UserIndex where ID = $1;", uid)
 		var rpassw uint64
@@ -101,7 +100,7 @@ func main() {
 		row.Scan(rpassw, role)
 
 		if rpassw == hash {
-			auths.MakeAuth(uid, role)
+			auths.MakeToken(uid, role)
 
 			send[uid] = make(chan url.Values, 0)
 			recv[uid] = make(chan []byte, 0)
