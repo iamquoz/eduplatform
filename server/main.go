@@ -66,9 +66,9 @@ func init() {
 
 }
 
-// no need in being concurrent -- accessed only there
-var send map[UserID]chan url.Values
-var recv map[UserID]chan []byte
+func handleUser(uid UserID, val url.Values, w http.ResponseWriter) {
+
+}
 
 func main() {
 	var hasher = sha512.New()
@@ -101,16 +101,6 @@ func main() {
 
 		if rpassw == hash {
 			auths.MakeToken(uid, role)
-
-			send[uid] = make(chan url.Values, 0)
-			recv[uid] = make(chan []byte, 0)
-
-			/*if auths.IsTeacher(uid, 0) {
-				go handleTeacher(send[uid], recv[uid])
-			} else {
-				go handleStudent(send[uid], recv[uid])
-			}
-			*/
 		} else {
 			w.WriteHeader(403)
 			w.Write([]byte("Incorrect credentials"))
@@ -134,10 +124,7 @@ func main() {
 		}
 		uid, ok := auths.GetAuth(tok)
 		if ok {
-			send[uid] <- r.URL.Query()
-			// DUH that's an alternative to a mutex, because they're going to
-			// be running simultaneously
-			w.Write(<-recv[uid])
+			handleUser(uid, r.URL.Query(), w)
 		} else {
 			goto fail
 		}
