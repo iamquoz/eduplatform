@@ -21,18 +21,16 @@ type Player struct {
 	Role int
 }
 
-// ClassID discriminates classes (groups) of students
-type ClassID uint
-
-// CurriculumID discriminates curriculums (courses) of groups
-type CurriculumID uint
+// NilPlayer returns non-existing player.
+// UserID 0 doesn't mean that player does not exist.
+func NilPlayer() Player {
+	return Player{UserID: 0, Role: -1}
+}
 
 // Last contains recently added ID values
 var Last struct {
 	sync.Mutex
 	UserID
-	ClassID
-	CurriculumID
 }
 
 // TokenStore stores current users authorizations
@@ -42,11 +40,13 @@ type TokenStore struct {
 	Map map[uint64]Player
 }
 
-// GetAuth is concurrent-safe access to AuthStore
-func (a *TokenStore) GetAuth(k uint64) (u UserID, ok bool) {
+// GetAuth is a concurrent-safe access to AuthStore
+func (a *TokenStore) GetAuth(k uint64) (p Player) {
 	a.Lock()
-	g, ok := a.Map[k]
-	u = g.UserID
+	p, ok := a.Map[k]
+	if !ok {
+		return NilPlayer()
+	}
 	a.Unlock()
 	return
 }

@@ -1,6 +1,7 @@
 package main
 
-type User struct {
-	UserID
-	Token uint64
+import "net/http"
+
+func (p *Player) Students(w http.ResponseWriter, r *http.Request) {
+
 }

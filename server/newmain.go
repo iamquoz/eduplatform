@@ -4,53 +4,36 @@ import (
 	"crypto/sha512"
 	"log"
 	"net/http"
-	"net/url"
+	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/jackc/pgx"
 )
 
-var auths *TokenStore
+var methods map[string]http.HandlerFunc
+
+var ts TokenStore
 var dbconn *pgx.ConnPool
 
-/*
-func initTeachers(db *pgx.ConnPool) (t []TeacherID) {
-	t = make([]TeacherID, 0, 50)
-	rows, err := db.Query("select ID from Users where Role = 0")
+func makeAuth(r *http.Request) (Player, int) {
+	t, err := r.Cookie("token")
 	if err != nil {
-		log.Fatal(err)
+		return NilPlayer(), http.StatusBadRequest
 	}
-	for rows.Next() {
-		var id TeacherID
-		err := rows.Scan(id)
-		if err != nil {
-			log.Print(err)
-		}
-		t = append(t, id)
-	}
-	return t
-}
-
-func initHeadmen(db *pgx.ConnPool) (h []StudentID) {
-	h = make([]StudentID, 0, 50)
-	rows, err := db.Query("select ID from Users where Role = 2")
+	k, err := strconv.ParseUint(t.Value, 16, 64)
 	if err != nil {
-		log.Fatal(err)
+		return NilPlayer(), http.StatusBadRequest
 	}
-	for rows.Next() {
-		var id StudentID
-		err := rows.Scan(id)
-		if err != nil {
-			log.Print(err)
-		}
-		h = append(h, id)
+	player := ts.GetAuth(k)
+	if player == NilPlayer() {
+		return NilPlayer(), http.StatusUnauthorized
 	}
-	return h
+	return player, http.StatusOK
 }
-*/
 
 func init() {
+	// init db connection
 	var err error
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
@@ -63,11 +46,26 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-}
-
-func handleUser(uid UserID, val url.Values, w http.ResponseWriter) {
-
+	// initialize method names from type information
+	n := reflect.TypeOf(Player{}).NumMethod()
+	// wrap methods in their respective handler funcs
+	for i := 0; i < n; i++ {
+		m := reflect.TypeOf(Player{}).Method(n)
+		methods[m.Name] = func(w http.ResponseWriter, r *http.Request) {
+			// we'll definetly get a performance loss there but who cares?
+			player, code := makeAuth(r)
+			if code != http.StatusOK {
+				w.WriteHeader(code)
+				return
+			}
+			wval := reflect.ValueOf(w)
+			rval := reflect.ValueOf(r)
+			args := []reflect.Value{wval, rval}
+			reflect.ValueOf(player).Method(i).Call(args)
+			// it's sad that json.Unmarshall can't work on reflect.Value types
+			// upd: it can, but this approach would be very dissatisfying to write and debug
+		}
+	}
 }
 
 func main() {
@@ -100,35 +98,14 @@ func main() {
 		row.Scan(rpassw, role)
 
 		if rpassw == hash {
-			auths.MakeToken(uid, role)
+			ts.MakeToken(uid, role)
 		} else {
 			w.WriteHeader(403)
 			w.Write([]byte("Incorrect credentials"))
 			return
 		}
 	})
-	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
-		goto skip
-	fail:
-		w.WriteHeader(401)
-		w.Write([]byte("{}"))
-		return
-	skip:
-		s, err := r.Cookie("token")
-		if err != nil {
-			goto fail
-		}
-		tok, err := strconv.ParseUint(s.Value, 16, 64)
-		if err != nil {
-			goto fail
-		}
-		uid, ok := auths.GetAuth(tok)
-		if ok {
-			handleUser(uid, r.URL.Query(), w)
-		} else {
-			goto fail
-		}
-		return
-	})
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	for k, v := range methods {
+		http.HandleFunc(k, v)
+	}
 }

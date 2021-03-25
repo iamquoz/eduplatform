@@ -2,12 +2,6 @@ package main
 
 const storePath string = "./c/"
 
-// Curriculum is
-type Curriculum struct {
-	Owner UserID
-	ID    CurriculumID
-}
-
 const (
 	// TestClosed is a test with single input box and closed answering
 	TestClosed = iota
