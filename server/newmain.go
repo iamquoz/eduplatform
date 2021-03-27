@@ -71,8 +71,8 @@ func init() {
 			// if method's name begins with the "St" -- it is a student's method
 			// else only teacher can call it
 			if player.Role > 0 && !strings.HasPrefix(m.Name, "St") {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("Unauthorized for use"))
+				w.WriteHeader(http.StatusForbidden)
+				w.Write([]byte("No"))
 				return
 			}
 			wval := reflect.ValueOf(w)

@@ -1,0 +1,38 @@
+Flop() string
+тестовый метод
+
+StLogout()
+деаутентифицирует пользователя
+
+StAvailTests() []TestID
+сервер сам ведет учёт выданных тестов
+при попытке получить невыданный тест, возвращается 403
+
+StGetTest(id TestID) []TaskID
+Точно так же пользователю будут доступны только taskid выданных
+тестов
+но это потом, а в прототипе похуй
+бо всё равно ответы не отправляются
+
+StGetTask(id TaskID) Task
+
+StAnswerTask(id TaskID, task Task) bool
+
+StRegister(passw string)
+меняет пароль, токен не изменяется
+
+NewStudent(name string) (UserID, InviteLink)
+
+RenewStudent(uid UserID)
+
+AssignTest(student UserID, test TestID)
+
+TestPool() map[TestID][]TaskID
+
+SendTask(id TaskID, task Task)
+
+NewTest(tasks []TaskID) TestID
+
+RenewTest(id TestID, new []TaskID) (old []TaskID)
+
+
