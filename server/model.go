@@ -21,7 +21,7 @@ type Player struct {
 	Role int
 }
 
-// NilPlayer returns non-existing player.
+// NilPlayer returns a non-existing player.
 // UserID 0 doesn't mean that player does not exist.
 func NilPlayer() Player {
 	return Player{UserID: 0, Role: -1}
@@ -38,6 +38,11 @@ var Last struct {
 type TokenStore struct {
 	sync.Mutex
 	Map map[uint64]Player
+}
+
+// NewTokenStore creates a new token storage
+func NewTokenStore() *TokenStore {
+	return &TokenStore{Mutex: sync.Mutex{}, Map: make(map[uint64]Player)}
 }
 
 // GetAuth is a concurrent-safe access to AuthStore

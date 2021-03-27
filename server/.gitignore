@@ -2,3 +2,4 @@ vendor
 *.log
 go.sum
 *.go.
+server
