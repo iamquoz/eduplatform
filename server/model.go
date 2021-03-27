@@ -56,6 +56,13 @@ func (a *TokenStore) GetAuth(k uint64) (p Player) {
 	return
 }
 
+// RejectToken removes token from store and invalidates authentication
+func (a *TokenStore) RejectToken(token uint64) {
+	a.Lock()
+	delete(a.Map, token)
+	a.Unlock()
+}
+
 // MakeToken creates a token for a sucsessfully authorized user.
 // Authorizations are checked somewhere else.
 // It's possible to have multiple tokens for one user.

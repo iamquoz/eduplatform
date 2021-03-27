@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func (p *Player) Flop(w http.ResponseWriter, r *http.Request) {
@@ -10,6 +11,12 @@ func (p *Player) Flop(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (p *Player) Logout(w http.ResponseWriter, r *http.Request) {
+	c, _ := r.Cookie("token")                  // err is irrelevant there
+	t, _ := strconv.ParseUint(c.Value, 16, 64) // here too
+	ts.RejectToken(t)
 }
 
 /*

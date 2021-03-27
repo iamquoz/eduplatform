@@ -4,6 +4,7 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -35,6 +36,7 @@ func makeAuth(r *http.Request) (Player, int) {
 }
 
 func init() {
+	rand.Seed(time.Now().Unix())
 	ts = NewTokenStore()
 	// init db connection
 	var err error
@@ -70,6 +72,7 @@ func init() {
 			// else only teacher can call it
 			if player.Role > 0 && !strings.HasPrefix(m.Name, "St") {
 				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized for use"))
 				return
 			}
 			wval := reflect.ValueOf(w)
@@ -106,7 +109,7 @@ func main() {
 		// You'll regret this.
 		uid := UserID(id)
 
-		row := dbconn.QueryRow("select hash, Role from Logins where Id = $1;", uid)
+		row := dbconn.QueryRow("select hash, role from Logins where id = $1;", uid)
 		var rpassw int32
 		var role int
 		err = row.Scan(&rpassw, &role)
