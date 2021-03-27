@@ -66,8 +66,10 @@ func init() {
 			player, code := makeAuth(r)
 			if code != http.StatusOK {
 				w.WriteHeader(code)
+				w.Write([]byte(fmt.Sprintln(code)))
 				return
 			}
+			fmt.Println(m.Name, "by", player)
 			// if method's name begins with the "St" -- it is a student's method
 			// else only teacher can call it
 			if player.Role > 0 && !strings.HasPrefix(m.Name, "St") {

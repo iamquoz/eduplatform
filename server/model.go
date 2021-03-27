@@ -48,11 +48,11 @@ func NewTokenStore() *TokenStore {
 // GetAuth is a concurrent-safe access to AuthStore
 func (a *TokenStore) GetAuth(k uint64) (p Player) {
 	a.Lock()
+	defer a.Unlock()
 	p, ok := a.Map[k]
 	if !ok {
 		return NilPlayer()
 	}
-	a.Unlock()
 	return
 }
 

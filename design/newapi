@@ -15,24 +15,38 @@ StGetTest(id TestID) []TaskID
 бо всё равно ответы не отправляются
 
 StGetTask(id TaskID) Task
+получить задание по идентификатору
 
 StAnswerTask(id TaskID, task Task) bool
+отправить ответ на задание
 
-StRegister(passw string)
+StRegister(string)
 меняет пароль, токен не изменяется
 
-NewStudent(name string) (UserID, InviteLink)
+NewStudent(Name string) (UserID)
+создаёт нового студента
 
-RenewStudent(uid UserID)
+RenewStudent(UserID)
+сбрасывает пароль студента
 
-AssignTest(student UserID, test TestID)
+AssignTest(UserID, TestID)
+добавляет тест студенту
 
 TestPool() map[TestID][]TaskID
+возвращает список доступных тестов
 
-SendTask(id TaskID, task Task)
+UploadTask(TaskID, Task)
+загружает на сервер задание
 
-NewTest(tasks []TaskID) TestID
+NewTest(Tasks []TaskID) TestID
+создаёт новый тест из заданий типа
 
-RenewTest(id TestID, new []TaskID) (old []TaskID)
+RenewTest(TestID, Tasks []TaskID) (old []TaskID)
+обновляет тест новыми заданиями, старые возвращаются
+
+GetStudents() map[UserID]string
+возвращает список всех студентов
+
+
 
 

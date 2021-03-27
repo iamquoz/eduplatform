@@ -19,7 +19,7 @@ func (p *Player) Flop(w http.ResponseWriter, r *http.Request) {
 // StLogout is a deauth method
 func (p *Player) StLogout(w http.ResponseWriter, r *http.Request) {
 	c, _ := r.Cookie("token")                  // err is irrelevant there
-	t, _ := strconv.ParseUint(c.Value, 16, 64) // here too
+	t, _ := strconv.ParseUint(c.Value, 16, 64) // here's too
 	ts.RejectToken(t)
 }
 
