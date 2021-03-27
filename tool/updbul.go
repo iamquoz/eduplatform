@@ -15,10 +15,10 @@ func main() {
 	n, _ := os.Stdin.Read(passw)
 	passw = passw[0:n]
 	hashs := hasher.Sum(passw)
-	hash := uint64(hashs[1]) |
-		uint64(hashs[2])<<8 |
-		uint64(hashs[3])<<16 |
-		uint64(hashs[4])<<24
+	hash := int32(hashs[1]) |
+		int32(hashs[2])<<8 |
+		int32(hashs[3])<<16 |
+		int32(hashs[4])<<24
 	conn, err := pgx.Connect(context.Background(), "postgres://localhost:5432/postgres")
 	if err != nil {
 		panic(err)
