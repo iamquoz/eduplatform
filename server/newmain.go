@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx"
@@ -38,8 +39,9 @@ func init() {
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
 		ConnConfig: pgx.ConnConfig{
-			Host: "localhost",
-			Port: 5432,
+			Database: "postgres",
+			Host:     "localhost",
+			Port:     5432,
 		},
 		AcquireTimeout: 120 * time.Second,
 	})
@@ -58,6 +60,12 @@ func init() {
 				w.WriteHeader(code)
 				return
 			}
+			// if method's name begins with the "St" -- it is a student's method
+			// else only teacher can call it
+			if player.Role > 0 && !strings.HasPrefix(m.Name, "St") {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
 			wval := reflect.ValueOf(w)
 			rval := reflect.ValueOf(r)
 			args := []reflect.Value{wval, rval}
@@ -70,7 +78,7 @@ func init() {
 
 func main() {
 	var hasher = sha512.New()
-	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/Authorize", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		id, err := strconv.ParseUint(q.Get("id"), 10, 64)
 		if err != nil {
@@ -92,13 +100,14 @@ func main() {
 		// You'll regret this.
 		uid := UserID(id)
 
-		row := dbconn.QueryRow("select Passw, Role from UserIndex where ID = $1;", uid)
+		row := dbconn.QueryRow("select passw, Role from Logins where ID = $1;", uid)
 		var rpassw uint64
 		var role int
 		row.Scan(rpassw, role)
 
 		if rpassw == hash {
-			ts.MakeToken(uid, role)
+			tok := ts.MakeToken(uid, role)
+			w.Header().Add("token", strconv.FormatUint(tok, 16))
 		} else {
 			w.WriteHeader(403)
 			w.Write([]byte("Incorrect credentials"))
@@ -108,4 +117,5 @@ func main() {
 	for k, v := range methods {
 		http.HandleFunc(k, v)
 	}
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
