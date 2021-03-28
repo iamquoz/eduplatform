@@ -8,6 +8,14 @@ import (
 // UserID is used to discriminate users in database
 type UserID int32
 
+// String is a wrapper over regular string for use as an anonymous field from method argument
+// because `reflect` doesn't provide a way to get method names
+type String string
+
+type TaskIDArray []TaskID
+
+type Int int
+
 // Roles of users
 const (
 	RoleTeacher = iota
@@ -18,13 +26,14 @@ const (
 // Player is a user with its role
 type Player struct {
 	UserID
-	Role int
+	Role  int
+	Token uint64
 }
 
 // NilPlayer returns a non-existing player.
 // UserID 0 doesn't mean that player does not exist.
 func NilPlayer() Player {
-	return Player{UserID: 0, Role: -1}
+	return Player{UserID: 0, Role: -1, Token: 0}
 }
 
 // Last contains recently added ID values
@@ -75,7 +84,7 @@ again:
 	if k {
 		goto again
 	} else {
-		a.Map[token] = Player{u, role}
+		a.Map[token] = Player{u, role, token}
 	}
 
 	return token
