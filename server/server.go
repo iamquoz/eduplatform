@@ -42,7 +42,7 @@ func sesh(passw string) int32 {
 	return hash
 }
 
-func errThenBreak(err error, w http.ResponseWriter, code int) bool {
+func errThenWrite(err error, w http.ResponseWriter, code int) bool {
 	if err != nil {
 		w.WriteHeader(code)
 		w.Write([]byte(err.Error()))
@@ -64,21 +64,51 @@ func (p *Player) NewStudent(w http.ResponseWriter, r *http.Request) {
 	je := json.NewEncoder(w)
 
 	err := jd.Decode(&input)
-	if errThenBreak(err, w, 400) {
+	if errThenWrite(err, w, 400) {
 		return
 	}
 	uid, err := maxid()
-	if errThenBreak(err, w, 503) { // horrible style, but -1 line in every error handler!!!!
+	if errThenWrite(err, w, 503) { // horrible style, but -1 line in every error handler!!!!
 		return
 	}
 	query := `insert into logins (id, hash, names, role) values ($1, $2, $3, 1)`
 	_, err = dbconn.Exec(query, uid+1, sesh(""), input.Name)
-	if errThenBreak(err, w, 503) {
+	if errThenWrite(err, w, 503) {
 		return
 	}
 	w.WriteHeader(200)
 	err = je.Encode(&output)
-	errThenBreak(err, w, 503)
+	if errThenWrite(err, w, 503) {
+		return
+	}
+}
+
+func (p *Player) NewTest(w http.ResponseWriter, r *http.Request) {
+	var err error
+	var input struct {
+		Tasks []TaskID
+		Name  string
+	}
+	var output struct {
+		TestID
+	}
+	jd := json.NewDecoder(r.Body)
+	je := json.NewEncoder(w)
+	err = jd.Decode(&input)
+	if errThenWrite(err, w, 400) {
+		return
+	}
+	output.TestID = tes.Compose(input.Tasks)
+	_, err = dbconn.Exec(`insert into tests (id, name) values $1, $2`,
+		output.TestID, input.Name)
+	if errThenWrite(err, w, 503) {
+		return
+	}
+	w.WriteHeader(200)
+	err = je.Encode(&output)
+	if errThenWrite(err, w, 503) {
+		return
+	}
 }
 
 //*/

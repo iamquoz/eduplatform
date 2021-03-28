@@ -38,11 +38,12 @@ TestPool() map[TestID][]TaskID
 UploadTask(TaskID, Task)
 загружает на сервер задание
 
-NewTest(Tasks []TaskID) TestID
+NewTest(Tasks []TaskID, Name string) TestID
 создаёт новый тест из заданий типа
 
-RenewTest(TestID, Tasks []TaskID) (old []TaskID)
+RenewTest(TestID, Tasks []TaskID, Name string) (old []TaskID)
 обновляет тест новыми заданиями, старые возвращаются
+если имя -- пустая строчка, то название не меняется
 
 GetStudents() map[UserID]string
 возвращает список всех студентов

@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -17,7 +18,13 @@ import (
 var methods map[string]http.HandlerFunc
 
 var ts *TokenStore
+var tes *TestStore
 var dbconn *pgx.ConnPool
+
+const (
+	dumppath string = "dump.json"
+	taskpath string = "tasks/"
+)
 
 func makeAuth(r *http.Request) (Player, int) {
 	t, err := r.Cookie("token")
@@ -36,10 +43,19 @@ func makeAuth(r *http.Request) (Player, int) {
 }
 
 func init() {
+	var err error
 	rand.Seed(time.Now().Unix())
 	ts = NewTokenStore()
+	tes = NewTestStore(taskpath, dumppath)
+	// init teststore
+	err = tes.Load()
+	switch err.(type) {
+	case *os.PathError:
+		// err here means that it was never dumped to this point, so ignore it
+	default:
+		log.Fatal(err)
+	}
 	// init db connection
-	var err error
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
 		ConnConfig: pgx.ConnConfig{
@@ -85,6 +101,13 @@ func init() {
 			// upd: it can, but this approach would be very dissatisfying to write and debug
 		}
 	}
+	// check for dirtiness of teststore every minute, dump if necessary
+	go func() {
+		for {
+			time.Sleep(60 * time.Second)
+			tes.Dump()
+		}
+	}()
 }
 
 func main() {

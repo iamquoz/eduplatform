@@ -8,13 +8,6 @@ import (
 	"sync"
 )
 
-const (
-	// TestStoreDumpPath is a path to cold storage
-	TestStoreDumpPath string = "dump.json"
-	// TaskJSONLoadPath is a path to individual task data
-	TaskJSONLoadPath string = "tasks/"
-)
-
 // Test is a collection of tasks
 type Test []Task
 
@@ -33,26 +26,34 @@ type Task struct {
 // TaskID is used as an identitier in DB
 type TaskID int32
 
-// TestStore is a user storage of tests
+// TestStore is a storage of tests and assignments
 type TestStore struct {
 	sync.Mutex
-	Assigns map[UserID][]TestID
-	Tests   map[TestID][]TaskID
+	Given        map[UserID][]TestID
+	Tests        map[TestID][]TaskID
+	LatestTestID TestID
+	taskpath     string
+	dumppath     string
+	dirty        bool
 }
 
 // NewTestStore creates a new TestStore object
-func NewTestStore() *TestStore {
+func NewTestStore(taskpath string, dumppath string) *TestStore {
 	return &TestStore{
-		Assigns: make(map[UserID][]TestID),
-		Tests:   make(map[TestID][]TaskID),
+		Given:        make(map[UserID][]TestID),
+		Tests:        make(map[TestID][]TaskID),
+		LatestTestID: 0,
+		taskpath:     taskpath,
+		dumppath:     dumppath,
+		dirty:        false,
 	}
 }
 
-// Dump dumps map data to known location
+// Dump dumps data to the aforementioned location
 func (t *TestStore) Dump() error {
 	t.Lock()
 	defer t.Unlock()
-	file, err := os.Open(TestStoreDumpPath)
+	file, err := os.Open(t.dumppath)
 	if err != nil {
 		return err
 	}
@@ -68,7 +69,7 @@ func (t *TestStore) Dump() error {
 func (t *TestStore) Load() error {
 	t.Lock()
 	defer t.Unlock()
-	file, err := os.Open(TestStoreDumpPath)
+	file, err := os.Open(t.dumppath)
 	if err != nil {
 		return err
 	}
@@ -84,25 +85,38 @@ func (t *TestStore) Load() error {
 func (t *TestStore) Give(id UserID, new []TestID) (old []TestID) {
 	t.Lock()
 	defer t.Unlock()
-	old = t.Assigns[id]
-	t.Assigns[id] = new
+	old = t.Given[id]
+	t.Given[id] = new
 	return
 }
 
+// Compose adds test to the store
 func (t *TestStore) Compose(tasks []TaskID) TestID {
 	t.Lock()
 	defer t.Unlock()
-
-	
+	tid := t.LatestTestID
+	t.LatestTestID++
+	t.Tests[tid] = tasks
+	return tid
 }
 
-func (t *TestStore) Recompose(tid TestID, new []TaskID) []TaskID {
-
+// Manipulate is a swiss army knife for editing tests.
+// It replaces already created test with new.
+// If new is nil it only returns test value and current last tid.
+// It is is possible to create a test with custom TestID with this method.
+func (t *TestStore) Manipulate(tid TestID, new []TaskID) (TestID, []TaskID) {
+	t.Lock()
+	defer t.Unlock()
+	old, _ := t.Tests[tid]
+	if new != nil {
+		t.Tests[tid] = new
+	}
+	return t.LatestTestID, old
 }
 
-// Loads task by ID from file in location set by TaskJSONLoadPath
-func taskjson(tid TaskID) []byte {
-	f, err := os.Open(TaskJSONLoadPath + fmt.Sprint(tid))
+// ReadTask loads task by ID from file in location set on init
+func (t *TestStore) ReadTask(tid TaskID) []byte {
+	f, err := os.Open(t.taskpath + fmt.Sprint(tid))
 	if err != nil {
 		log.Print(err)
 		return nil
@@ -115,4 +129,21 @@ func taskjson(tid TaskID) []byte {
 		return nil
 	}
 	return buf
+}
+
+// WriteTask writes task to file on location
+func (t *TestStore) WriteTask(data []byte, tid TaskID) bool {
+	t.Lock()
+	defer t.Unlock()
+	f, err := os.Create(t.taskpath + fmt.Sprint(tid))
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	_, err = f.Write(data)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	return true
 }
