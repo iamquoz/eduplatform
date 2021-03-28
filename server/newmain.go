@@ -148,7 +148,7 @@ func init() {
 			err = jd.Decode(is.Interface())
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte(err.Error()))
+				w.Write([]byte(fmt.Sprint(http.StatusBadRequest, " ") + err.Error()))
 				log.Println(err)
 				return
 			}

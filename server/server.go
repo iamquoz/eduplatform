@@ -10,6 +10,7 @@ func (p *Player) Flop() String {
 	return "i'am wanted for war crimes in uganda"
 }
 
+// Echo is an another test method, it echoes with a sum of an input number and 2
 func (p *Player) Echo(i Int) Int {
 	return i + 2
 }
