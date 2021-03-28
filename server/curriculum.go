@@ -94,6 +94,7 @@ func (t *TestStore) Give(id UserID, new []TestID) (old []TestID) {
 func (t *TestStore) Compose(tasks []TaskID) TestID {
 	t.Lock()
 	defer t.Unlock()
+	t.dirty = true
 	tid := t.LatestTestID
 	t.LatestTestID++
 	t.Tests[tid] = tasks
@@ -107,6 +108,7 @@ func (t *TestStore) Compose(tasks []TaskID) TestID {
 func (t *TestStore) Manipulate(tid TestID, new []TaskID) (TestID, []TaskID) {
 	t.Lock()
 	defer t.Unlock()
+	t.dirty = true
 	old, _ := t.Tests[tid]
 	if new != nil {
 		t.Tests[tid] = new

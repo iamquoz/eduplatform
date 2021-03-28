@@ -80,7 +80,6 @@ func shrinkstruct(args []reflect.Value) reflect.Value {
 	}
 	v := reflect.New(reflect.StructOf(fields))
 	for i := 0; i < n; i++ {
-		//println(v.Field(i).Elem().String())
 		v.Elem().Field(i).Set(args[i])
 	}
 	return v
@@ -148,7 +147,7 @@ func init() {
 			err = jd.Decode(is.Interface())
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte(fmt.Sprint(http.StatusBadRequest, " ") + err.Error()))
+				w.Write([]byte(err.Error()))
 				log.Println(err)
 				return
 			}
@@ -165,13 +164,17 @@ func init() {
 			// it's sad that json.Unmarshall can't work on reflect.Value types
 			// upd: it can, but this approach would be very dissatisfying to write and debug
 			// upd2: so i did it anyway. i bet i can't bring it to life
+			// upd3: i did it.
 		}
 	}
 	// check for dirtiness of teststore every minute, dump if necessary
 	go func() {
 		for {
 			time.Sleep(60 * time.Second)
-			tes.Dump()
+			if tes.dirty {
+				tes.Dump()
+				tes.dirty = false
+			}
 		}
 	}()
 }
