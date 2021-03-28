@@ -1,29 +1,32 @@
 Flop() string
 тестовый метод
 
+Echo(Int) Int
+Тестовый метод (еще один)
+
 StLogout()
 деаутентифицирует пользователя
 
-StAvailTests() []TestID
+StAvailTests() TestIDArray
 сервер сам ведет учёт выданных тестов
 при попытке получить невыданный тест, возвращается 403
 
-StGetTest(id TestID) []TaskID
+StGetTest(TestID) TaskIDArray
 Точно так же пользователю будут доступны только taskid выданных
 тестов
 но это потом, а в прототипе похуй
 бо всё равно ответы не отправляются
 
-StGetTask(id TaskID) Task
+StGetTask(TaskID) Task
 получить задание по идентификатору
 
-StAnswerTask(id TaskID, task Task) bool
+StAnswerTask(TaskID, Task) bool
 отправить ответ на задание
 
-StRegister(string)
+StRegister(String)
 меняет пароль, токен не изменяется
 
-NewStudent(Name string) (UserID)
+NewStudent(String) UserID
 создаёт нового студента
 
 RenewStudent(UserID)
@@ -32,20 +35,20 @@ RenewStudent(UserID)
 AssignTest(UserID, TestID)
 добавляет тест студенту
 
-TestPool() map[TestID][]TaskID
+TestPool() MapTestIDTaskIDArray
 возвращает список доступных тестов
 
 UploadTask(TaskID, Task)
 загружает на сервер задание
 
-NewTest(Tasks []TaskID, Name string) TestID
+NewTest(TaskIDArray, String) TestID
 создаёт новый тест из заданий типа
 
-RenewTest(TestID, Tasks []TaskID, Name string) (old []TaskID)
+RenewTest(TestID, TaskIDArray, String) TaskIDArray
 обновляет тест новыми заданиями, старые возвращаются
 если имя -- пустая строчка, то название не меняется
 
-GetStudents() map[UserID]string
+GetStudents() MapUserIDString
 возвращает список всех студентов
 
 
