@@ -6,7 +6,7 @@ import (
 )
 
 // UserID is used to discriminate users in database
-type UserID uint
+type UserID int32
 
 // Roles of users
 const (

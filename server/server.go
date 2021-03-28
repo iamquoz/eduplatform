@@ -42,10 +42,14 @@ func sesh(passw string) int32 {
 	return hash
 }
 
-func err503(err error, w http.ResponseWriter) {
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("oopsie"))
-	log.Println(err)
+func errThenBreak(err error, w http.ResponseWriter, code int) bool {
+	if err != nil {
+		w.WriteHeader(code)
+		w.Write([]byte(err.Error()))
+		log.Println(err)
+		return true
+	}
+	return false
 }
 
 // NewStudent creates a new student account with empty password
@@ -56,32 +60,25 @@ func (p *Player) NewStudent(w http.ResponseWriter, r *http.Request) {
 	var output struct {
 		UserID
 	}
-	buf := make([]byte, 512)
-	r.Body.Read(buf)
-	err := json.Unmarshal(buf, &input)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+	jd := json.NewDecoder(r.Body)
+	je := json.NewEncoder(w)
+
+	err := jd.Decode(&input)
+	if errThenBreak(err, w, 400) {
 		return
 	}
 	uid, err := maxid()
-	if err != nil {
-		err503(err, w)
+	if errThenBreak(err, w, 503) { // horrible style, but -1 line in every error handler!!!!
 		return
 	}
 	query := `insert into logins (id, hash, names, role) values ($1, $2, $3, 1)`
 	_, err = dbconn.Exec(query, uid+1, sesh(""), input.Name)
-	if err != nil {
-		err503(err, w)
+	if errThenBreak(err, w, 503) {
 		return
 	}
-	m, _ := json.Marshal(&output)
 	w.WriteHeader(200)
-	w.Write(m)
-}
-
-func (p *Player) StGetTest(w http.ResponseWriter, r *http.Request) {
-
+	err = je.Encode(&output)
+	errThenBreak(err, w, 503)
 }
 
 //*/
