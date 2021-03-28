@@ -2,25 +2,21 @@ package main
 
 import (
 	"crypto/sha512"
-	"encoding/json"
 	"log"
-	"net/http"
-	"strconv"
 )
 
 // Flop is a test method, it returns a string to check that server is working correctly
-func (p *Player) Flop(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("i'am wanted for war crimes in uganda"))
-	if err != nil {
-		log.Fatal(err)
-	}
+func (p *Player) Flop() String {
+	return "i'am wanted for war crimes in uganda"
+}
+
+func (p *Player) Echo(i Int) Int {
+	return i + 2
 }
 
 // StLogout is a deauth method
-func (p *Player) StLogout(w http.ResponseWriter, r *http.Request) {
-	c, _ := r.Cookie("token")                  // err is irrelevant there
-	t, _ := strconv.ParseUint(c.Value, 16, 64) // here's too
-	ts.RejectToken(t)
+func (p *Player) StLogout() {
+	ts.RejectToken(p.Token)
 }
 
 func maxid() (u UserID, err error) {
@@ -42,73 +38,22 @@ func sesh(passw string) int32 {
 	return hash
 }
 
-func errThenWrite(err error, w http.ResponseWriter, code int) bool {
-	if err != nil {
-		w.WriteHeader(code)
-		w.Write([]byte(err.Error()))
-		log.Println(err)
-		return true
-	}
-	return false
-}
-
 // NewStudent creates a new student account with empty password
-func (p *Player) NewStudent(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Name string
-	}
-	var output struct {
-		UserID
-	}
-	jd := json.NewDecoder(r.Body)
-	je := json.NewEncoder(w)
-
-	err := jd.Decode(&input)
-	if errThenWrite(err, w, 400) {
-		return
-	}
-	uid, err := maxid()
-	if errThenWrite(err, w, 503) { // horrible style, but -1 line in every error handler!!!!
-		return
-	}
+func (p *Player) NewStudent(name String, uid UserID) {
 	query := `insert into logins (id, hash, names, role) values ($1, $2, $3, 1)`
-	_, err = dbconn.Exec(query, uid+1, sesh(""), input.Name)
-	if errThenWrite(err, w, 503) {
-		return
-	}
-	w.WriteHeader(200)
-	err = je.Encode(&output)
-	if errThenWrite(err, w, 503) {
-		return
+	_, err := dbconn.Exec(query, uid+1, sesh(""), name)
+	if err != nil {
+		log.Print(err)
 	}
 }
 
-func (p *Player) NewTest(w http.ResponseWriter, r *http.Request) {
-	var err error
-	var input struct {
-		Tasks []TaskID
-		Name  string
+func (p *Player) NewTest(tasks TaskIDArray, name String) TestID {
+	tid := tes.Compose(tasks)
+	_, err := dbconn.Exec(`insert into tests (id, name) values $1, $2`, tid, name)
+	if err != nil {
+		log.Print(err)
 	}
-	var output struct {
-		TestID
-	}
-	jd := json.NewDecoder(r.Body)
-	je := json.NewEncoder(w)
-	err = jd.Decode(&input)
-	if errThenWrite(err, w, 400) {
-		return
-	}
-	output.TestID = tes.Compose(input.Tasks)
-	_, err = dbconn.Exec(`insert into tests (id, name) values $1, $2`,
-		output.TestID, input.Name)
-	if errThenWrite(err, w, 503) {
-		return
-	}
-	w.WriteHeader(200)
-	err = je.Encode(&output)
-	if errThenWrite(err, w, 503) {
-		return
-	}
+	return tid
 }
 
 //*/

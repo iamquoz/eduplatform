@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha512"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -42,6 +43,49 @@ func makeAuth(r *http.Request) (Player, int) {
 	return player, http.StatusOK
 }
 
+func structsynth(m reflect.Method) (in reflect.Type) {
+	n := m.Type.NumIn()
+	fields := make([]reflect.StructField, n-1)
+	for i := 1; i < n; i++ {
+		fields[i-1] = reflect.StructField{
+			Type:      m.Type.In(i),
+			Name:      m.Type.In(i).Name(),
+			Anonymous: true,
+		}
+	}
+	in = reflect.StructOf(fields)
+	// json.Unmarshall will correctly generate all maps and slices
+	// thanks to it for that
+	return
+}
+
+func explodestruct(v reflect.Value) (args []reflect.Value) {
+	n := v.NumField()
+	args = make([]reflect.Value, n)
+	for i := 0; i < n; i++ {
+		args[i] = v.Field(i)
+	}
+	return args
+}
+
+func shrinkstruct(args []reflect.Value) reflect.Value {
+	n := len(args)
+	fields := make([]reflect.StructField, n)
+	for i := 0; i < n; i++ {
+		fields[i] = reflect.StructField{
+			Anonymous: true,
+			Type:      args[i].Type(),
+			Name:      args[i].Type().Name(),
+		}
+	}
+	v := reflect.New(reflect.StructOf(fields))
+	for i := 0; i < n; i++ {
+		//println(v.Field(i).Elem().String())
+		v.Elem().Field(i).Set(args[i])
+	}
+	return v
+}
+
 func init() {
 	var err error
 	rand.Seed(time.Now().Unix())
@@ -76,8 +120,11 @@ func init() {
 		// thank you, fucking closures
 		ui := i
 		m := reflect.TypeOf(&Player{}).Method(ui)
+		intyp := structsynth(m)
+		println(m.Type.In(0).String())
 		println(m.Name, ui)
 		methods[m.Name] = func(w http.ResponseWriter, r *http.Request) {
+			var err error
 			// we'll definetly get a performance loss there but who cares?
 			player, code := makeAuth(r)
 			if code != http.StatusOK {
@@ -93,12 +140,31 @@ func init() {
 				w.Write([]byte("No"))
 				return
 			}
-			wval := reflect.ValueOf(w)
-			rval := reflect.ValueOf(r)
-			args := []reflect.Value{wval, rval}
-			reflect.ValueOf(&player).Method(ui).Call(args)
+
+			jd := json.NewDecoder(r.Body)
+			je := json.NewEncoder(w)
+
+			is := reflect.New(intyp)
+			err = jd.Decode(is.Interface())
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(err.Error()))
+				log.Println(err)
+				return
+			}
+			in := explodestruct(is.Elem())
+			out := reflect.ValueOf(&player).Method(ui).Call(in)
+			os := shrinkstruct(out)
+			err = je.Encode(os.Interface())
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				log.Println(err)
+				return
+			}
 			// it's sad that json.Unmarshall can't work on reflect.Value types
 			// upd: it can, but this approach would be very dissatisfying to write and debug
+			// upd2: so i did it anyway. i bet i can't bring it to life
 		}
 	}
 	// check for dirtiness of teststore every minute, dump if necessary
