@@ -10,14 +10,34 @@ func (p *Player) Flop() String {
 	return "i'am wanted for war crimes in uganda"
 }
 
-// Echo is an another test method, it echoes with a sum of an input number and 2
+// Echo is an another test method, it adds 1 to the input and returns it
 func (p *Player) Echo(i Int) Int {
-	return i + 2
+	return i + 1
 }
 
 // StLogout is a deauth method
 func (p *Player) StLogout() {
 	ts.RejectToken(p.Token)
+}
+
+func (p *Player) StGetTest(id TestID) TaskIDArray {
+	a, ok := tes.Given[p.UserID]
+	if !ok {
+		return nil
+	}
+	found := false
+	for _, e := range a {
+		found = e == id
+	}
+	if !found {
+		return nil
+	}
+	_, tia := tes.Manipulate(id, nil)
+	return tia
+}
+
+func (p *Player) StGetTask(id TaskID) Task {
+	return *tes.ReadTask(id)
 }
 
 func maxid() (u UserID, err error) {
@@ -55,6 +75,10 @@ func (p *Player) NewTest(tasks TaskIDArray, name String) TestID {
 		log.Print(err)
 	}
 	return tid
+}
+
+func (p *Player) TestPool() MapTestIDTaskIDArray {
+	return tes.Tests
 }
 
 //*/

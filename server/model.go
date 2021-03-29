@@ -8,13 +8,18 @@ import (
 // UserID is used to discriminate users in database
 type UserID int32
 
-// String is a wrapper over regular string for use as an anonymous field from method argument
-// because `reflect` doesn't provide a way to get method names
-type String string
-
-type TaskIDArray []TaskID
-
-type Int int
+type (
+	// String is a wrapper over regular string for use as an anonymous field from method argument
+	// because `reflect` doesn't provide a way to get method names
+	String string
+	// TaskIDArray is the synonym of []TaskID for automatic function argument marshalling purposes
+	TaskIDArray          []TaskID
+	TestIDArray          []TestID
+	MapUserIDString      map[UserID]string
+	MapTestIDTaskIDArray map[TestID][]TaskID
+	// Int is a marshalled int
+	Int int
+)
 
 // Roles of users
 const (

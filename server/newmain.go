@@ -48,9 +48,8 @@ func structsynth(m reflect.Method) (in reflect.Type) {
 	fields := make([]reflect.StructField, n-1)
 	for i := 1; i < n; i++ {
 		fields[i-1] = reflect.StructField{
-			Type:      m.Type.In(i),
-			Name:      m.Type.In(i).Name(),
-			Anonymous: true,
+			Type: m.Type.In(i),
+			Name: m.Type.In(i).Name(),
 		}
 	}
 	in = reflect.StructOf(fields)
@@ -73,9 +72,8 @@ func shrinkstruct(args []reflect.Value) reflect.Value {
 	fields := make([]reflect.StructField, n)
 	for i := 0; i < n; i++ {
 		fields[i] = reflect.StructField{
-			Anonymous: true,
-			Type:      args[i].Type(),
-			Name:      args[i].Type().Name(),
+			Type: args[i].Type(),
+			Name: args[i].Type().Name(),
 		}
 	}
 	v := reflect.New(reflect.StructOf(fields))
@@ -225,4 +223,6 @@ func main() {
 		http.HandleFunc("/"+k, v)
 	}
 	log.Fatal(http.ListenAndServe(":8080", nil))
+	// on exit
+	tes.Dump()
 }

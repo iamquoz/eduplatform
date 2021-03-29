@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,11 +17,11 @@ type TestID int32
 
 // Task is a test task
 type Task struct {
-	IsOpen     bool     `json:"isOpen"`
-	Difficulty uint     `json:"difficulty"`
-	Question   string   `json:"text"`
-	Variants   []string `json:"variants"`
-	Correct    string   `json:"answer"`
+	IsOpen     bool
+	Difficulty uint
+	Question   string
+	Variants   []string
+	Correct    string
 }
 
 // TaskID is used as an identitier in DB
@@ -117,32 +118,36 @@ func (t *TestStore) Manipulate(tid TestID, new []TaskID) (TestID, []TaskID) {
 }
 
 // ReadTask loads task by ID from file in location set on init
-func (t *TestStore) ReadTask(tid TaskID) []byte {
+func (t *TestStore) ReadTask(tid TaskID) *Task {
+	tk := new(Task)
 	f, err := os.Open(t.taskpath + fmt.Sprint(tid))
 	if err != nil {
 		log.Print(err)
 		return nil
 	}
-	fs, _ := f.Stat()
-	buf := make([]byte, fs.Size())
-	_, err = f.Read(buf)
+	gd := gob.NewDecoder(f)
+	err = gd.Decode(tk)
 	if err != nil {
 		log.Print(err)
 		return nil
 	}
-	return buf
+	return tk
 }
 
+// fs access mutex
+var fsmu sync.Mutex
+
 // WriteTask writes task to file on location
-func (t *TestStore) WriteTask(data []byte, tid TaskID) bool {
-	t.Lock()
-	defer t.Unlock()
+func (t *TestStore) WriteTask(tk *Task, tid TaskID) bool {
+	fsmu.Lock() // don't block map on fs access
+	defer fsmu.Unlock()
 	f, err := os.Create(t.taskpath + fmt.Sprint(tid))
 	if err != nil {
 		log.Print(err)
 		return false
 	}
-	_, err = f.Write(data)
+	ge := gob.NewEncoder(f)
+	err = ge.Encode(tk)
 	if err != nil {
 		log.Print(err)
 		return false
