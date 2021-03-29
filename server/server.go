@@ -20,11 +20,10 @@ func (p *Player) StLogout() {
 	ts.RejectToken(p.Token)
 }
 
+// StGetTest returns taskids assigned for a user.
+// Nil if task was not given to user or if testid does not exist.
 func (p *Player) StGetTest(id TestID) TaskIDArray {
-	a, ok := tes.Given[p.UserID]
-	if !ok {
-		return nil
-	}
+	a, _ := tes.Given[p.UserID]
 	found := false
 	for _, e := range a {
 		found = e == id
@@ -36,6 +35,8 @@ func (p *Player) StGetTest(id TestID) TaskIDArray {
 	return tia
 }
 
+// StGetTask returns a task by id. Any user can get any task, this is
+// not intentional. Probably needs to be fixed.
 func (p *Player) StGetTask(id TaskID) Task {
 	return *tes.ReadTask(id)
 }
@@ -59,7 +60,7 @@ func sesh(passw string) int32 {
 	return hash
 }
 
-// NewStudent creates a new student account with empty password
+// NewStudent creates a new student account with empty password.
 func (p *Player) NewStudent(name String, uid UserID) {
 	query := `insert into logins (id, hash, names, role) values ($1, $2, $3, 1)`
 	_, err := dbconn.Exec(query, uid+1, sesh(""), name)
@@ -68,6 +69,7 @@ func (p *Player) NewStudent(name String, uid UserID) {
 	}
 }
 
+// NewTest registers a new test from taskids.
 func (p *Player) NewTest(tasks TaskIDArray, name String) TestID {
 	tid := tes.Compose(tasks)
 	_, err := dbconn.Exec(`insert into tests (id, name) values $1, $2`, tid, name)
@@ -77,8 +79,18 @@ func (p *Player) NewTest(tasks TaskIDArray, name String) TestID {
 	return tid
 }
 
+// TestPool returns every existing testid.
 func (p *Player) TestPool() MapTestIDTaskIDArray {
 	return tes.Tests
+}
+
+// StRegister changes password for a user
+func (p *Player) StRegister(new String) {
+	query := `update logins set hash = $1 where id = $2`
+	_, err := dbconn.Exec(query, sesh(string(new)), p.UserID)
+	if err != nil {
+		log.Print(err)
+	}
 }
 
 //*/

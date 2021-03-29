@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"sync"
+	"time"
 )
 
 // UserID is used to discriminate users in database
@@ -21,18 +22,12 @@ type (
 	Int int
 )
 
-// Roles of users
-const (
-	RoleTeacher = iota
-	RoleStudent
-	RoleHeadman
-)
-
 // Player is a user with its role
 type Player struct {
 	UserID
-	Role  int
-	Token uint64
+	Role   int
+	Token  uint64
+	Tested time.Duration
 }
 
 // NilPlayer returns a non-existing player.
@@ -89,7 +84,7 @@ again:
 	if k {
 		goto again
 	} else {
-		a.Map[token] = Player{u, role, token}
+		a.Map[token] = Player{u, role, token, 0}
 	}
 
 	return token
