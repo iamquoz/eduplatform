@@ -27,18 +27,18 @@ const (
 	taskpath string = "tasks/"
 )
 
-func makeAuth(r *http.Request) (Player, int) {
+func makeAuth(r *http.Request) (*Player, int) {
 	t, err := r.Cookie("token")
 	if err != nil {
-		return NilPlayer(), http.StatusBadRequest
+		return nil, http.StatusBadRequest
 	}
 	k, err := strconv.ParseUint(t.Value, 16, 64)
 	if err != nil {
-		return NilPlayer(), http.StatusBadRequest
+		return nil, http.StatusBadRequest
 	}
 	player := ts.GetAuth(k)
-	if player == NilPlayer() {
-		return NilPlayer(), http.StatusUnauthorized
+	if player == nil {
+		return nil, http.StatusUnauthorized
 	}
 	return player, http.StatusOK
 }

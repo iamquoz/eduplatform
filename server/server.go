@@ -93,4 +93,22 @@ func (p *Player) StRegister(new String) {
 	}
 }
 
+// GetStudents returns a list of all students
+func (p *Player) GetStudents() MapUserIDString {
+	query := `select (id, names) from logins`
+	rows, err := dbconn.Query(query)
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	m := make(MapUserIDString)
+	for rows.Next() {
+		var uid UserID
+		var names string
+		rows.Scan(&uid, &names)
+		m[uid] = names
+	}
+	return m
+}
+
 //*/

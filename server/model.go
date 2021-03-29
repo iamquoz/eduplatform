@@ -46,21 +46,21 @@ var Last struct {
 // TODO maybe they're needed to be saved in some type of cold store? db?
 type TokenStore struct {
 	sync.Mutex
-	Map map[uint64]Player
+	Map map[uint64]*Player
 }
 
 // NewTokenStore creates a new token storage
 func NewTokenStore() *TokenStore {
-	return &TokenStore{Mutex: sync.Mutex{}, Map: make(map[uint64]Player)}
+	return &TokenStore{Mutex: sync.Mutex{}, Map: make(map[uint64]*Player)}
 }
 
 // GetAuth is a concurrent-safe access to AuthStore
-func (a *TokenStore) GetAuth(k uint64) (p Player) {
+func (a *TokenStore) GetAuth(k uint64) (p *Player) {
 	a.Lock()
 	defer a.Unlock()
 	p, ok := a.Map[k]
 	if !ok {
-		return NilPlayer()
+		return nil
 	}
 	return
 }
@@ -84,7 +84,7 @@ again:
 	if k {
 		goto again
 	} else {
-		a.Map[token] = Player{u, role, token, 0}
+		a.Map[token] = &Player{u, role, token, 0}
 	}
 
 	return token
