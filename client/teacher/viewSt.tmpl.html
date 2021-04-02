@@ -1,0 +1,19 @@
+<md-dialog style = "min-height: 45%;">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+            <h2 flex="flex">Информация о студенте {{stInfo.stName}}<div style="right: 0px;">Номер: {{stInfo.id}}</div></h2>
+      </div>
+    </md-toolbar>
+  <md-dialog-content>
+      
+  </md-dialog-content>
+<md-dialog-actions layout = "row" style="position: absolute; bottom:0; right: 0px;">
+      <span flex></span>
+        <md-button ng-click="closeDialog(0)">
+             ОК
+        </md-button>
+        <md-button ng-click = "closeDialog(1)">
+            Удалить пользователя
+        </md-button>
+</md-dialog-actions>
+</md-dialog>
