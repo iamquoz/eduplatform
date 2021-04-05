@@ -9,28 +9,11 @@ import (
 	"sync"
 )
 
-// Test is a collection of tasks
-type Test []Task
-
-// TestID is an identifier of a test. Teacher can give it to the student.
-type TestID int32
-
-// Task is a test task
-type Task struct {
-	IsOpen     bool
-	Difficulty uint
-	Question   string
-	Variants   []string
-	Correct    string
-}
-
-// TaskID is used as an identitier in DB
-type TaskID int32
-
 // TestStore is a storage of tests and assignments
 type TestStore struct {
 	sync.Mutex
 	Given        map[UserID][]TestID
+	GivenTheory  map[UserID][]TheoryID
 	Tests        map[TestID][]TaskID
 	LatestTestID TestID
 	taskpath     string

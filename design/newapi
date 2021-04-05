@@ -48,9 +48,7 @@ NewTest(TaskIDArray, String) TestID
 обновляет тест новыми заданиями, старые возвращаются
 если имя -- пустая строчка, то название не меняется
 
-GetStudents() MapUserIDString
+. GetStudents() MapUserIDString
 возвращает список всех студентов
-
-
 
 
