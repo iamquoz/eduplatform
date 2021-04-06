@@ -132,7 +132,6 @@ func init() {
 				w.Write([]byte(fmt.Sprintln(code)))
 				return
 			}
-			fmt.Println(m.Name, "by", player)
 			// if method's name begins with the "St" -- it is a student's method
 			// else only teacher can call it
 			if player.Role > 0 && !strings.HasPrefix(m.Name, "St") {
@@ -153,7 +152,6 @@ func init() {
 				return
 			}
 			in := explodestruct(is.Elem())
-			println(ui)
 			out := reflect.ValueOf(player).Method(ui).Call(in)
 			os := shrinkstruct(out)
 			err = je.Encode(os.Interface())
@@ -189,6 +187,34 @@ func init() {
 	}()
 }
 
+func console() {
+	fmt.Println("Type `exit` to safely shut the server down.")
+	for {
+		fmt.Print(">> ")
+		buf := make([]byte, 255)
+		n, _ := os.Stdin.Read(buf)
+		buf = buf[:n]
+		switch string(buf) {
+		case "auths\n":
+			fmt.Println(ts.Map)
+		case "exit\n":
+			shutdown <- struct{}{}
+			runtime.Goexit()
+		}
+	}
+}
+
+func killhandle() {
+	sig := make(chan os.Signal)
+	signal.Notify(sig, os.Interrupt)
+	select {
+	case <-sig:
+		shutdown <- struct{}{}
+	case <-shutdown:
+		// just exit
+	}
+}
+
 func main() {
 	var hasher = sha512.New()
 	http.HandleFunc("/Authorize", func(w http.ResponseWriter, r *http.Request) {
@@ -220,14 +246,16 @@ func main() {
 		if err != nil {
 			log.Print(err)
 		}
-		fmt.Println(uid, rpassw, hash, role)
+		fmt.Printf("uid %v has tried to authorize and ", uid)
 
 		if rpassw == hash {
 			tok := ts.MakeToken(uid, role)
 			w.Write([]byte(strconv.FormatUint(tok, 16)))
+			fmt.Println("succeeded")
 		} else {
 			w.WriteHeader(403)
 			w.Write([]byte("Incorrect credentials"))
+			fmt.Println("failed")
 			return
 		}
 	})
@@ -237,10 +265,6 @@ func main() {
 	go func() {
 		log.Fatal(http.ListenAndServe(":8080", nil))
 	}()
-	// on exit
-	sig := make(chan os.Signal)
-	signal.Notify(sig, os.Interrupt)
-	fmt.Println("Press ctrl+c to safely shut the server down.")
-	<-sig
-	shutdown <- struct{}{}
+	go console()
+	killhandle()
 }
