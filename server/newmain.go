@@ -153,7 +153,8 @@ func init() {
 				return
 			}
 			in := explodestruct(is.Elem())
-			out := reflect.ValueOf(&player).Method(ui).Call(in)
+			println(ui)
+			out := reflect.ValueOf(player).Method(ui).Call(in)
 			os := shrinkstruct(out)
 			err = je.Encode(os.Interface())
 			if err != nil {
