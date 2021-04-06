@@ -3,7 +3,7 @@ package main
 // TaskID is used as an identitier in DB
 type TaskID int32
 
-// Task is a test task
+// Task is a task of test
 type Task struct {
 	IsOpen     bool
 	Difficulty uint

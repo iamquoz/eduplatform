@@ -8,7 +8,9 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/signal"
 	"reflect"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -21,6 +23,7 @@ var methods map[string]http.HandlerFunc
 var ts *TokenStore
 var tes *TestStore
 var dbconn *pgx.ConnPool
+var shutdown chan struct{}
 
 const (
 	dumppath string = "dump.json"
@@ -88,6 +91,7 @@ func init() {
 	rand.Seed(time.Now().Unix())
 	ts = NewTokenStore()
 	tes = NewTestStore(taskpath, dumppath)
+	shutdown = make(chan struct{}, 0)
 	// init teststore
 	err = tes.Load()
 	switch err.(type) {
@@ -118,8 +122,7 @@ func init() {
 		ui := i
 		m := reflect.TypeOf(&Player{}).Method(ui)
 		intyp := structsynth(m)
-		println(m.Type.In(0).String())
-		println(m.Name, ui)
+		log.Println(m.Name, ui)
 		methods[m.Name] = func(w http.ResponseWriter, r *http.Request) {
 			var err error
 			// we'll definetly get a performance loss there but who cares?
@@ -168,11 +171,19 @@ func init() {
 	// check for dirtiness of teststore every minute, dump if necessary
 	go func() {
 		for {
-			time.Sleep(60 * time.Second)
+			select {
+			case <-shutdown:
+				runtime.Goexit()
+			case <-time.After(60 * time.Second):
+			}
 			if tes.dirty {
-				tes.Dump()
+				log.Println("dumping the teststore")
+				log.Println(tes.Dump())
+				// this is the only place we change this value
+				// locking isn't necessary, i guess
 				tes.dirty = false
 			}
+
 		}
 	}()
 }
@@ -222,7 +233,13 @@ func main() {
 	for k, v := range methods {
 		http.HandleFunc("/"+k, v)
 	}
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	go func() {
+		log.Fatal(http.ListenAndServe(":8080", nil))
+	}()
 	// on exit
-	tes.Dump()
+	sig := make(chan os.Signal)
+	signal.Notify(sig, os.Interrupt)
+	fmt.Println("Press ctrl+c to safely shut the server down.")
+	<-sig
+	shutdown <- struct{}{}
 }
