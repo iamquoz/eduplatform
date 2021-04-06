@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"sync"
 	"time"
@@ -31,6 +32,14 @@ var Last struct {
 type TokenStore struct {
 	sync.Mutex
 	Map map[uint64]*Player
+}
+
+func (a *TokenStore) String() string {
+	var s string
+	for k, v := range a.Map {
+		s += fmt.Sprintf("%x is id %v of %v\n", k, v.UserID, v.Role)
+	}
+	return s
 }
 
 // NewTokenStore creates a new token storage

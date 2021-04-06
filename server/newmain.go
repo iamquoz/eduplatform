@@ -196,7 +196,7 @@ func console() {
 		buf = buf[:n]
 		switch string(buf) {
 		case "auths\n":
-			fmt.Println(ts.Map)
+			fmt.Print(ts)
 		case "exit\n":
 			shutdown <- struct{}{}
 			runtime.Goexit()
