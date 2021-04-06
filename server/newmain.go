@@ -86,6 +86,20 @@ func shrinkstruct(args []reflect.Value) reflect.Value {
 	return v
 }
 
+func initports() (server, db uint16) {
+	s, ok := os.LookupEnv("PORT")
+	if !ok {
+		// running not under heroku
+		return 8080, 5432
+	}
+	i, err := strconv.ParseUint(s, 10, 16)
+	if err != nil {
+		log.Fatal("PORT envvar contains no numbers. Fix or try to undefine it.")
+	}
+	// TODO fucking soyroku
+	return uint16(i), 5432
+}
+
 func init() {
 	var err error
 	rand.Seed(time.Now().Unix())
@@ -100,13 +114,15 @@ func init() {
 	default:
 		log.Fatal(err)
 	}
+	// only db port there
+	_, dbport := initports()
 	// init db connection
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
 		ConnConfig: pgx.ConnConfig{
 			Database: "postgres",
 			Host:     "localhost",
-			Port:     5432,
+			Port:     dbport,
 		},
 		AcquireTimeout: 120 * time.Second,
 	})
@@ -263,7 +279,9 @@ func main() {
 		http.HandleFunc("/"+k, v)
 	}
 	go func() {
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		// now here's the time for server's port number
+		srvport, _ := initports()
+		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
 	}()
 	go console()
 	killhandle()
