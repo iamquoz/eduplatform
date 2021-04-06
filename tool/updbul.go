@@ -1,12 +1,9 @@
 package main
 
 import (
-	"context"
 	"crypto/sha512"
 	"fmt"
 	"os"
-
-	"github.com/jackc/pgx"
 )
 
 func main() {
@@ -19,15 +16,5 @@ func main() {
 		int32(hashs[2])<<8 |
 		int32(hashs[3])<<16 |
 		int32(hashs[4])<<24
-	conn, err := pgx.Connect(context.Background(), "postgres://localhost:5432/postgres")
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close(context.Background())
-	_, err = conn.Exec(context.Background(), "update Logins set hash=$1 where Id=1", hash)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println()
 	fmt.Println(hash)
 }
