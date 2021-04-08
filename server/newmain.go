@@ -89,12 +89,13 @@ func shrinkstruct(args []reflect.Value) reflect.Value {
 func initports() (server, db uint16) {
 	s, ok := os.LookupEnv("PORT")
 	if !ok {
+		log.Println("PORT isn't set, if it is under Heroku something bad happened.")
 		// running not under heroku
 		return 8080, 5432
 	}
 	i, err := strconv.ParseUint(s, 10, 16)
 	if err != nil {
-		log.Fatal("PORT envvar contains no numbers. Fix or try to undefine it.")
+		log.Fatal("$PORT contains no numbers. Fix or try to undefine it.")
 	}
 	// TODO fucking soyroku
 	return uint16(i), 5432
@@ -116,6 +117,7 @@ func init() {
 	}
 	// only db port there
 	_, dbport := initports()
+	log.Println("db is on port", dbport)
 	// init db connection
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
@@ -134,7 +136,6 @@ func init() {
 	// wrap methods in their respective handler funcs
 	methods = make(map[string]http.HandlerFunc)
 	for i := 0; i < n; i++ {
-		// thank you, fucking closures
 		ui := i
 		m := reflect.TypeOf(&Player{}).Method(ui)
 		intyp := structsynth(m)
@@ -177,10 +178,6 @@ func init() {
 				log.Println(err)
 				return
 			}
-			// it's sad that json.Unmarshall can't work on reflect.Value types
-			// upd: it can, but this approach would be very dissatisfying to write and debug
-			// upd2: so i did it anyway. i bet i can't bring it to life
-			// upd3: i did it.
 		}
 	}
 	// check for dirtiness of teststore every minute, dump if necessary
@@ -281,6 +278,7 @@ func main() {
 	go func() {
 		// now here's the time for server's port number
 		srvport, _ := initports()
+		log.Println("server is on port", srvport)
 		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
 	}()
 	go console()
