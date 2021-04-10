@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 // TaskID is used as an identitier in DB
 type TaskID int32
 
@@ -35,3 +37,17 @@ type (
 	MapTestIDTaskIDArray map[TestID][]TaskID
 	Int                  int
 )
+
+// Player is a user with its role
+type Player struct {
+	UserID
+	Role   int
+	Token  uint64
+	Tested time.Duration
+}
+
+// NilPlayer returns a non-existing player.
+// UserID 0 doesn't mean that player does not exist.
+func NilPlayer() Player {
+	return Player{UserID: 0, Role: -1, Token: 0}
+}
