@@ -286,7 +286,7 @@ func main() {
 	}
 	go func() {
 		// now here's the time for server's port number
-		srvport, _ := getsrvport()
+		srvport := getsrvport()
 		log.Println("server is on port", srvport)
 		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
 	}()
