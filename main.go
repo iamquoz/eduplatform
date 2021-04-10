@@ -86,19 +86,28 @@ func shrinkstruct(args []reflect.Value) reflect.Value {
 	return v
 }
 
-func initports() (server, db uint16) {
-	s, ok := os.LookupEnv("PORT")
-	if !ok {
-		log.Println("PORT isn't set, if it is under Heroku something bad happened.")
+func getsrvport() uint16 {
+	s := os.Getenv("PORT")
+	if s == "" {
+		log.Println("PORT isn't set, if it is under Heroku something bad was happened.")
 		// running not under heroku
-		return 8080, 5432
+		return 8080
 	}
 	i, err := strconv.ParseUint(s, 10, 16)
 	if err != nil {
-		log.Fatal("$PORT contains no numbers. Fix or try to undefine it.")
+		log.Fatal("$PORT contains no numbers.")
 	}
-	// TODO fucking soyroku
-	return uint16(i), 5432
+	return uint16(i)
+}
+
+func getdbcred() (dbname, dbpath string, dbport uint16) {
+	dbpath = os.Getenv("DATABASE_URL")
+	println(dbpath)
+	os.Exit(1)
+	if dbpath == "" {
+		dbpath = "localhost"
+	}
+	return
 }
 
 func init() {
@@ -111,19 +120,19 @@ func init() {
 	err = tes.Load()
 	switch err.(type) {
 	case *os.PathError:
-		// err here means that it was never dumped to this point, so ignore it
+		// err here means that it was never dumped to this point so ignore it
 	default:
 		log.Fatal(err)
 	}
 	// only db port there
-	_, dbport := initports()
-	log.Println("db is on port", dbport)
+	dbname, dbpath, dbport := getdbcred()
+	log.Println("db is on a port", dbport)
 	// init db connection
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
 		ConnConfig: pgx.ConnConfig{
-			Database: "postgres",
-			Host:     "localhost",
+			Database: dbname,
+			Host:     dbpath,
 			Port:     dbport,
 		},
 		AcquireTimeout: 120 * time.Second,
@@ -277,7 +286,7 @@ func main() {
 	}
 	go func() {
 		// now here's the time for server's port number
-		srvport, _ := initports()
+		srvport, _ := getsrvport()
 		log.Println("server is on port", srvport)
 		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
 	}()
