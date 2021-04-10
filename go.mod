@@ -1,4 +1,4 @@
-module github.com/iamquoz/matstat/server
+module github.com/dodikcraft/matstat
 
 go 1.15
 
