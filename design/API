@@ -10,7 +10,8 @@ CurriculumID, ClassID, StudentID глобальны для всей систем
 	Возвращает список всех групп, доступных преподавателю.
 
 10 (Teacher) NewClass
-	-> HeadmanInvite string
+	<- ClassName string
+	-> ID ClassID, HeadmanInvite string
 	Создаёт новую группу и возвращает ссылку на приглашение старосты.
 
 10 (Teacher) ClassPerf
@@ -50,7 +51,12 @@ CurriculumID, ClassID, StudentID глобальны для всей систем
 	-> nil
 	А вот тут мы подумаем, потому что нет смысла грузить по-одному каждое задание. Предлагаю сейчас придумать примитивный язык разметки для тестов наподобие Маркдауна и заставлять препода писать задания в нём. Редактор заданий мы не потянем.
 
+9 (*) Unauth
+	<- -> nil
+	Деаутентифицирует пользователя
+
 8 (Student) GetTest
+	<- ID TestID
 	-> Test TestData
 	TestMarkup /= TestData. Первое с ответами и текст, второе без и ЖСОН.
 	

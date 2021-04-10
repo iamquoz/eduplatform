@@ -1,0 +1,54 @@
+. Flop() string
+тестовый метод
+
+. Echo(Int) Int
+Тестовый метод (еще один)
+
+. StLogout()
+деаутентифицирует пользователя
+
+StAvailTests() TestIDArray
+сервер сам ведет учёт выданных тестов
+при попытке получить невыданный тест, возвращается 403
+
+. StGetTest(TestID) TaskIDArray
+Точно так же пользователю будут доступны только taskid выданных
+тестов
+но это потом, а в прототипе похуй
+бо всё равно ответы не отправляются
+
+. StGetTask(TaskID) Task
+получить задание по идентификатору
+
+StAnswerTask(TaskID, Task) bool
+отправить ответ на задание
+
+. StRegister(String)
+меняет пароль, токен не изменяется
+
+. NewStudent(String) UserID
+создаёт нового студента
+
+RenewStudent(UserID)
+сбрасывает пароль студента
+
+AssignTest(UserID, TestID)
+добавляет тест студенту
+
+. TestPool() MapTestIDTaskIDArray
+возвращает список доступных тестов
+
+UploadTask(TaskID, Task)
+загружает на сервер задание
+
+NewTest(TaskIDArray, String) TestID
+создаёт новый тест из заданий типа
+
+. RenewTest(TestID, TaskIDArray, String) TaskIDArray
+обновляет тест новыми заданиями, старые возвращаются
+если имя -- пустая строчка, то название не меняется
+
+. GetStudents() MapUserIDString
+возвращает список всех студентов
+
+
