@@ -183,11 +183,29 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
 })
 
 .controller('stListCtrl', function($scope, $mdDialog, $http) {
+    var stCtrl = {theories: [], stats: [], selected: -1, viewTasks: -1, boolTasks: false};
+    $scope.boolTasks = false;
+	$http.get('./helpers/exampleStats.json')
+		.then(function(file) {
+			stCtrl.theories = file.data.themes;
+			stCtrl.stats = file.data.answers;
+			console.log(stCtrl);
+		});
+    $http.get('./helpers/exampleTasks.json')
+        .then(function(file){
+            stCtrl.allTasks = file.data.tasks;
+            console.log(stCtrl.allTasks);
+        });
+
+    stCtrl.solvedTasks = Array(16).fill().map((item, index)=> 1 + index);
+    $scope.isCorrect;
+    $scope.correctFromTeacher;
     $scope.showPrompt = function(evt, stInfo) {
         $mdDialog.show({
             controller: function($scope) {
 				angular.extend($scope, {
                     stInfo,
+                    stCtrl,
                     closeDialog: function(action) {
                         // action == 1 - delete user
                         // action == 0 - close
@@ -202,6 +220,29 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
                             }, function(){});
                         }
                         $mdDialog.hide();
+                    },
+					getData: function(index) {
+						stCtrl.selected = index;
+                        stCtrl.boolTasks = !(stCtrl.selected == -1);
+
+						$scope.options0 = {maintainAspectRatio: true, title: {display: true, text: "Общее количество", fontSize: 14}};
+						$scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Первый уровень", fontSize: 14}};
+						$scope.options2 = {maintainAspectRatio: true, title: {display: true, text: "Второй уровень", fontSize: 14}};
+						$scope.options3 = {maintainAspectRatio: true, title: {display: true, text: "Третий уровень", fontSize: 14}};
+						$scope.options4 = {maintainAspectRatio: true, title: {display: true, text: "Четвертый уровень", fontSize: 14}};
+
+						$scope.data = stCtrl.stats[index];	
+						$scope.labels = ["Правильных", "Неправильных"];
+						$scope.allData = [$scope.data['correctTotal'], $scope.data['wrongTotal']];
+
+						$scope.firstLevel 	= [$scope.data['levelsCorrect'][0], $scope.data['levelsWrong'][0]];
+						$scope.secondLevel 	= [$scope.data['levelsCorrect'][1], $scope.data['levelsWrong'][1]];
+						$scope.thirdLevel 	= [$scope.data['levelsCorrect'][2], $scope.data['levelsWrong'][2]];
+						$scope.fourthLevel 	= [$scope.data['levelsCorrect'][3], $scope.data['levelsWrong'][3]];
+					},
+                    getTasksData: function(index) {
+                        stCtrl.date = new Date();
+                        stCtrl.viewTasks = index;
                     }
                 });
 			},

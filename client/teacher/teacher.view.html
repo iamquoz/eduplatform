@@ -1,4 +1,3 @@
-	<p>Учитель</p>
 <div>
     <p>
         <md-button ng-controller = "addStudent" class="md-primary md-raised" ng-click = "showPrompt($event)">
@@ -9,13 +8,12 @@
             Добавить теоретический материал</md-button>
         <md-button ng-controller = "giveTask" class = "md-primary md-raised" ng-click = "showPrompt($event)">
             Выдать задание</md-button>
-
     </p>
 </div>
-<h3>Все юзеры:</h3>
+<h4>Список студентов</h4>
 <ul ng-controller = "stListCtrl" class = "stList">
     <li ng-repeat="user in vm.allUsers">
-        <md-button ng-click = "showPrompt($event, user)" ng-controller = "viewStats">{{user.stName}} </md-button> ----------------    id: {{user.id}}
+        <md-button ng-click = "showPrompt($event, user)">{{user.stName}} </md-button>
     </li>
 </ul>
 <p>&nbsp;</p>
