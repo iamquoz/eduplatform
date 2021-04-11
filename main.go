@@ -100,14 +100,21 @@ func getsrvport() uint16 {
 	return uint16(i)
 }
 
-func getdbcred() (dbname, dbpath string, dbport uint16) {
-	dbpath = os.Getenv("DATABASE_URL")
-	println(dbpath)
-	os.Exit(1)
-	if dbpath == "" {
-		dbpath = "localhost"
+func getdbcred() pgx.ConnConfig {
+	dburl := os.Getenv("DATABASE_URL")
+	if dburl == "" {
+		// testing locally
+		return pgx.ConnConfig{
+			Database: "postgres",
+			Host:     "localhost",
+			Port:     5432,
+		}
 	}
-	return
+	conn, err := pgx.ParseURI(dburl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conn
 }
 
 func init() {
@@ -124,17 +131,10 @@ func init() {
 	default:
 		log.Fatal(err)
 	}
-	// only db port there
-	dbname, dbpath, dbport := getdbcred()
-	log.Println("db is on a port", dbport)
 	// init db connection
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
-		ConnConfig: pgx.ConnConfig{
-			Database: dbname,
-			Host:     dbpath,
-			Port:     dbport,
-		},
+		ConnConfig:     getdbcred(),
 		AcquireTimeout: 120 * time.Second,
 	})
 	if err != nil {
@@ -144,13 +144,15 @@ func init() {
 	n := reflect.TypeOf(&Player{}).NumMethod()
 	// wrap methods in their respective handler funcs
 	methods = make(map[string]http.HandlerFunc)
-	for i := 0; i < n; i++ {
-		ui := i
-		m := reflect.TypeOf(&Player{}).Method(ui)
+	for ii := 0; ii < n; ii++ {
+		i := ii
+		m := reflect.TypeOf(&Player{}).Method(i)
 		intyp := structsynth(m)
-		log.Println(m.Name, ui)
+		// handler wrapper
 		methods[m.Name] = func(w http.ResponseWriter, r *http.Request) {
 			var err error
+			// allow cors
+			w.Header().Add("Access-Control-Allow-Origin", "*")
 			// we'll definetly get a performance loss there but who cares?
 			player, code := makeAuth(r)
 			if code != http.StatusOK {
@@ -177,8 +179,10 @@ func init() {
 				log.Println(err)
 				return
 			}
+
 			in := explodestruct(is.Elem())
-			out := reflect.ValueOf(player).Method(ui).Call(in)
+			out := reflect.ValueOf(player).Method(i).Call(in)
+
 			os := shrinkstruct(out)
 			err = je.Encode(os.Interface())
 			if err != nil {
