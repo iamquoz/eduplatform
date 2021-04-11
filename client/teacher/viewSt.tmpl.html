@@ -1,0 +1,80 @@
+<md-dialog style = "min-height: 45%;">
+	<md-toolbar>
+		<div class="md-toolbar-tools">
+			<h2 flex="flex">Информация о студенте {{stInfo.stName}}<div style="right: 0px;">Номер: {{stInfo.id}}</div></h2>
+		</div>
+	</md-toolbar>
+	<md-dialog-content>
+		<md-tabs md-dynamic-height md-border-bottom>
+			<md-tab label="Статистика">
+                <md-content class="md-padding" layout="row" flex="">
+                    <md-sidenav md-component-id="left" class = "md-sidenav-left" md-is-locked-open = "true" style="min-height: 100%;">
+                        <ul>
+                            <li ng-repeat = "theme in stCtrl.theories"><md-button ng-class="{'md-primary md-raised' : $index == stCtrl.selected}" ng-click = "getData($index)">{{theme}}</md-button></li>
+                        </ul>
+                    </md-sidenav>
+                    <div ng-show = "stCtrl.selected != -1">
+						<table>
+							<tr>
+								<td><canvas id="pie" class="chart chart-pie" 
+									chart-data="allData" chart-labels="labels" chart-options="options0">
+								</canvas></td>
+								<td><canvas id="pie" class="chart chart-pie" 
+									chart-data="firstLevel" chart-labels="labels" chart-options="options1">
+								</canvas></td>
+								<td><canvas id="pie" class="chart chart-pie" 
+									chart-data="secondLevel" chart-labels="labels" chart-options="options2">
+								</canvas></td>
+							</tr>
+							<tr>
+								<td><canvas id="pie" class="chart chart-pie" 
+									chart-data="thirdLevel" chart-labels="labels" chart-options="options3">
+								</canvas></td>
+								<td><canvas id="pie" class="chart chart-pie" 
+									chart-data="fourthLevel" chart-labels="labels" chart-options="options4">
+								</canvas></td>
+							</tr>
+						</table>
+						<div style="padding-top: 10px;">
+							<p>Количество неправильных попыток в сумме: {{data.wrongAttempts}}</p>
+							<p>Все уровни (общее/прав/неправ): {{data.total}} / {{data.correctTotal}} / {{data.wrongTotal}}</p>
+							<p>1 уровень: {{data['levelsTotal'][0]}} / {{data['levelsCorrect'][0]}} / {{data['levelsWrong'][0]}} </p>
+							<p>2 уровень: {{data['levelsTotal'][1]}} / {{data['levelsCorrect'][1]}} / {{data['levelsWrong'][1]}} </p>
+							<p>3 уровень: {{data['levelsTotal'][2]}} / {{data['levelsCorrect'][2]}} / {{data['levelsWrong'][2]}} </p>
+							<p>4 уровень: {{data['levelsTotal'][3]}} / {{data['levelsCorrect'][3]}} / {{data['levelsWrong'][3]}} </p>
+						</div>
+                    </div>
+                </md-content>
+            </md-tab>
+			<md-tab label="Решенные задания">
+				<md-content class="md-padding" layout = "row" flex = "">
+					<md-sidenav md-component-id="left" class = "md-sidenav-left" md-is-locked-open = "true" style="min-height: 100%;">
+                        <ul>
+                            <li ng-repeat = "theme in stCtrl.theories"><md-button ng-class="{'md-primary md-raised' : $index == stCtrl.selected}" ng-click = "getData($index)">{{theme}}</md-button></li>
+                        </ul>
+                    </md-sidenav>
+					<md-sidenav md-component-id="left" class = "md-sidenav-left" md-is-locked-open = "stCtrl.boolTasks" style="min-height: 100%; max-height: 100%; max-width: 15%;">
+                        <div ng-repeat = "solv in stCtrl.solvedTasks"><md-button ng-class="{'md-primary md-raised' : $index == stCtrl.viewTasks}" ng-click = "getTasksData($index)">{{solv}}</md-button></div>
+                    </md-sidenav>
+					<div ng-show = "stCtrl.viewTasks != -1" style = "padding-left: 10px;">
+						<p>Текст задания: {{stCtrl.allTasks[0]['array'][0].Text}}</p>
+						<p>Ваш вариант ответа: {{stCtrl.allTasks[0]['array'][0].UserAnsw}}</p>
+						
+						<p style="padding-top: 20px;">Задание было проверено {{stCtrl.date.toLocaleString()}}</p>
+						<p>Правильный вариант ответа: {{stCtrl.allTasks[0]['array'][0].CorrectAnsw}}</p>
+						<p style="padding-top: 10px;">Вы ответили <i style="color:red">неправильно</i>.</p>
+					</div>
+				</md-content>
+			</md-tab>
+		</md-tabs>
+	</md-dialog-content>
+	<md-dialog-actions layout = "row" style="position: absolute; bottom:0; right: 0px;">
+		<span flex></span>
+		<md-button ng-click="closeDialog(0)">
+			ОК
+		</md-button>
+		<md-button ng-click = "closeDialog(1)">
+			Удалить пользователя
+		</md-button>
+	</md-dialog-actions>
+</md-dialog>

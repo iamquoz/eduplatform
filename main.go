@@ -288,6 +288,8 @@ func main() {
 	for k, v := range methods {
 		http.HandleFunc("/"+k, v)
 	}
+	// handle client tree
+	http.Handle("/", http.FileServer(http.FS(os.DirFS("client/"))))
 	go func() {
 		// now here's the time for server's port number
 		srvport := getsrvport()
