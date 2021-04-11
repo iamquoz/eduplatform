@@ -91,7 +91,7 @@ func getsrvport() uint16 {
 	if s == "" {
 		log.Println("PORT isn't set, if it is under Heroku something bad was happened.")
 		// running not under heroku
-		return 8080
+		return 80
 	}
 	i, err := strconv.ParseUint(s, 10, 16)
 	if err != nil {
