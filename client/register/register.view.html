@@ -18,8 +18,8 @@
             <span ng-show="form.password.$dirty && form.password.$error.required" class="help-block">Введите пароль</span>
         </div>
         <div class="form-actions">
-            <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary">Зарегистрироваться</button>
-            <a href="#!/login" class="btn btn-link">Отмена</a>
+            <md-button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="md-primary md-raised">Зарегистрироваться</md-button>
+            <a href="#!/login" class="btn btn-link"><md-button>Отмена</md-button></a>
         </div>
     </form>
 </div>

@@ -1,0 +1,40 @@
+<md-dialog style = "min-height: 45%;">
+	<md-toolbar>
+		<div class="md-toolbar-tools">
+			<h2 flex="flex">Тестирование</h2>
+		</div>
+	</md-toolbar>
+	<md-dialog-content>
+		<md-content class="md-padding" layout = "row" flex = "">
+			<md-sidenav md-component-id="left" class = "md-sidenav-left" md-is-locked-open = "true" style="min-height: 100%; max-width: 30%;">
+				<ul>
+					<li ng-repeat = "theme in vm.theories"><md-button ng-class="{'md-primary md-raised' : $index == vm.selected}" ng-click = "getData($index)">{{theme}}</md-button></li>
+				</ul>
+			</md-sidenav>
+			<div ng-show = "vm.selected != -1" style="max-width: 60%;">
+				<md-toolbar ng-repeat = "txt in vm.textTrivia" style="background-color: white; color: black;" >
+					<div class = "md-toolbar-tools" style="font-size: 16px;">
+						{{txt}}
+					</div>
+				</md-toolbar>
+				<div style="padding-top: 20px; border-style: solid none none none;"></div>
+				<p>{{vm.textQuestion}}</p>
+				<md-input-container style = "width: 100%;">
+                    <label>Ответ</label>
+                    <textarea ng-model = "vm.answer" style = "width: 80%;"></textarea>
+					<md-dialog-actions layout = "row" style="position: absolute; bottom: 15px; right: 0px;">
+						<md-button class="md-primary md-raised">
+							>
+						</md-button>
+					</md-dialog-actions>
+              </md-input-container>
+			</div>
+		</md-content>
+	</md-dialog-content>
+	<md-dialog-actions layout = "row" style="position: absolute; bottom:0; right: 0px;">
+		<span flex></span>
+		<md-button ng-click="closeDialog()">
+			ОК
+		</md-button>
+	</md-dialog-actions>
+</md-dialog>

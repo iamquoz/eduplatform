@@ -1,6 +1,7 @@
-angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngMessages'])
+var currUser;
+angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngMessages', 'chart.js'])
 
-.controller('addStudent', function($scope, $mdDialog){
+.controller('addStudent', function($scope, $mdDialog, $http){
     $scope.showPrompt = function(ev) {
         var confirm = $mdDialog.prompt()
             .title("Добавление студента")
@@ -12,18 +13,23 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
             .ok('ОК')
             .cancel('Отмена');
         $mdDialog.show(confirm).then(function(result){
+            $http.post('localhost:8080/Flop', { 'Int' : 3})
+                .then(function(){
+                    alert(result + "lol");
+                })
             alert(result);
         }, function(result){});
     }
 })
 
-.controller('addTask', function($scope, $mdDialog) {
+.controller('addTask', function($scope, $mdDialog, $http) {
     var task = {
-        difficulty: '1',
-        text: '',
-        isOpen: false,
-        variants: [],
-        answer: ''
+        Difficulty: '1',
+        Text: '',
+        IsOpen: false,
+        Variants: [],
+        Answer: '',
+        ID: 0
     };
     
     var tempStr = {
@@ -37,8 +43,7 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
               task, 
               closeDialog: function (toSend){
                 if (toSend){
-                    console.log(tempStr);
-                    task.variants = tempStr.strAnsw.split("\n");
+                    task.Variants = tempStr.strAnsw.split("\n");
                     console.log("send to api");
                     console.log(task);
                 }
@@ -50,6 +55,127 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
             });
           },
           templateUrl: './teacher/addTask.tmpl.html',
+          targetEvent: evt,
+          clickOutsideToClose: true,
+        });
+      };
+})
+
+.controller('addTheory', function($scope, $mdDialog, $http){
+    var theory = {
+        ID: 0,
+        Title: '',
+        Text: ''
+    }
+
+    $scope.showPrompt = function(evt) {
+        $mdDialog.show({
+          controller: function($scope) {
+            angular.extend($scope, {
+              theory,
+              closeDialog: function (toSend){
+                if (toSend) {
+                    console.log("send to api");
+                    console.log(theory);
+                }
+                else {
+                    console.log("don't send");
+                }
+                $mdDialog.hide();
+              }
+            });
+          },
+          templateUrl: './teacher/addTheory.tmpl.html',
+          targetEvent: evt,
+          clickOutsideToClose: true,
+        });
+      };
+})
+
+.controller('giveTask', function($scope, $mdDialog, $http){
+    
+    var order = {
+        Users: [],
+        Theory: [],
+        Tasks: []
+    }
+    var tempUsers = [];
+
+    function initUsers() {
+        $http.get('./helpers/data.json').then(function(file){
+            tempUsers = file.data.students;
+            tempUsers.sort(function(a, b) {
+                if (a.stName < b.stName) return -1;
+                if (a.stName > b.stName) return 1;
+                return 0;
+            })
+        });
+    }
+
+    var tempTheories = [];
+    function initTheor() {
+        $http.get('./helpers/theories.json').then(function(file) {
+            tempTheories = file.data.theory
+        });
+        console.log(tempTheories);
+    };
+
+    var tempTasks = [];
+    function initTasks() {
+        $http.get('./helpers/tasks.json').then(function(file) { 
+            tempTasks = file.data.tasks
+        });
+    };
+
+    function initAll(){
+        tempTasks.length = 0;
+        tempTheories.length = 0;
+        tempUsers.length = 0;
+        initUsers();
+        initTheor();
+        initTasks();
+    }
+
+    initAll();
+    $scope.showPrompt = function(evt) {
+        $mdDialog.show({
+          controller: function($scope) {
+            angular.extend($scope, {
+              order,
+              tempUsers,
+              tempTasks,
+              tempTheories,
+              closeDialog: function (toSend){
+                if (toSend) {
+                    
+                    tempUsers = tempUsers.filter(function(name){
+                        if (name.selected) return name.id;
+                    });
+                    tempUsers.forEach(function(name) {order.Users.push(name.id);});
+
+                    tempTheories = tempTheories.filter(function(name) {
+                        if (name.selected) return name.id;
+                    });
+                    tempTheories.forEach(function(name) {order.Theory.push(name.id);});
+
+                    tempTasks = tempTasks.filter(function(name) {
+                        if (name.selected) return name.id;
+                    });
+                    tempTasks.forEach(function(name) {order.Tasks.push(name.id);});
+
+                    initAll();
+
+                    console.log("send to api");
+                    console.log(order);
+                }
+                else {
+                    console.log("don't send");
+                }
+                $mdDialog.hide();
+              }
+            });
+          },
+          templateUrl: './teacher/giveTask.tmpl.html',
           targetEvent: evt,
           clickOutsideToClose: true,
         });
@@ -83,6 +209,107 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
             targetEvent: evt,
             clickOutsideToClose: true
         })
+    }
+})
+
+.controller('viewStats', function($scope, $mdDialog, $http) {
+	var stCtrl = {theories: [], stats: [], selected: -1, viewTasks: -1, boolTasks: false};
+    $scope.boolTasks = false;
+	$http.get('./helpers/exampleStats.json')
+		.then(function(file) {
+			stCtrl.theories = file.data.themes;
+			stCtrl.stats = file.data.answers;
+			console.log(stCtrl);
+		});
+    $http.get('./helpers/exampleTasks.json')
+        .then(function(file){
+            stCtrl.allTasks = file.data.tasks;
+            console.log(stCtrl.allTasks);
+        });
+
+    stCtrl.solvedTasks = Array(16).fill().map((item, index)=> 1 + index);
+
+    $scope.showPrompt = function(evt){
+		$mdDialog.show({
+			controller: function($scope){
+				angular.extend($scope, {
+					currUser,
+					stCtrl,
+					closeDialog: function() {
+						stCtrl.selected = -1;
+                        stCtrl.viewTasks = -1;
+                        stCtrl.boolTasks = false;
+						$mdDialog.hide();
+					},
+					getData: function(index) {
+						stCtrl.selected = index;
+                        stCtrl.boolTasks = !(stCtrl.selected == -1);
+
+						$scope.options0 = {maintainAspectRatio: true, title: {display: true, text: "Общее количество", fontSize: 14}};
+						$scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Первый уровень", fontSize: 14}};
+						$scope.options2 = {maintainAspectRatio: true, title: {display: true, text: "Второй уровень", fontSize: 14}};
+						$scope.options3 = {maintainAspectRatio: true, title: {display: true, text: "Третий уровень", fontSize: 14}};
+						$scope.options4 = {maintainAspectRatio: true, title: {display: true, text: "Четвертый уровень", fontSize: 14}};
+
+						$scope.data = stCtrl.stats[index];	
+						$scope.labels = ["Правильных", "Неправильных"];
+						$scope.allData = [$scope.data['correctTotal'], $scope.data['wrongTotal']];
+
+						$scope.firstLevel 	= [$scope.data['levelsCorrect'][0], $scope.data['levelsWrong'][0]];
+						$scope.secondLevel 	= [$scope.data['levelsCorrect'][1], $scope.data['levelsWrong'][1]];
+						$scope.thirdLevel 	= [$scope.data['levelsCorrect'][2], $scope.data['levelsWrong'][2]];
+						$scope.fourthLevel 	= [$scope.data['levelsCorrect'][3], $scope.data['levelsWrong'][3]];
+					},
+                    getTasksData: function(index) {
+                        stCtrl.date = new Date();
+                        stCtrl.viewTasks = index;
+                    }
+				})
+			},
+			templateUrl: './student/viewOwn.tmpl.html',
+			targetEvent: evt,
+			clickOutsideToClose: true
+		}).finally(function(){
+            stCtrl.selected = -1;
+            stCtrl.viewTasks = -1;
+            stCtrl.boolTasks = false;
+		});
+    };
+})
+
+.controller('viewTests', function($scope, $mdDialog, $http) {
+    var vm = this;
+    vm.textTrivia = [
+        "Определитель — это скалярная величина, которая может быть вычислена и поставлена в однозначное соответствие любой квадратной матрице",
+        "Для матриц первого порядка определитель будет равен единственному элементу этой матрицы",
+        "Для матриц второго порядка a c / b d определитель будет равен a*d - b*c",
+        "Для матриц третьего и выше порядка опредилитель вычисляется при помощи разложения по строкам или столбцам" 
+    ]
+    vm.textQuestion = "Найдите определитель второго порядка для матрицы 11 -3 / -15 -2."
+    vm.selected = -1;
+    $http.get('./helpers/exampleStats.json')
+        .then(function(file) {
+            vm.theories = file.data.themes;
+        });
+    $scope.showPrompt = function(evt) {
+        $mdDialog.show({
+            controller: function($scope) {
+                angular.extend($scope, {
+                    vm,
+                    getData: function(index) {
+                        vm.selected = index;
+                        console.log(vm.selected);
+                    },
+                    closeDialog: function() {
+                        $mdDialog.hide();
+                    }
+                })
+            },
+            templateUrl: './student/viewTests.tmpl.html',
+            targetEvent: evt,
+            clickOutsideToClose: true
+        }
+        )
     }
 })
 
@@ -129,7 +356,8 @@ function run($rootScope, $location, $cookies, $http) {
     $rootScope.globals = $cookies.get('globals') || {};
     console.log('run');
     console.log($rootScope.globals);
-    var aNiceCookie;
+    let aNiceCookie;
+    //check for "object"
     if ($rootScope.globals.toString()[1] == "o")
         return;
     aNiceCookie = JSON.parse($rootScope.globals);
@@ -142,6 +370,7 @@ function run($rootScope, $location, $cookies, $http) {
         // redirect to login page if not logged in and trying to access a restricted page
         var restrictedPage = $.inArray($location.path(), ['/login', '/register']) === -1;
         var loggedIn = aNiceCookie.currentUser;
+		currUser = loggedIn;
         console.log(loggedIn);   
         if (restrictedPage && !loggedIn) {
             $location.path('/login');

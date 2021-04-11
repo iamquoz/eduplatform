@@ -6,12 +6,12 @@
     </md-toolbar>
   <md-dialog-content>
       <form>
-          <md-checkbox ng-model = "task.isOpen" aria-label = "Тип вопроса" style = "position: absolute; right: 10px; padding-top: 15px; padding-right: 10px;">
+          <md-checkbox ng-model = "task.IsOpen" aria-label = "Тип вопроса" style = "position: absolute; right: 10px; padding-top: 15px; padding-right: 10px;">
               Открытый вопрос
           </md-checkbox>
           <md-input-container style = "width:50%;">
               <label>Сложность вопроса</label>
-              <md-select ng-model = "task.difficulty">
+              <md-select ng-model = "task.Difficulty">
                   <md-option value = '1'>1</md-option>
                   <md-option value = '2'>2</md-option>
                   <md-option value = '3'>3</md-option>
@@ -21,17 +21,17 @@
           <p>
               <md-input-container style = "margin-right: 10px; width: 100%;">
                     <label>Текст задания</label>
-                    <textarea ng-model = "task.text" style = "width: 100%;"></textarea>
+                    <textarea ng-model = "task.Text" style = "width: 100%;"></textarea>
               </md-input-container>
           </p>
-          <p ng-hide = "task.isOpen">
+          <p ng-hide = "task.IsOpen">
               <md-input-container style = "margin-right: 10px; width: 100%;">
                     <label>Ответы</label>
-                    <textarea ng-model = "tempStr.strAnsw" style = "width: 100%;"></textarea>
+                    <textarea ng-model = "TempStr.strAnsw" style = "width: 100%;"></textarea>
               </md-input-container>
               <md-input-container style = "width: 45%;">
                   <label>Номер правильного варианта ответа</label>
-                  <textarea ng-model = "task.answer"></textarea>
+                  <textarea ng-model = "task.Answer"></textarea>
               </md-input-container>
           </p>
       </form>

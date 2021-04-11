@@ -22,7 +22,7 @@
         vm.linkID = getLinkID();
 
         function register() {
-            vm.user.username = linkID;
+            vm.user.username = vm.linkID;
             vm.dataLoading = true;
             UserService.Create(vm.user)
                 .then(function (response) {

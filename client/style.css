@@ -23,3 +23,11 @@ md-dialog-content{
 ul.stList {
   list-style-type: none;
 }
+
+md-content.md-padding {
+  background-color: rgb(255, 255, 255);
+}
+
+md-card {
+  min-width: 100%;
+}

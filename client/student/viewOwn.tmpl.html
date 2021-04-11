@@ -1,12 +1,12 @@
 <md-dialog style = "min-height: 45%;">
 	<md-toolbar>
 		<div class="md-toolbar-tools">
-			<h2 flex="flex">Информация о студенте {{stInfo.stName}}<div style="right: 0px;">Номер: {{stInfo.id}}</div></h2>
+			<h2 flex="flex">Статистика</h2>
 		</div>
 	</md-toolbar>
 	<md-dialog-content>
 		<md-tabs md-dynamic-height md-border-bottom>
-			<md-tab label="Статистика">
+            <md-tab label="Статистика">
                 <md-content class="md-padding" layout="row" flex="">
                     <md-sidenav md-component-id="left" class = "md-sidenav-left" md-is-locked-open = "true" style="min-height: 100%;">
                         <ul>
@@ -70,11 +70,8 @@
 	</md-dialog-content>
 	<md-dialog-actions layout = "row" style="position: absolute; bottom:0; right: 0px;">
 		<span flex></span>
-		<md-button ng-click="closeDialog(0)">
+		<md-button ng-click="closeDialog()">
 			ОК
-		</md-button>
-		<md-button ng-click = "closeDialog(1)">
-			Удалить пользователя
 		</md-button>
 	</md-dialog-actions>
 </md-dialog>
