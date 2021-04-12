@@ -1,0 +1,304 @@
+{
+    "tasks": [
+        {
+            "text": "COU4K",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 0
+        },
+        {
+            "text": "1OZZ6",
+            "difficulty": "4",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 1
+        },
+        {
+            "text": "E0MOV",
+            "difficulty": "2",
+            "isOpen": true,
+            "variants": [
+                "2BYOGI3B8O",
+                "CAUFXWKKFR",
+                "SKMH1S5KPK",
+                "VUZAEJPHT1"
+            ],
+            "answer": "1",
+            "id": 2
+        },
+        {
+            "text": "PE8BV",
+            "difficulty": "4",
+            "isOpen": true,
+            "variants": [
+                "EUKMCTOI92",
+                "6NJTZO4265",
+                "MD9ZT5TB5S",
+                "YCWBZB96SY"
+            ],
+            "answer": "4",
+            "id": 3
+        },
+        {
+            "text": "EBZER",
+            "difficulty": "1",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 4
+        },
+        {
+            "text": "QRYWN",
+            "difficulty": "1",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 5
+        },
+        {
+            "text": "LPTW5",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 6
+        },
+        {
+            "text": "UJ9SF",
+            "difficulty": "3",
+            "isOpen": true,
+            "variants": [
+                "RMVX0C8WWT",
+                "UUTBRM74A1",
+                "9E9AX307VB",
+                "TEOJFX2SAP"
+            ],
+            "answer": "2",
+            "id": 7
+        },
+        {
+            "text": "XDB55",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 8
+        },
+        {
+            "text": "9C0KH",
+            "difficulty": "3",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 9
+        },
+        {
+            "text": "B08JF",
+            "difficulty": "4",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 10
+        },
+        {
+            "text": "BJ3J4",
+            "difficulty": "3",
+            "isOpen": true,
+            "variants": [
+                "WVSFOP1OW9",
+                "8HFIT413ER",
+                "L6WRWIPJA5",
+                "1XMXB744WW"
+            ],
+            "answer": "3",
+            "id": 11
+        },
+        {
+            "text": "D3F5Q",
+            "difficulty": "1",
+            "isOpen": true,
+            "variants": [
+                "KXS2BG4PZ4",
+                "TP2U14B5NS",
+                "7Z34Z9ZVXP",
+                "COJNJ0889H"
+            ],
+            "answer": "1",
+            "id": 12
+        },
+        {
+            "text": "58S9T",
+            "difficulty": "3",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 13
+        },
+        {
+            "text": "P87V8",
+            "difficulty": "3",
+            "isOpen": true,
+            "variants": [
+                "835KAVXY6H",
+                "5QI4MVUKEC",
+                "2VW2FMLPVU",
+                "1333AI66UZ"
+            ],
+            "answer": "1",
+            "id": 14
+        },
+        {
+            "text": "NMMDX",
+            "difficulty": "3",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 15
+        },
+        {
+            "text": "Y7I9D",
+            "difficulty": "1",
+            "isOpen": true,
+            "variants": [
+                "FKVROHEQC0",
+                "VC62FGDSIR",
+                "P0BHRHM5R0",
+                "SU63MH5M2H"
+            ],
+            "answer": "1",
+            "id": 16
+        },
+        {
+            "text": "KETXA",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 17
+        },
+        {
+            "text": "GQFYZ",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 18
+        },
+        {
+            "text": "H9A7C",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 19
+        },
+        {
+            "text": "7M5AE",
+            "difficulty": "3",
+            "isOpen": true,
+            "variants": [
+                "GJMEZXL7RC",
+                "GZYYBM3BF1",
+                "LLXH87OS5Q",
+                "ILTHW3KLHX"
+            ],
+            "answer": "3",
+            "id": 20
+        },
+        {
+            "text": "BUZOF",
+            "difficulty": "3",
+            "isOpen": true,
+            "variants": [
+                "0OAPGC90T9",
+                "L7D40QHP05",
+                "AZY55G16K3",
+                "0ANHIN92E3"
+            ],
+            "answer": "1",
+            "id": 21
+        },
+        {
+            "text": "U82Q8",
+            "difficulty": "3",
+            "isOpen": true,
+            "variants": [
+                "ZMWAY39GOS",
+                "PVX42DZJ86",
+                "5B81FLVW7N",
+                "Q0XYU19RHX"
+            ],
+            "answer": "2",
+            "id": 22
+        },
+        {
+            "text": "49D7M",
+            "difficulty": "3",
+            "isOpen": true,
+            "variants": [
+                "CSJXRVIKTJ",
+                "KBP7FUB6JJ",
+                "U0DEP0MLBK",
+                "4IX4CX5WN6"
+            ],
+            "answer": "3",
+            "id": 23
+        },
+        {
+            "text": "IIWEY",
+            "difficulty": "1",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 24
+        },
+        {
+            "text": "7QHID",
+            "difficulty": "3",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 25
+        },
+        {
+            "text": "OII36",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 26
+        },
+        {
+            "text": "59W0S",
+            "difficulty": "2",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 27
+        },
+        {
+            "text": "NKE89",
+            "difficulty": "2",
+            "isOpen": true,
+            "variants": [
+                "YHWB74S3P7",
+                "2B0YMNJQVV",
+                "XREHCU7MA7",
+                "3DRG0TUE0M"
+            ],
+            "answer": "1",
+            "id": 28
+        },
+        {
+            "text": "1VYMG",
+            "difficulty": "3",
+            "isOpen": false,
+            "variants": [],
+            "answer": "",
+            "id": 29
+        }
+    ]
+}

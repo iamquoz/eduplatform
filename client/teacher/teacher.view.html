@@ -1,0 +1,20 @@
+<div>
+    <p>
+        <md-button ng-controller = "addStudent" class="md-primary md-raised" ng-click = "showPrompt($event)">
+			Добавить студента</md-button>
+        <md-button ng-controller = "addTask" class = "md-primary md-raised" ng-click = "showPrompt($event)">
+			Добавить задание</md-button>
+        <md-button ng-controller = "addTheory" class = "md-primary md-raised" ng-click = "showPrompt($event)">
+            Добавить теоретический материал</md-button>
+        <md-button ng-controller = "giveTask" class = "md-primary md-raised" ng-click = "showPrompt($event)">
+            Выдать задание</md-button>
+    </p>
+</div>
+<h4>Список студентов</h4>
+<ul ng-controller = "stListCtrl" class = "stList">
+    <li ng-repeat="user in vm.allUsers">
+        <md-button ng-click = "showPrompt($event, user)">{{user.stName}} </md-button>
+    </li>
+</ul>
+<p>&nbsp;</p>
+<p><a href = "#!/login"><md-button class = "md-primary md-raised">Выйти</md-button></a></p>
