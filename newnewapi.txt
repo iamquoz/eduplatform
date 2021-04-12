@@ -1,0 +1,34 @@
+StSendTest(TestID, Test) Test
+Принимает ответы на тест, возвращает сформированный специальным образом тест, 
+по данным которого можно определить правильность ответов отправленного теста.
+Возвращает 403 если студент пытается отправить тест с ИД, который не был ему выдан.
+
+StGetTest(TestID) Test
+Возвращает студенту тест по ИД. Возвращает 503 если студент пытается отправить тест с ИД, 
+который не был ему выдан.
+
+GetTask(TaskIDArray) MapTaskIDTask
+GetTheory(TheoryIDArray) MapTheoryIDTheory
+GetTest(TestIDArray) MapTestIDTest
+Возвращает учителю элементы по массиву ИД. Может вернуть пустую карту, если элементы
+с данными ИД не были найдены.
+
+SaveTask(TaskID, Task)
+SaveTheory(TheoryID, Theory)
+SaveTest(TestID, Test)
+Сохраняет переданный элемент под идентификатором.
+
+??? вот эти хз реализовывать или нет
+LatestTaskID() TaskID
+LatestTheoryID() TheoryID
+LatestTestID() TestID
+LatestUserID() UserID
+
+Tasks() TaskIDArray
+Tests() TestIDArray
+Theories() TheoryIDArray
+Users() MapUserIDString
+
+ComposeTest(TheoryID, TaskIDArray) TestID
+
+
