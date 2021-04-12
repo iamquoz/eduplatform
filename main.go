@@ -152,7 +152,7 @@ func init() {
 		methods[m.Name] = func(w http.ResponseWriter, r *http.Request) {
 			var err error
 			// allow cors
-			w.Header().Add("Access-Control-Allow-Origin", "*")
+			//w.Header().Add("Access-Control-Allow-Origin", "*")
 			// we'll definetly get a performance loss there but who cares?
 			player, code := makeAuth(r)
 			if code != http.StatusOK {
