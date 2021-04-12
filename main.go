@@ -91,7 +91,7 @@ func getsrvport() uint16 {
 	if s == "" {
 		log.Println("PORT isn't set, if it is under Heroku something bad was happened.")
 		// running not under heroku
-		return 80
+		return 8080
 	}
 	i, err := strconv.ParseUint(s, 10, 16)
 	if err != nil {
@@ -127,7 +127,7 @@ func init() {
 	err = tes.Load()
 	switch err.(type) {
 	case *os.PathError:
-		// err here means that it was never dumped to this point so ignore it
+		// err here means that store was never dumped to this moment so ignore it
 	default:
 		log.Fatal(err)
 	}
