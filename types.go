@@ -33,12 +33,10 @@ type (
 	// because `reflect` doesn't provide a way to get an argument of primitive or private type
 	//
 	// And also for sake of orthogonality, yyyeeeaaaaahhhh...
-	String      string
-	TaskIDArray []TaskID
-	//TestIDArray     []TestID
+	String          string
+	TaskIDArray     []TaskID
 	MapUserIDString map[UserID]string
-	//MapTestIDTest   map[TestID]Test
-	Int int
+	Int             int
 )
 
 // Player is a user with its role and token
