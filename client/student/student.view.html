@@ -1,19 +1,18 @@
-<p>Личный кабинет</p>
-<div>
+<div style="max-width: 60%; margin-left: auto; margin-right: auto;">
 	<md-content class="md-padding" layout="column" style="background-color: #eee;">
 		<md-card ng-controller = "viewStats" ng-click = "showPrompt($event)">
-			<img src="./img/bg.svg">
-			<md-card-title>
-				<md-card-title-text>
-					<span class = "md-headline">Статистика</span>
-				</md-card-title-text>	
-			</md-card-title>
-			<md-card-content>
-				<p>Баллы и выполненные задания</p>
-			</md-card-content>
-		</md-card>
+				<img src="./img/bgstats.svg">
+				<md-card-title>
+					<md-card-title-text>
+						<span class = "md-headline">Статистика</span>
+					</md-card-title-text>	
+				</md-card-title>
+				<md-card-content>
+					<p>Баллы и выполненные задания</p>
+				</md-card-content>
+			</md-card>
 		<md-card ng-controller = "viewTests" ng-click = "showPrompt($event)" >
-			<img src="./img/bg.svg">
+			<img src="./img/bgtasks.svg">
 			<md-card-title>
 				<md-card-title-text>
 					<span class = "md-headline">Лекции и задания</span>
@@ -24,5 +23,5 @@
 			</md-card-content>
 		</md-card>
 </md-content>
+<p style="margin-bottom: -50px;"><md-button class = "md-primary md-raised" href = "#!/login">Выйти</md-button></p>
 </div>
-<p><a href = "#!/login"><md-button class = "md-primary md-raised">Выйти</md-button></a></p>
