@@ -7,7 +7,7 @@ import (
 
 // Flop is a test method, it returns a string to check that server is working correctly
 func (p *Player) Flop() String {
-	return "i'am wanted for war crimes in uganda"
+	return "i am wanted for war crimes in uganda"
 }
 
 // Echo is an another test method, it adds 1 to the input and returns it
