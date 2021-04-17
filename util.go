@@ -11,6 +11,7 @@ func maxid() (u UserID, err error) {
 	return
 }
 
+// sesh gets a hash of password string.
 func sesh(passw string) int32 {
 	var hasher = sha512.New()
 	hashs := hasher.Sum([]byte(passw))

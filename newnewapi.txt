@@ -1,34 +1,57 @@
-StSendTest(TestID, Test) Test
-Принимает ответы на тест, возвращает сформированный специальным образом тест, 
-по данным которого можно определить правильность ответов отправленного теста.
-Возвращает 403 если студент пытается отправить тест с ИД, который не был ему выдан.
+func AddStudent(String) StudentID
+func ZapStudent(StudentID)
+добавить-удалить студента
 
-StGetTest(TestID) Test
-Возвращает студенту тест по ИД. Возвращает 503 если студент пытается отправить тест с ИД, 
-который не был ему выдан.
+func NewTask(Task, TheoryID) TaskID
+func RenewTask(TaskID, Task, TheoryID)
+func StGetTask(TaskID) Task
+func ZapTask(TaskID)
+добавить-изменить-получить-удалить задания
 
-GetTask(TaskIDArray) MapTaskIDTask
-GetTheory(TheoryIDArray) MapTheoryIDTheory
-GetTest(TestIDArray) MapTestIDTest
-Возвращает учителю элементы по массиву ИД. Может вернуть пустую карту, если элементы
-с данными ИД не были найдены.
+func NewTheory(Theory) TheoryID
+func RenewTheory(TheoryID, Theory)
+func StGetTheory(TheoryID) Theory
+func ZapTheory(TheoryID)
+тоже самое, но с теорией
 
-SaveTask(TaskID, Task)
-SaveTheory(TheoryID, Theory)
-SaveTest(TestID, Test)
-Сохраняет переданный элемент под идентификатором.
+func Appoint(StudentIDArray, TheoryID, TaskIDArray)
+назначить студентам задание из теории и массива заданий
+(научите этого еблана композиции уже)
 
-??? вот эти хз реализовывать или нет
-LatestTaskID() TaskID
-LatestTheoryID() TheoryID
-LatestTestID() TestID
-LatestUserID() UserID
+func GetStats(StudentID) Stats
+получить статистику по студенту
 
-Tasks() TaskIDArray
-Tests() TestIDArray
-Theories() TheoryIDArray
-Users() MapUserIDString
+func StSelfStats() Stats
+получить статистику по студенту для самого студента
 
-ComposeTest(TheoryID, TaskIDArray) TestID
+func Unread() MapStudentIDTaskID
+получить все непроверенные задания, на которые студенты дали ответы
 
+func Rate(StudentID, TaskID, String, Bool)
+оценить задание, выданное студенту
+c опциональным комментарием
 
+func StSendAnswers(TaskID, Task) Int
+отправить ответ на задание
+возвращает количество оставшихся попыток
+после того, как эта фция вернёт 0 сделать 
+ответ будет нельзя
+
+func StGetAnswers(TaskID) Task
+возвращает правильный ответ на задание
+срабатывает только тогда, когда StSendAnswers
+возвращает 0
+
+func StSent() ArrayTaskID
+возвращает массив отправленных задач
+
+func StRating() MapTaskIDInt
+возвращает баллы за все задания
+
+func StRatedOpen() MapTaskIDBool
+были ли проверены выданные задания открытого типа?
+
+func StCommentary(TaskID) String
+возвращает комментарии преподавателя на требуемый таск
+если ид принадлежит закрытому вопросу, то всегда
+на такой ид вернёт пустую строку
