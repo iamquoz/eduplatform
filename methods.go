@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha512"
+	"fmt"
 	"log"
 )
 
@@ -20,25 +21,15 @@ func (p *Player) StLogout() {
 	ts.RejectToken(p.Token)
 }
 
-// StGetTest returns taskids assigned for a user.
-// Nil if task was not given to user or if testid does not exist.
-func (p *Player) StGetTest(id TestID) TaskIDArray {
-	a, _ := tes.Given[p.UserID]
-	found := false
-	for _, e := range a {
-		found = e == id
-	}
-	if !found {
-		return nil
-	}
-	_, tia := tes.Manipulate(id, nil)
-	return tia
-}
-
 // StGetTask returns a task by id. Any user can get any task, this is
 // not intentional. Probably needs to be fixed.
-func (p *Player) StGetTask(id TaskID) Task {
-	return *tes.ReadTask(id)
+func (p *Player) StGetTask(id TaskID) *Task {
+	v, err := tes.ReadTask(id)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return v
 }
 
 func maxid() (u UserID, err error) {
@@ -67,16 +58,6 @@ func (p *Player) NewStudent(name String, uid UserID) {
 	if err != nil {
 		log.Print(err)
 	}
-}
-
-// NewTest registers a new test from taskids.
-func (p *Player) NewTest(tasks TaskIDArray, name String) TestID {
-	tid := tes.Compose(tasks)
-	_, err := dbconn.Exec(`insert into tests (id, name) values $1, $2`, tid, name)
-	if err != nil {
-		log.Print(err)
-	}
-	return tid
 }
 
 // StRegister changes password for a user

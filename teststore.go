@@ -1,35 +1,38 @@
 package main
 
 import (
+	"bytes"
 	"encoding/gob"
 	"encoding/json"
-	"fmt"
-	"log"
 	"os"
 	"sync"
+
+	"github.com/jackc/pgx"
 )
+
+// TaskLength is a maximum length of a gob containing a task in DB.
+// We got this value empirically.
+const TaskLength = 6 * 1 << 10
 
 // TestStore is a storage of tests and assignments
 type TestStore struct {
 	sync.Mutex
-	Given        map[UserID][]TestID
-	GivenTheory  map[UserID][]TheoryID
-	Tests        map[TestID][]TaskID
-	LatestTestID TestID
-	taskpath     string
-	dumppath     string
-	dirty        bool
+	Given       map[UserID][]TaskID
+	GivenTheory map[UserID][]TheoryID
+	taskpath    string
+	dumppath    string
+	dirty       bool
+	ConnPool    *pgx.ConnPool
 }
 
 // NewTestStore creates a new TestStore object
-func NewTestStore(taskpath string, dumppath string) *TestStore {
+func NewTestStore(taskpath string, dumppath string, conn *pgx.ConnPool) *TestStore {
 	return &TestStore{
-		Given:        make(map[UserID][]TestID),
-		Tests:        make(map[TestID][]TaskID),
-		LatestTestID: 0,
-		taskpath:     taskpath,
-		dumppath:     dumppath,
-		dirty:        false,
+		Given:    make(map[UserID][]TaskID),
+		taskpath: taskpath,
+		dumppath: dumppath,
+		dirty:    false,
+		ConnPool: conn,
 	}
 }
 
@@ -66,7 +69,7 @@ func (t *TestStore) Load() error {
 }
 
 // Give sets given TestIDs for a user, previous TIDs are returned.
-func (t *TestStore) Give(id UserID, new []TestID) (old []TestID) {
+func (t *TestStore) Give(id UserID, new []TaskID) (old []TaskID) {
 	t.Lock()
 	defer t.Unlock()
 	old = t.Given[id]
@@ -74,66 +77,65 @@ func (t *TestStore) Give(id UserID, new []TestID) (old []TestID) {
 	return
 }
 
-// Compose adds test to the store
-func (t *TestStore) Compose(tasks []TaskID) TestID {
-	t.Lock()
-	defer t.Unlock()
-	t.dirty = true
-	tid := t.LatestTestID
-	t.LatestTestID++
-	t.Tests[tid] = tasks
-	return tid
-}
-
 // Manipulate is a swiss army knife for editing tests.
 // It replaces already created test with new.
 // If new is nil it only returns test value and current last tid.
 // It is is possible to create a test with custom TestID with this method.
-func (t *TestStore) Manipulate(tid TestID, new []TaskID) (TestID, []TaskID) {
-	t.Lock()
-	defer t.Unlock()
-	t.dirty = true
-	old, _ := t.Tests[tid]
-	if new != nil {
-		t.Tests[tid] = new
+// func (t *TestStore) Manipulate(tid TestID, new []TaskID) (TestID, []TaskID) {
+// 	t.Lock()
+// 	defer t.Unlock()
+// 	t.dirty = true
+// 	old, _ := t.Tests[tid]
+// 	if new != nil {
+// 		t.Tests[tid] = new
+// 	}
+// 	return t.LatestTestID, old
+// }
+
+func task2gob(tk *Task) ([]byte, error) {
+	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
+	ge := gob.NewEncoder(buf)
+	err := ge.Encode(tk)
+	if err != nil {
+		return nil, err
 	}
-	return t.LatestTestID, old
+	return buf.Bytes(), nil
+}
+
+func gob2task(btk []byte) (tk *Task, err error) {
+	gd := gob.NewDecoder(bytes.NewBuffer(btk))
+	tk = new(Task)
+	err = gd.Decode(tk)
+	return
 }
 
 // ReadTask loads task by ID from file in location set on init
-func (t *TestStore) ReadTask(tid TaskID) *Task {
-	tk := new(Task)
-	f, err := os.Open(t.taskpath + fmt.Sprint(tid))
+func (t *TestStore) ReadTask(tid TaskID) (*Task, error) {
+	buf := make([]byte, 0, TaskLength)
+	row := t.ConnPool.QueryRow("write", "select data from tasks where id = $1", tid)
+	err := row.Scan(buf)
 	if err != nil {
-		log.Print(err)
-		return nil
+		return nil, err
 	}
-	gd := gob.NewDecoder(f)
-	err = gd.Decode(tk)
+	tk, err := gob2task(buf)
 	if err != nil {
-		log.Print(err)
-		return nil
+		return nil, err
 	}
-	return tk
+	return tk, nil
 }
 
-// fs access mutex
-var fsmu sync.Mutex
-
-// WriteTask writes task to file on location
-func (t *TestStore) WriteTask(tk *Task, tid TaskID) bool {
-	fsmu.Lock() // don't block map on fs access
-	defer fsmu.Unlock()
-	f, err := os.Create(t.taskpath + fmt.Sprint(tid))
+// WriteTask writes task to the store
+func (t *TestStore) WriteTask(tk *Task, tid TaskID) error {
+	t.Lock()
+	defer t.Unlock()
+	var err error
+	btk, err := task2gob(tk)
 	if err != nil {
-		log.Print(err)
-		return false
+		return err
 	}
-	ge := gob.NewEncoder(f)
-	err = ge.Encode(tk)
+	_, err = t.ConnPool.Exec("write", "insert into tasks (id, data) values ($1, $2)", tid, btk)
 	if err != nil {
-		log.Print(err)
-		return false
+		return err
 	}
-	return true
+	return nil
 }

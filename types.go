@@ -24,15 +24,6 @@ type Theory struct {
 	Body   string
 }
 
-// TestID is an identifier of saved test.
-type TestID int32
-
-type Test struct {
-	ID TestID
-	Theory
-	Tasks []Task
-}
-
 // UserID is used to discriminate users in database
 type UserID int32
 
@@ -42,12 +33,12 @@ type (
 	// because `reflect` doesn't provide a way to get an argument of primitive or private type
 	//
 	// And also for sake of orthogonality, yyyeeeaaaaahhhh...
-	String          string
-	TaskIDArray     []TaskID
-	TestIDArray     []TestID
+	String      string
+	TaskIDArray []TaskID
+	//TestIDArray     []TestID
 	MapUserIDString map[UserID]string
-	MapTestIDTest   map[TestID]Test
-	Int             int
+	//MapTestIDTest   map[TestID]Test
+	Int int
 )
 
 // Player is a user with its role and token

@@ -89,7 +89,7 @@ func shrinkstruct(args []reflect.Value) reflect.Value {
 func getsrvport() uint16 {
 	s := os.Getenv("PORT")
 	if s == "" {
-		log.Println("PORT isn't set, if it is under Heroku something bad was happened.")
+		log.Println("$PORT isn't set, if it is under Heroku something bad happened.")
 		// running not under heroku
 		return 8080
 	}
@@ -119,18 +119,6 @@ func getdbcred() pgx.ConnConfig {
 
 func init() {
 	var err error
-	rand.Seed(time.Now().Unix())
-	ts = NewTokenStore()
-	tes = NewTestStore(taskpath, dumppath)
-	shutdown = make(chan struct{}, 0)
-	// init teststore
-	err = tes.Load()
-	switch err.(type) {
-	case *os.PathError:
-		// err here means that store was never dumped to this moment so ignore it
-	default:
-		log.Fatal(err)
-	}
 	// init db connection
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
 		MaxConnections: 2500,
@@ -138,6 +126,18 @@ func init() {
 		AcquireTimeout: 120 * time.Second,
 	})
 	if err != nil {
+		log.Fatal(err)
+	}
+	rand.Seed(time.Now().Unix())
+	ts = NewTokenStore()
+	tes = NewTestStore(taskpath, dumppath, dbconn)
+	shutdown = make(chan struct{}, 0)
+	// init teststore
+	err = tes.Load()
+	switch err.(type) {
+	case *os.PathError:
+		// err here means that store was never dumped to this moment so ignore it
+	default:
 		log.Fatal(err)
 	}
 	// initialize method names from type information
