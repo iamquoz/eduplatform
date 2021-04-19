@@ -65,9 +65,17 @@ func (p *Player) StLogout()
 StRegister(new String)
 
 таблицы:
-theory (id integer, data bytea)
-logins (id integer, hash integer, names string, role integer)
-tasks (id integer, TheoryID integer, data bytea)
+theory (id integer primary key, data bytea)
+logins (id integer primary key, hash integer, names string, role integer)
+tasks (id integer primary key, TheoryID integer, data bytea)
 appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
+alter table answers add constraint anscons unique(sid, taskid)
 answers (sid integer, taskid integer, data bytea)
+alter table appointments add constraint appcons unique(sid, taskid)
 rating (sid integer, taskid integer, rated bool, comment varchar)
+
+case when select (sid, taskid) from answers is not null then
+	insert into answers (sid, taskid, data) values ($1, $2, $3)
+else
+	update values set data = $3 where sid = $1 and taskid = $2
+end
