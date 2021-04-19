@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -60,12 +61,12 @@ func (p *Player) GetStudents() MapStudentIDString {
 }
 
 func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
-	taid, err := maxtaid()
+	taid, err := maxid(`tasks`)
 	if err != nil {
 		log.Println(err)
 		return -1
 	}
-	return p.RenewTask(taid, tk, thid)
+	return p.RenewTask(TaskID(taid), tk, thid)
 }
 
 func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
@@ -126,26 +127,51 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
 	}
 }
 
-// func (p *Player) GetStats(StudentID) *Stats {
-// 	query := `select from appointments where sid = $1 and complete = true`
-// 	rows, err := dbconn.Query(query)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return nil
-// 	}
-// 	var total uint
-// 	var correct uint
-// 	for rows.Next() {
-// 		// may be ineffective
-// 		var r bool
-// 		//(sid integer, taskid integer, complete boolean, correct boolean)
-// 		rows.Scan(nil, nil, nil, &r)
-// 		query := ``
-// 		if r
-// 	}
-// 	return &Stats{}
-
-// 	//astats = astats[:len(astats)-1]
-// }
+func (p *Player) GetStats(StudentID) *Stats {
+	query := `select from appointments where sid = $1 and complete = true`
+	rows, err := dbconn.Query(query)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	// if there's going to be more levels fix it
+	total := make([]uint, 3)
+	correct := make([]uint, 3)
+	var totaltries uint = 0
+	for rows.Next() {
+		// WILL be ineffective on large scale
+		var r bool
+		var tid int32
+		var tries int32
+		//appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
+		rows.Scan(nil, &tid, nil, &r, &tries)
+		var compx uint
+		{
+			query := `select from tasks where taskid = $1`
+			sub := dbconn.QueryRow(query, tid)
+			buf := make([]byte, 0, 255)
+			err = sub.Scan(buf)
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+			tk, err := gob2task(buf)
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+			compx = tk.Difficulty
+		}
+		// see util.go:65
+		{
+			if r {
+				correct[compx-1]++
+			}
+			total[compx-1]++
+			totaltries += uint(tries)
+		}
+	}
+	return &Stats{Total: total, Correct: correct, TotalAttempts: totaltries}
+}
 
 //*/

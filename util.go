@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 )
 
+// get maximum id in table `tab`
 func maxid(tab string) (u int, err error) {
 	row := dbconn.QueryRow(`select max(id) from ` + tab)
 	err = row.Scan(&u)
@@ -15,16 +16,7 @@ func maxid(tab string) (u int, err error) {
 	return
 }
 
-func maxtaid() (id TaskID, err error) {
-	row := dbconn.QueryRow(`select max(id) from tasks`)
-	err = row.Scan(&id)
-	if err != nil {
-		return 0, err
-	}
-	return
-}
-
-// sesh gets a hash of password string.
+// gets a hash of password string
 func sesh(passw string) int32 {
 	var hasher = sha512.New()
 	hashs := hasher.Sum([]byte(passw))
@@ -67,4 +59,15 @@ func gob2theory(btk []byte) (th *Theory, err error) {
 	th = new(Theory)
 	err = gd.Decode(th)
 	return
+}
+
+// this function tries to fix incorrect data sent by client
+func taskfilter(tk *Task) *Task {
+	if tk.Difficulty > 3 {
+		tk.Difficulty = 3
+	}
+	if tk.Difficulty < 1 {
+		tk.Difficulty = 1
+	}
+	return tk
 }

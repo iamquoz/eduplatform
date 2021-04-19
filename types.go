@@ -25,9 +25,9 @@ type Theory struct {
 }
 
 type Stats struct {
-	Total         []int
-	Correct       []int
-	TotalAttempts int
+	Total         []uint
+	Correct       []uint
+	TotalAttempts uint
 }
 
 // StudentID is used to discriminate users in database

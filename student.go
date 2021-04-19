@@ -43,3 +43,7 @@ func (p *Player) StGetTheory(tid TheoryID) *Theory {
 	}
 	return theory
 }
+
+func (p *Player) StSelfStats() *Stats {
+	return p.GetStats(p.StudentID)
+}

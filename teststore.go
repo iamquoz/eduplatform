@@ -65,15 +65,6 @@ func (t *TestStore) Load() error {
 	return nil
 }
 
-// Give sets given TestIDs for a user, previous TIDs are returned.
-func (t *TestStore) Give(id StudentID, new []TaskID) (old []TaskID) {
-	t.Lock()
-	defer t.Unlock()
-	old = t.Given[id]
-	t.Given[id] = new
-	return
-}
-
 // Manipulate is a swiss army knife for editing tests.
 // It replaces already created test with new.
 // If new is nil it only returns test value and current last tid.
