@@ -213,3 +213,20 @@ func (p *Player) Unread() MapStudentIDArrayTaskID {
 	}
 	return m
 }
+
+func (p *Player) LoadAnswer(StudentID, TaskID) *Task {
+	query := `select data from answers where sid = $1 and taskid = $2`
+	row := dbconn.QueryRow(query)
+	buf := make([]byte, 0, 255)
+	err := row.Scan(buf)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	tk, err := gob2task(buf)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return tk
+}
