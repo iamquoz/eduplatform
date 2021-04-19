@@ -60,6 +60,7 @@ func (p *Player) GetStudents() MapStudentIDString {
 	return m
 }
 
+// NewTask saves task data. Returns -1 on error.
 func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
 	taid, err := maxid(`tasks`)
 	if err != nil {
@@ -69,6 +70,7 @@ func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
 	return p.RenewTask(TaskID(taid), tk, thid)
 }
 
+// RenewTask updates task data saved under ID. Returns -1 on error.
 func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
 	err := tes.WriteTask(&tk, taid, thid)
 	if err != nil {
@@ -78,6 +80,7 @@ func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
 	return taid
 }
 
+// ZapTask deletes saved task by ID
 func (p *Player) ZapTask(tid TaskID) {
 	var err error
 	query := `delete from tasks where id = $1`
@@ -87,6 +90,7 @@ func (p *Player) ZapTask(tid TaskID) {
 	}
 }
 
+// NewTheory saves theory data on server. Returns -1 on error.
 func (p *Player) NewTheory(th Theory) TheoryID {
 	uid, err := maxid(`theory`)
 	tid := TheoryID(uid + 1)
@@ -94,12 +98,20 @@ func (p *Player) NewTheory(th Theory) TheoryID {
 		log.Println(err)
 		return -1
 	}
-	return p.RenewTheory(tid, th)
-}
-
-func (p *Player) RenewTheory(thid TheoryID, th Theory) TheoryID {
 	bts, err := theory2gob(&th)
 	query := `insert into theory (id, data) values ($1, $2)`
+	_, err = dbconn.Exec(query, tid, bts)
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+	return tid
+}
+
+// RenewTheory updates theory data saved under ID. Returns -1 on error.
+func (p *Player) RenewTheory(thid TheoryID, th Theory) TheoryID {
+	bts, err := theory2gob(&th)
+	query := `update theory set data = $2 where id = $1`
 	_, err = dbconn.Exec(query, thid, bts)
 	if err != nil {
 		log.Println(err)
@@ -108,6 +120,7 @@ func (p *Player) RenewTheory(thid TheoryID, th Theory) TheoryID {
 	return thid
 }
 
+// ZapTheory deletes saved theory by ID
 func (p *Player) ZapTheory(thid TheoryID) {
 	query := `delete from theory where id = $1`
 	_, err := dbconn.Exec(query, thid)
@@ -116,6 +129,7 @@ func (p *Player) ZapTheory(thid TheoryID) {
 	}
 }
 
+// Appoint assigns tasks by ID to students
 func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
 	query := `insert into appointments (sid, taskids, complete, correct)`
 	for _, sid := range sida {
@@ -127,8 +141,10 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
 	}
 }
 
+// GetStats returns stats for a student
 func (p *Player) GetStats(StudentID) *Stats {
-	query := `select from appointments where sid = $1 and complete = true`
+	//appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
+	query := `select (taskid, correct, tries) from appointments where sid = $1 and complete = true`
 	rows, err := dbconn.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -143,11 +159,10 @@ func (p *Player) GetStats(StudentID) *Stats {
 		var r bool
 		var tid int32
 		var tries int32
-		//appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
-		rows.Scan(nil, &tid, nil, &r, &tries)
+		rows.Scan(&tid, &r, &tries)
 		var compx uint
 		{
-			query := `select from tasks where taskid = $1`
+			query := `select data from tasks where taskid = $1`
 			sub := dbconn.QueryRow(query, tid)
 			buf := make([]byte, 0, 255)
 			err = sub.Scan(buf)
@@ -174,4 +189,27 @@ func (p *Player) GetStats(StudentID) *Stats {
 	return &Stats{Total: total, Correct: correct, TotalAttempts: totaltries}
 }
 
-//*/
+// Unread returns unrated by teacher TaskIDs for each user
+func (p *Player) Unread() MapStudentIDArrayTaskID {
+	//rating (sid integer, taskid integer, rated bool, comment varchar)
+	query := `select (sid, taskid) from rating where rated = false`
+	rows, err := dbconn.Query(query)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	m := make(MapStudentIDArrayTaskID)
+	for rows.Next() {
+		var sid StudentID
+		var taskid TaskID
+		rows.Scan(&sid, &taskid)
+		if _, k := m[sid]; k {
+			m[sid] = append(m[sid], taskid)
+		} else {
+			// maybe in serious applications this 10 could be coefficient
+			// multiplied to total students count
+			m[sid] = make([]TaskID, 0, 10)
+		}
+	}
+	return m
+}

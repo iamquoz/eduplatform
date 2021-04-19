@@ -1,64 +1,67 @@
-func AddStudent(String) StudentID
-func ZapStudent(StudentID)
+func (p *Player) AddStudent(String) StudentID
+func (p *Player) ZapStudent(StudentID)
 добавить-удалить студента
 
 GetStudents() MapStudentIDString
 
-func NewTask(Task, TheoryID) TaskID
-func RenewTask(TaskID, Task, TheoryID)
-func StGetTask(TaskID) Task
-func ZapTask(TaskID)
+func (p *Player) NewTask(Task, TheoryID) TaskID
+func (p *Player) RenewTask(TaskID, Task, TheoryID)
+func (p *Player) StGetTask(TaskID) Task
+func (p *Player) ZapTask(TaskID)
 добавить-изменить-получить-удалить задания
 
-func NewTheory(Theory) TheoryID
-func RenewTheory(TheoryID, Theory)
-func StGetTheory(TheoryID) Theory
-func ZapTheory(TheoryID)
+func (p *Player) NewTheory(Theory) TheoryID
+func (p *Player) RenewTheory(TheoryID, Theory)
+func (p *Player) StGetTheory(TheoryID) Theory
+func (p *Player) ZapTheory(TheoryID)
 тоже самое, но с теорией
 
-func Appoint(StudentIDArray, TheoryID, TaskIDArray)
+func (p *Player) Appoint(StudentIDArray, TheoryID, TaskIDArray)
 назначить студентам задание из теории и массива заданий
 (научите этого еблана композиции уже)
 
-func GetStats(StudentID) Stats
+func (p *Player) GetStats(StudentID) Stats
 получить статистику по студенту
 
-func StSelfStats() Stats
+func (p *Player) StSelfStats() Stats
 получить статистику по студенту для самого студента
 
-func Unread() MapStudentIDTaskID
+func (p *Player) Unread() MapStudentIDTaskID
 получить все непроверенные задания, на которые студенты дали ответы
 
-func Rate(StudentID, TaskID, String, Bool)
+func (p *Player) LoadAnswer(StudentID, TaskID) *Task
+получить ответ на задание, которое дал студент
+
+func (p *Player) Rate(StudentID, TaskID, String, Bool)
 оценить задание, выданное студенту
 c опциональным комментарием
 
-func StSendAnswers(TaskID, Task) Int
+func (p *Player) StSendAnswers(TaskID, Task) Int
 отправить ответ на задание
 возвращает количество оставшихся попыток
 после того, как эта фция вернёт 0 сделать 
 ответ будет нельзя
 
-func StGetAnswers(TaskID) Task
+func (p *Player) StGetAnswers(TaskID) Task
 возвращает правильный ответ на задание
 срабатывает только тогда, когда StSendAnswers
 возвращает 0
 
-func StSent() ArrayTaskID
+func (p *Player) StSent() ArrayTaskID
 возвращает массив отправленных задач
 
-func StRating() MapTaskIDInt
+func (p *Player) StRating() MapTaskIDInt
 возвращает баллы за все задания
 
-func StRatedOpen() MapTaskIDBool
+func (p *Player) StRatedOpen() MapTaskIDBool
 были ли проверены выданные задания открытого типа?
 
-func StCommentary(TaskID) String
+func (p *Player) StCommentary(TaskID) String
 возвращает комментарии преподавателя на требуемый таск
 если ид принадлежит закрытому вопросу, то всегда
 на такой ид вернёт пустую строку
 
-func StLogout()
+func (p *Player) StLogout()
 StRegister(new String)
 
 таблицы:

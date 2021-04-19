@@ -18,12 +18,16 @@ type Task struct {
 // TheoryID is a unique theory data ID.
 type TheoryID int32
 
+// Theory is a theory data storing struct
 type Theory struct {
 	ID     TheoryID
 	Header string
 	Body   string
 }
 
+// Stats describes student's statistics in system.
+// This structure with its asocciated methods are subjects to change
+// in future versions.
 type Stats struct {
 	Total         []uint
 	Correct       []uint
@@ -39,11 +43,13 @@ type (
 	// because `reflect` doesn't provide a way to get an argument of primitive or private type
 	//
 	// And also for sake of orthogonality, yyyeeeaaaaahhhh...
-	String             string
-	TaskIDArray        []TaskID
-	StudentIDArray     []StudentID
-	MapStudentIDString map[StudentID]string
-	Int                int
+	String                  string
+	TaskIDArray             []TaskID
+	StudentIDArray          []StudentID
+	MapStudentIDString      map[StudentID]string
+	MapStudentIDTaskID      map[StudentID]TaskID
+	MapStudentIDArrayTaskID map[StudentID][]TaskID
+	Int                     int
 )
 
 // Player is a user with its role and token
