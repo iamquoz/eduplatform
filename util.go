@@ -2,7 +2,7 @@ package main
 
 import "crypto/sha512"
 
-func maxid() (u UserID, err error) {
+func maxid() (u StudentID, err error) {
 	row := dbconn.QueryRow(`select max(id) from logins`)
 	err = row.Scan(&u)
 	if err != nil {

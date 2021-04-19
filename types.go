@@ -24,8 +24,8 @@ type Theory struct {
 	Body   string
 }
 
-// UserID is used to discriminate users in database
-type UserID int32
+// StudentID is used to discriminate users in database
+type StudentID int32
 
 // Wrapper types.
 type (
@@ -35,13 +35,13 @@ type (
 	// And also for sake of orthogonality, yyyeeeaaaaahhhh...
 	String          string
 	TaskIDArray     []TaskID
-	MapUserIDString map[UserID]string
+	MapUserIDString map[StudentID]string
 	Int             int
 )
 
 // Player is a user with its role and token
 type Player struct {
-	UserID
+	StudentID
 	Role   int
 	Token  uint64
 	Tested time.Duration
@@ -50,5 +50,5 @@ type Player struct {
 // NilPlayer returns a non-existing player.
 // UserID 0 doesn't imply that player does not exist.
 func NilPlayer() Player {
-	return Player{UserID: 0, Role: -1, Token: 0}
+	return Player{StudentID: 0, Role: -1, Token: 0}
 }

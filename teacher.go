@@ -14,13 +14,17 @@ func (p *Player) Echo(i Int) Int {
 	return i + 1
 }
 
-// NewStudent creates a new student account with empty password.
-func (p *Player) NewStudent(name String, uid UserID) {
+// AddStudent creates a new student account with empty password.
+func (p *Player) AddStudent(name String, uid StudentID) {
 	query := `insert into logins (id, hash, names, role) values ($1, $2, $3, 1)`
 	_, err := dbconn.Exec(query, uid+1, sesh(""), name)
 	if err != nil {
 		log.Print(err)
 	}
+}
+
+func ZapStudent(StudentID) {
+
 }
 
 // GetStudents returns a list of all students
@@ -33,7 +37,7 @@ func (p *Player) GetStudents() MapUserIDString {
 	}
 	m := make(MapUserIDString)
 	for rows.Next() {
-		var uid UserID
+		var uid StudentID
 		var names string
 		rows.Scan(&uid, &names)
 		m[uid] = names

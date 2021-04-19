@@ -16,7 +16,7 @@ type TokenStore struct {
 func (a *TokenStore) String() string {
 	var s string
 	for k, v := range a.Map {
-		s += fmt.Sprintf("%x is id %v of %v\n", k, v.UserID, v.Role)
+		s += fmt.Sprintf("%x is id %v of %v\n", k, v.StudentID, v.Role)
 	}
 	return s
 }
@@ -47,7 +47,7 @@ func (a *TokenStore) RejectToken(token uint64) {
 // MakeToken creates a token for a sucsessfully authorized user.
 // Authorizations are checked somewhere else.
 // It's possible to have multiple tokens for one user.
-func (a *TokenStore) MakeToken(u UserID, role int) (token uint64) {
+func (a *TokenStore) MakeToken(u StudentID, role int) (token uint64) {
 	a.Lock()
 	defer a.Unlock()
 again:

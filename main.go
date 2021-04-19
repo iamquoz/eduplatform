@@ -90,7 +90,6 @@ func getsrvport() uint16 {
 	s := os.Getenv("PORT")
 	if s == "" {
 		log.Println("$PORT isn't set, if it is under Heroku something bad happened.")
-		// running not under heroku
 		return 8080
 	}
 	i, err := strconv.ParseUint(s, 10, 16)
@@ -263,7 +262,7 @@ func main() {
 			int32(hashs[3])<<16 |
 			int32(hashs[4])<<24
 		// You'll regret this.
-		uid := UserID(id)
+		uid := StudentID(id)
 
 		row := dbconn.QueryRow("select hash, role from Logins where id = $1;", uid)
 		var rpassw int32
@@ -272,6 +271,7 @@ func main() {
 		if err != nil {
 			log.Print(err)
 		}
+		// unidiomatic, but i don't give a fuck
 		fmt.Printf("uid %v has tried to authorize and ", uid)
 
 		if rpassw == hash {
