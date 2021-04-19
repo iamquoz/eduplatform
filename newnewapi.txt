@@ -2,6 +2,8 @@ func AddStudent(String) StudentID
 func ZapStudent(StudentID)
 добавить-удалить студента
 
+GetStudents() MapStudentIDString
+
 func NewTask(Task, TheoryID) TaskID
 func RenewTask(TaskID, Task, TheoryID)
 func StGetTask(TaskID) Task
@@ -55,3 +57,13 @@ func StCommentary(TaskID) String
 возвращает комментарии преподавателя на требуемый таск
 если ид принадлежит закрытому вопросу, то всегда
 на такой ид вернёт пустую строку
+
+func StLogout()
+StRegister(new String)
+
+таблицы:
+theory (id integer, data bytea)
+logins (id integer, hash integer, names string, role integer)
+tasks (id integer, TheoryID integer, data bytea)
+appointments (sid integer, taskid integer, complete boolean, correct boolean)
+rating (sid integer, taskid integer, rated bool, comment varchar)

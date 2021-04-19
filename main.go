@@ -286,7 +286,7 @@ func main() {
 		}
 	})
 	for k, v := range methods {
-		http.HandleFunc("/"+k, v)
+		http.HandleFunc("/api/"+k, v)
 	}
 	// handle client tree
 	http.Handle("/", http.FileServer(http.Dir("client/")))

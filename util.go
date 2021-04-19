@@ -1,10 +1,23 @@
 package main
 
-import "crypto/sha512"
+import (
+	"bytes"
+	"crypto/sha512"
+	"encoding/gob"
+)
 
-func maxid() (u StudentID, err error) {
-	row := dbconn.QueryRow(`select max(id) from logins`)
+func maxid(tab string) (u int, err error) {
+	row := dbconn.QueryRow(`select max(id) from ` + tab)
 	err = row.Scan(&u)
+	if err != nil {
+		return 0, err
+	}
+	return
+}
+
+func maxtaid() (id TaskID, err error) {
+	row := dbconn.QueryRow(`select max(id) from tasks`)
+	err = row.Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -20,4 +33,38 @@ func sesh(passw string) int32 {
 		int32(hashs[3])<<16 |
 		int32(hashs[4])<<24
 	return hash
+}
+
+func task2gob(tk *Task) ([]byte, error) {
+	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
+	ge := gob.NewEncoder(buf)
+	err := ge.Encode(tk)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func gob2task(btk []byte) (tk *Task, err error) {
+	gd := gob.NewDecoder(bytes.NewBuffer(btk))
+	tk = new(Task)
+	err = gd.Decode(tk)
+	return
+}
+
+func theory2gob(th *Theory) ([]byte, error) {
+	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
+	ge := gob.NewEncoder(buf)
+	err := ge.Encode(th)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func gob2theory(btk []byte) (th *Theory, err error) {
+	gd := gob.NewDecoder(bytes.NewBuffer(btk))
+	th = new(Theory)
+	err = gd.Decode(th)
+	return
 }

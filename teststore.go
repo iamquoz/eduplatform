@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/gob"
 	"encoding/json"
 	"os"
 	"sync"
@@ -17,12 +15,11 @@ const TaskLength = 6 * 1 << 10
 // TestStore is a storage of tests and assignments
 type TestStore struct {
 	sync.Mutex
-	Given       map[StudentID][]TaskID
-	GivenTheory map[StudentID][]TheoryID
-	taskpath    string
-	dumppath    string
-	dirty       bool
-	ConnPool    *pgx.ConnPool
+	Given    map[StudentID][]TaskID
+	taskpath string
+	dumppath string
+	dirty    bool
+	ConnPool *pgx.ConnPool
 }
 
 // NewTestStore creates a new TestStore object
@@ -92,23 +89,6 @@ func (t *TestStore) Give(id StudentID, new []TaskID) (old []TaskID) {
 // 	return t.LatestTestID, old
 // }
 
-func task2gob(tk *Task) ([]byte, error) {
-	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
-	ge := gob.NewEncoder(buf)
-	err := ge.Encode(tk)
-	if err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}
-
-func gob2task(btk []byte) (tk *Task, err error) {
-	gd := gob.NewDecoder(bytes.NewBuffer(btk))
-	tk = new(Task)
-	err = gd.Decode(tk)
-	return
-}
-
 // ReadTask loads task by ID from file in location set on init
 func (t *TestStore) ReadTask(tid TaskID) (*Task, error) {
 	buf := make([]byte, 0, TaskLength)
@@ -125,7 +105,7 @@ func (t *TestStore) ReadTask(tid TaskID) (*Task, error) {
 }
 
 // WriteTask writes task to the store
-func (t *TestStore) WriteTask(tk *Task, tid TaskID) error {
+func (t *TestStore) WriteTask(tk *Task, tid TaskID, thid TheoryID) error {
 	t.Lock()
 	defer t.Unlock()
 	var err error
@@ -133,7 +113,7 @@ func (t *TestStore) WriteTask(tk *Task, tid TaskID) error {
 	if err != nil {
 		return err
 	}
-	_, err = t.ConnPool.Exec("write", "insert into tasks (id, data) values ($1, $2)", tid, btk)
+	_, err = t.ConnPool.Exec("write", "insert into tasks (id, data, theoryid) values ($1, $2, $3)", tid, btk, thid)
 	if err != nil {
 		return err
 	}

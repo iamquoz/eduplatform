@@ -24,6 +24,12 @@ type Theory struct {
 	Body   string
 }
 
+type Stats struct {
+	Total         []int
+	Correct       []int
+	TotalAttempts int
+}
+
 // StudentID is used to discriminate users in database
 type StudentID int32
 
@@ -35,6 +41,7 @@ type (
 	// And also for sake of orthogonality, yyyeeeaaaaahhhh...
 	String             string
 	TaskIDArray        []TaskID
+	StudentIDArray     []StudentID
 	MapStudentIDString map[StudentID]string
 	Int                int
 )

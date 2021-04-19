@@ -21,6 +21,9 @@ func (p *Player) StGetTask(id TaskID) *Task {
 	return v
 }
 
+// penis
+// public ephemeron non-dynamic interface selector
+
 // StRegister changes password for a user
 func (p *Player) StRegister(new String) {
 	query := `update logins set hash = $1 where id = $2`
@@ -28,4 +31,15 @@ func (p *Player) StRegister(new String) {
 	if err != nil {
 		log.Print(err)
 	}
+}
+
+func (p *Player) StGetTheory(tid TheoryID) *Theory {
+	row := dbconn.QueryRow(`select from theory where id = $1`)
+	theory := new(Theory)
+	err := row.Scan(theory)
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	return theory
 }
