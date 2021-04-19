@@ -24,7 +24,7 @@ func (p *Player) StGetTask(id TaskID) *Task {
 // StRegister changes password for a user
 func (p *Player) StRegister(new String) {
 	query := `update logins set hash = $1 where id = $2`
-	_, err := dbconn.Exec(query, sesh(string(new)), p.UserID)
+	_, err := dbconn.Exec(query, sesh(string(new)), p.StudentID)
 	if err != nil {
 		log.Print(err)
 	}

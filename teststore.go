@@ -17,8 +17,8 @@ const TaskLength = 6 * 1 << 10
 // TestStore is a storage of tests and assignments
 type TestStore struct {
 	sync.Mutex
-	Given       map[UserID][]TaskID
-	GivenTheory map[UserID][]TheoryID
+	Given       map[StudentID][]TaskID
+	GivenTheory map[StudentID][]TheoryID
 	taskpath    string
 	dumppath    string
 	dirty       bool
@@ -28,7 +28,7 @@ type TestStore struct {
 // NewTestStore creates a new TestStore object
 func NewTestStore(taskpath string, dumppath string, conn *pgx.ConnPool) *TestStore {
 	return &TestStore{
-		Given:    make(map[UserID][]TaskID),
+		Given:    make(map[StudentID][]TaskID),
 		taskpath: taskpath,
 		dumppath: dumppath,
 		dirty:    false,
@@ -69,7 +69,7 @@ func (t *TestStore) Load() error {
 }
 
 // Give sets given TestIDs for a user, previous TIDs are returned.
-func (t *TestStore) Give(id UserID, new []TaskID) (old []TaskID) {
+func (t *TestStore) Give(id StudentID, new []TaskID) (old []TaskID) {
 	t.Lock()
 	defer t.Unlock()
 	old = t.Given[id]

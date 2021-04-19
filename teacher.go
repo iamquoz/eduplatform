@@ -28,14 +28,14 @@ func ZapStudent(StudentID) {
 }
 
 // GetStudents returns a list of all students
-func (p *Player) GetStudents() MapUserIDString {
+func (p *Player) GetStudents() MapStudentIDString {
 	query := `select (id, names) from logins`
 	rows, err := dbconn.Query(query)
 	if err != nil {
 		log.Print(err)
 		return nil
 	}
-	m := make(MapUserIDString)
+	m := make(MapStudentIDString)
 	for rows.Next() {
 		var uid StudentID
 		var names string
