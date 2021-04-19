@@ -6,9 +6,9 @@
 	</md-toolbar>
 	<md-dialog-content>
 		<md-content class="md-padding" layout = "row" flex = "">
-			<md-sidenav md-component-id="left" class = "md-sidenav-left" md-is-locked-open = "true" style="min-height: 100%; max-width: 30%;">
+			<md-sidenav md-component-id="left" class = "md-sidenav-left" md-is-locked-open = "true" style="min-height: 100%;">
 				<ul>
-					<li ng-repeat = "theme in vm.theories"><md-button ng-class="{'md-primary md-raised' : $index == vm.selected}" ng-click = "getData($index)">{{theme}}</md-button></li>
+					<li ng-repeat = "theme in vm.theories"><p ng-class="{'md-primary md-raised' : $index == vm.selected}" ng-click = "getData($index)" style="max-width: 40%;  font-size: 16px; text-align: center; padding-bottom: 20px;">{{theme}}</p></li>
 				</ul>
 			</md-sidenav>
 			<div ng-show = "vm.selected != -1" style="max-width: 60%;">
