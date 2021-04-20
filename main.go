@@ -21,7 +21,6 @@ import (
 var methods map[string]http.HandlerFunc
 
 var ts *TokenStore
-var tes *TestStore
 var dbconn *pgx.ConnPool
 var shutdown chan struct{}
 
