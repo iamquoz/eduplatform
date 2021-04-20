@@ -226,9 +226,9 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
                         stCtrl.boolTasks = !(stCtrl.selected == -1);
 
 						$scope.options0 = {maintainAspectRatio: true, title: {display: true, text: "Общее количество", fontSize: 14}};
-						$scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Первый уровень", fontSize: 14}};
-						$scope.options2 = {maintainAspectRatio: true, title: {display: true, text: "Второй уровень", fontSize: 14}};
-						$scope.options3 = {maintainAspectRatio: true, title: {display: true, text: "Третий уровень", fontSize: 14}};
+						$scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Базовый уровень", fontSize: 14}};
+						$scope.options2 = {maintainAspectRatio: true, title: {display: true, text: "Продвинутый уровень", fontSize: 14}};
+						$scope.options3 = {maintainAspectRatio: true, title: {display: true, text: "Высокий уровень", fontSize: 14}};
 						$scope.options4 = {maintainAspectRatio: true, title: {display: true, text: "Четвертый уровень", fontSize: 14}};
 
 						$scope.data = stCtrl.stats[index];	
@@ -287,9 +287,9 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
                         stCtrl.boolTasks = !(stCtrl.selected == -1);
 
 						$scope.options0 = {maintainAspectRatio: true, title: {display: true, text: "Общее количество", fontSize: 14}};
-						$scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Первый уровень", fontSize: 14}};
-						$scope.options2 = {maintainAspectRatio: true, title: {display: true, text: "Второй уровень", fontSize: 14}};
-						$scope.options3 = {maintainAspectRatio: true, title: {display: true, text: "Третий уровень", fontSize: 14}};
+						$scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Базовый уровень", fontSize: 14}};
+						$scope.options2 = {maintainAspectRatio: true, title: {display: true, text: "Продвинутый уровень", fontSize: 14}};
+						$scope.options3 = {maintainAspectRatio: true, title: {display: true, text: "Высокий уровень", fontSize: 14}};
 						$scope.options4 = {maintainAspectRatio: true, title: {display: true, text: "Четвертый уровень", fontSize: 14}};
 
 						$scope.data = stCtrl.stats[index];	
