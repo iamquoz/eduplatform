@@ -6,6 +6,10 @@ import (
 	"encoding/gob"
 )
 
+// TaskLength is a maximum length of a gob containing a task in DB.
+// We got this value empirically.
+const TaskLength = 6 * 1 << 10
+
 // get maximum id in table `tab`
 func maxid(tab string) (u int, err error) {
 	row := dbconn.QueryRow(`select max(id) from ` + tab)
@@ -70,4 +74,41 @@ func taskfilter(tk *Task) *Task {
 		tk.Difficulty = 1
 	}
 	return tk
+}
+
+// readtask loads task by ID from file in location set on init
+func readtask(tid TaskID) (*Task, error) {
+	buf := make([]byte, 0, TaskLength)
+	row := dbconn.QueryRow("select data from tasks where id = $1", tid)
+	err := row.Scan(buf)
+	if err != nil {
+		return nil, err
+	}
+	tk, err := gob2task(buf)
+	if err != nil {
+		return nil, err
+	}
+	return tk, nil
+}
+
+// writetask writes task to the store
+func writetask(tk *Task, tid TaskID, thid TheoryID) error {
+	var err error
+	// FIXME
+	query := `
+	case when select id from tasks is not null then
+		insert into tasks (id, data, theoryid) values ($1, $2, $3)
+	else
+		update values set data = $3 where id = $1
+		update values set theoryid = $3 where id = $1
+	end`
+	btk, err := task2gob(tk)
+	if err != nil {
+		return err
+	}
+	_, err = dbconn.Exec(query, tid, btk, thid)
+	if err != nil {
+		return err
+	}
+	return nil
 }

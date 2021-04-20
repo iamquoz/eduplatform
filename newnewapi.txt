@@ -16,14 +16,16 @@ func (p *Player) StGetTheory(TheoryID) Theory
 func (p *Player) ZapTheory(TheoryID)
 тоже самое, но с теорией
 
-func (p *Player) Appoint(StudentIDArray, TheoryID, TaskIDArray)
-назначить студентам задание из теории и массива заданий
+func (p *Player) Appoint(StudentIDArray, TaskIDArray)
+назначить студентам массива задания
 (научите этого еблана композиции уже)
 
-func (p *Player) GetStats(StudentID) Stats
+func (p *Player) GetStats(StudentID) MapTheoryIDStats
 получить статистику по студенту
 
-func (p *Player) StSelfStats() Stats
+func (p *Player) TheoryNames() MapTheoryIDString
+
+func (p *Player) StSelfStats() MapTheoryIDStats
 получить статистику по студенту для самого студента
 
 func (p *Player) Unread() MapStudentIDTaskID
@@ -61,18 +63,23 @@ func (p *Player) StCommentary(TaskID) String
 если ид принадлежит закрытому вопросу, то всегда
 на такой ид вернёт пустую строку
 
+func (p *Player) SetCoeff(Int)
+
 func (p *Player) StLogout()
 StRegister(new String)
 
 таблицы:
-theory (id integer primary key, data bytea)
 logins (id integer primary key, hash integer, names string, role integer)
-tasks (id integer primary key, TheoryID integer, data bytea)
-appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
-alter table answers add constraint anscons unique(sid, taskid)
-answers (sid integer, taskid integer, data bytea)
-alter table appointments add constraint appcons unique(sid, taskid)
-rating (sid integer, taskid integer, rated bool, comment varchar)
+tasks (id integer primary key, theoryid integer, data bytea)
+theory (id integer primary key, data bytea)
+automatic (sid integer, taskid integer, correct boolean, tries integer)
+manual (sid integer, taskid integer, correct boolean, rated boolean, comment boolean)
+
+// appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
+// alter table answers add constraint anscons unique(sid, taskid)
+// answers (sid integer, taskid integer, data bytea)
+// alter table appointments add constraint appcons unique(sid, taskid)
+// rating (sid integer, taskid integer, rated bool, comment varchar)
 
 case when select (sid, taskid) from answers is not null then
 	insert into answers (sid, taskid, data) values ($1, $2, $3)

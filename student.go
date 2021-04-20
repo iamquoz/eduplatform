@@ -13,7 +13,7 @@ func (p *Player) StLogout() {
 // StGetTask returns a task by id. Any user can get any task, this is
 // not intentional. Probably needs to be fixed.
 func (p *Player) StGetTask(id TaskID) *Task {
-	v, err := tes.ReadTask(id)
+	v, err := readtask(id)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -43,6 +43,6 @@ func (p *Player) StGetTheory(tid TheoryID) *Theory {
 }
 
 // StSelfStats returns stats for the student himself
-func (p *Player) StSelfStats() *Stats {
+func (p *Player) StSelfStats() MapTheoryIDStats {
 	return p.GetStats(p.StudentID)
 }

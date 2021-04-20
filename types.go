@@ -50,6 +50,8 @@ type (
 	MapStudentIDTaskID      map[StudentID]TaskID
 	MapStudentIDArrayTaskID map[StudentID][]TaskID
 	Int                     int
+	Bool                    bool
+	MapTheoryIDStats        map[TheoryID]Stats
 )
 
 // Player is a user with its role and token

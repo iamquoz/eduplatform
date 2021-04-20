@@ -72,7 +72,7 @@ func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
 
 // RenewTask updates task data saved under ID. Returns -1 on error.
 func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
-	err := tes.WriteTask(&tk, taid, thid)
+	err := writetask(&tk, taid, thid)
 	if err != nil {
 		log.Println(err)
 		return -1
@@ -142,7 +142,7 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
 }
 
 // GetStats returns stats for a student
-func (p *Player) GetStats(StudentID) *Stats {
+func (p *Player) GetStats(StudentID) MapTheoryIDStats {
 	//appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
 	query := `select (taskid, correct, tries) from appointments where sid = $1 and complete = true`
 	rows, err := dbconn.Query(query)
@@ -186,7 +186,7 @@ func (p *Player) GetStats(StudentID) *Stats {
 			totaltries += uint(tries)
 		}
 	}
-	return &Stats{Total: total, Correct: correct, TotalAttempts: totaltries}
+	return nil //&Stats{Total: total, Correct: correct, TotalAttempts: totaltries}
 }
 
 // Unread returns unrated by teacher TaskIDs for each user
@@ -230,3 +230,7 @@ func (p *Player) LoadAnswer(StudentID, TaskID) *Task {
 	}
 	return tk
 }
+
+// func (p *Player) Rate(StudentID, TaskID, String, Bool) {
+// 	query := `insert `
+// }

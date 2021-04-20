@@ -129,16 +129,7 @@ func init() {
 	}
 	rand.Seed(time.Now().Unix())
 	ts = NewTokenStore()
-	tes = NewTestStore(taskpath, dumppath, dbconn)
 	shutdown = make(chan struct{}, 0)
-	// init teststore
-	err = tes.Load()
-	switch err.(type) {
-	case *os.PathError:
-		// err here means that store was never dumped to this moment so ignore it
-	default:
-		log.Fatal(err)
-	}
 	// initialize method names from type information
 	n := reflect.TypeOf(&Player{}).NumMethod()
 	// wrap methods in their respective handler funcs
@@ -192,24 +183,6 @@ func init() {
 			}
 		}
 	}
-	// check for dirtiness of teststore every minute, dump if necessary
-	go func() {
-		for {
-			select {
-			case <-shutdown:
-				runtime.Goexit()
-			case <-time.After(60 * time.Second):
-			}
-			if tes.dirty {
-				log.Println("dumping the teststore")
-				log.Println(tes.Dump())
-				// this is the only place we change this value
-				// locking isn't necessary, i guess
-				tes.dirty = false
-			}
-
-		}
-	}()
 }
 
 func console() {
