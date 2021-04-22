@@ -271,32 +271,3 @@ func (p *Player) Rate(sid StudentID, tid TaskID, comment String, correct Bool) {
 		log.Println(err)
 	}
 }
-
-func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
-	sel := `select tries from appointments where taskid = $1 and sid = $2`
-	row := dbconn.QueryRow(sel, tid, p.StudentID)
-	var n int32
-	err := row.Scan(&n)
-	if err != nil {
-		log.Println(err)
-		return -1
-	}
-	// student haven't sent answers yet
-	if n < MaxAttempts {
-		query := `update appointments 
-			set answer = $1
-			where sid = $2 and taskid = $3`
-		tk, err := task2gob(&task)
-		if err != nil {
-			log.Println(err)
-			return -1
-		}
-		_, err = dbconn.Exec(query, tk, p.StudentID, tid)
-		if err != nil {
-			log.Println(err)
-			return -1
-		}
-		return Int(MaxAttempts - n)
-	}
-	return 0
-}
