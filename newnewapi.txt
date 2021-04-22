@@ -28,17 +28,17 @@
 + func (p *Player) StSelfStats() MapTheoryIDStats
 получить статистику по студенту для самого студента
 
-func (p *Player) Unread() MapStudentIDTaskID
++ func (p *Player) Unread() MapStudentIDTaskID
 получить все непроверенные задания, на которые студенты дали ответы
 
-func (p *Player) LoadAnswer(StudentID, TaskID) *Task
++ func (p *Player) LoadAnswer(StudentID, TaskID) *Task
 получить ответ на задание, которое дал студент
 
-func (p *Player) Rate(StudentID, TaskID, String, Bool)
++ func (p *Player) Rate(StudentID, TaskID, String, Bool)
 оценить задание, выданное студенту
 c опциональным комментарием
 
-func (p *Player) StSendAnswers(TaskID, Task) Int
++ func (p *Player) StSendAnswers(TaskID, Task) Int
 отправить ответ на задание
 возвращает количество оставшихся попыток
 после того, как эта фция вернёт 0 сделать 
@@ -49,10 +49,10 @@ func (p *Player) StGetAnswers(TaskID) Task
 срабатывает только тогда, когда StSendAnswers
 возвращает 0
 
-func (p *Player) StSent() ArrayTaskID
++ func (p *Player) StSent() ArrayTaskID
 возвращает массив отправленных задач
 
-func (p *Player) StRating() MapTaskIDInt
++ func (p *Player) StRating() MapTaskIDInt
 возвращает баллы за все задания
 
 func (p *Player) StRatedOpen() MapTaskIDBool
@@ -65,14 +65,15 @@ func (p *Player) StCommentary(TaskID) String
 
 func (p *Player) SetCoeff(Int)
 
-func (p *Player) StLogout()
-StRegister(new String)
++ func (p *Player) StLogout()
++ StRegister(new String)
 
 таблицы:
 logins (id integer primary key, hash integer, names string, role integer)
 tasks (id integer primary key, theoryid integer, data bytea)
 theory (id integer primary key, data bytea)
-appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer, answer bytea, comment varchar)
+appointments (sid integer, taskid integer, complete boolean, correct boolean, rated boolean, tries integer, answer bytea, 
+	comment varchar)
 // automatic (sid integer, taskid integer, correct boolean, tries integer)
 // manual (sid integer, taskid integer, correct boolean, rated boolean, comment boolean)
 // appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)

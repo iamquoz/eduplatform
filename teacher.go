@@ -131,7 +131,7 @@ func (p *Player) ZapTheory(thid TheoryID) {
 
 // Appoint assigns tasks by ID to students
 func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
-	query := `insert into appointments (sid, taskids, complete)`
+	query := `insert into appointments (sid, taskids, complete) values ($1, $2, $3)`
 	for _, sid := range sida {
 		_, err := dbconn.Exec(query, sid, tida, false)
 		if err != nil {
@@ -196,8 +196,9 @@ func (p *Player) GetStats(StudentID) MapTheoryIDStats {
 
 // Unread returns unrated by teacher TaskIDs for each user
 func (p *Player) Unread() MapStudentIDArrayTaskID {
-	//rating (sid integer, taskid integer, rated bool, comment varchar)
-	query := `select (sid, taskid) from rating where rated = false`
+	//appointments (sid integer, taskid integer, complete boolean, correct boolean,
+	//	rated boolean, tries integer, answer bytea, comment varchar)
+	query := `select (sid, taskid) from appointments where rated = false`
 	rows, err := dbconn.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -220,7 +221,7 @@ func (p *Player) Unread() MapStudentIDArrayTaskID {
 }
 
 func (p *Player) LoadAnswer(StudentID, TaskID) *Task {
-	query := `select data from answers where sid = $1 and taskid = $2`
+	query := `select data from appointments where sid = $1 and taskid = $2`
 	row := dbconn.QueryRow(query)
 	buf := make([]byte, 0, 255)
 	err := row.Scan(buf)
@@ -258,6 +259,44 @@ func (p *Player) TheoryNames() MapTheoryIDString {
 	return m
 }
 
-// func (p *Player) Rate(StudentID, TaskID, String, Bool) {
-// 	query := `insert `
-// }
+func (p *Player) Rate(sid StudentID, tid TaskID, comment String, correct Bool) {
+	// also drop attempts counter since this is manual checked work
+	query := `update appointments 
+		set rated = $3 
+		set correct = $4 
+		set tries = 0
+		where sid = $1 and taskid = $2`
+	_, err := dbconn.Exec(query, sid, tid, comment, correct)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
+	sel := `select tries from appointments where taskid = $1 and sid = $2`
+	row := dbconn.QueryRow(sel, tid, p.StudentID)
+	var n int32
+	err := row.Scan(&n)
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+	// student haven't sent answers yet
+	if n < MaxAttempts {
+		query := `update appointments 
+			set answer = $1
+			where sid = $2 and taskid = $3`
+		tk, err := task2gob(&task)
+		if err != nil {
+			log.Println(err)
+			return -1
+		}
+		_, err = dbconn.Exec(query, tk, p.StudentID, tid)
+		if err != nil {
+			log.Println(err)
+			return -1
+		}
+		return Int(MaxAttempts - n)
+	}
+	return 0
+}

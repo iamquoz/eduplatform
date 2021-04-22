@@ -10,6 +10,8 @@ import (
 // We got this value empirically.
 const TaskLength = 6 * 1 << 10
 
+const MaxAttempts = 2
+
 // get maximum id in table `tab`
 func maxid(tab string) (u int, err error) {
 	row := dbconn.QueryRow(`select max(id) from ` + tab)
