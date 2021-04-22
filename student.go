@@ -18,6 +18,7 @@ func (p *Player) StGetTask(id TaskID) *Task {
 		fmt.Println(err)
 		return nil
 	}
+	v.Correct = ""
 	return v
 }
 
@@ -112,4 +113,16 @@ func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
 		return Int(MaxAttempts - n)
 	}
 	return 0
+}
+
+func (p *Player) StCommentary(tid TaskID) String {
+	query := `select from appointments comment where taskid = $1`
+	row := dbconn.QueryRow(query, tid)
+	var comm String
+	err := row.Scan(&comm)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return comm
 }

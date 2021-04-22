@@ -58,7 +58,7 @@ func (p *Player) StGetAnswers(TaskID) Task
 func (p *Player) StRatedOpen() MapTaskIDBool
 были ли проверены выданные задания открытого типа?
 
-func (p *Player) StCommentary(TaskID) String
++ func (p *Player) StCommentary(TaskID) String
 возвращает комментарии преподавателя на требуемый таск
 если ид принадлежит закрытому вопросу, то всегда
 на такой ид вернёт пустую строку
