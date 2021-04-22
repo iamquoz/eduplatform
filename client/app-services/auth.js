@@ -48,7 +48,6 @@
                 currentUser: {
                     username: username,
                     authdata: authdata,
-                    isTeacher: whoIs
                 }
             };
 

@@ -226,7 +226,7 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
                         stCtrl.boolTasks = !(stCtrl.selected == -1);
 
 						$scope.options0 = {maintainAspectRatio: true, title: {display: true, text: "Общее количество", fontSize: 14}};
-						$scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Базовый уровень", fontSize: 14}};
+                        $scope.options1 = {maintainAspectRatio: true, title: {display: true, text: "Базовый уровень", fontSize: 14}};
 						$scope.options2 = {maintainAspectRatio: true, title: {display: true, text: "Продвинутый уровень", fontSize: 14}};
 						$scope.options3 = {maintainAspectRatio: true, title: {display: true, text: "Высокий уровень", fontSize: 14}};
 						$scope.options4 = {maintainAspectRatio: true, title: {display: true, text: "Четвертый уровень", fontSize: 14}};
@@ -320,14 +320,19 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
 
 .controller('viewTests', function($scope, $mdDialog, $http) {
     var vm = this;
-    vm.textTrivia = [
-        "Определитель — это скалярная величина, которая может быть вычислена и поставлена в однозначное соответствие любой квадратной матрице",
-        "Для матриц первого порядка определитель будет равен единственному элементу этой матрицы",
-        "Для матриц второго порядка a c / b d определитель будет равен a*d - b*c",
-        "Для матриц третьего и выше порядка опредилитель вычисляется при помощи разложения по строкам или столбцам" 
-    ]
-    vm.textQuestion = "Найдите определитель второго порядка для матрицы 11 -3 / -15 -2."
+    vm.textTrivia = "Целые числа a и b называются  сравнимыми по модулю m, если разность a – b  делится на m, т.е. если  m | a – b.",
+    vm.textQuestion = [
+        "Можно ли привести примеры двух целых чисел, сравнимых по модулям 2, 4, 6, но несравнимых по модулю 3?",
+        "Каков минимальный модуль, по которому сравнима любая пара целых чисел?"
+        ]
     vm.selected = -1;
+    
+    vm.intIndex = 0;    
+
+    vm.attempts = 0;
+    
+    vm.answer = '';
+    vm.actualAnsw = '1';
     $http.get('./helpers/exampleStats.json')
         .then(function(file) {
             vm.theories = file.data.themes;
@@ -337,6 +342,18 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
             controller: function($scope) {
                 angular.extend($scope, {
                     vm,
+                    incInd: function(answ) {
+                        if (vm.intIndex == 1 && answ != vm.actualAnsw) {
+                            vm.attempts++;
+                            if (vm.attempts == 4) {
+                                vm.intIndex++;
+                                vm.attempts = 0;
+                            }
+                            vm.answer = '';
+                            return;
+                        }
+                        vm.intIndex++;
+                    },
                     getData: function(index) {
                         vm.selected = index;
                         console.log(vm.selected);
@@ -350,7 +367,29 @@ angular.module('platform', ['ngRoute', 'ngCookies', 'ngAria', 'ngMaterial', 'ngM
             targetEvent: evt,
             clickOutsideToClose: true
         }
-        )
+        ).finally(function() {
+            vm.intIndex = 0;
+            vm.attempts = 0;
+            vm.selected = -1;
+            vm.answer = '';
+        })
+    }
+})
+
+
+.filter('roundup', function () {
+    return function (value) {
+        return Math.round(value * 10) / 10;
+    };
+})
+
+.filter('spaceFilter', function() {
+    return function(str,filterOn,limit) {
+      if (limit) {
+        return str.substring(0, str.split(filterOn, limit).join(filterOn).length);
+      } else {
+        return str;
+      }
     }
 })
 
@@ -363,27 +402,30 @@ function config($routeProvider, $locationProvider) {
     angular.injector(['ngCookies']).invoke(['$cookies', function(_$cookies_) {
         $cookies = _$cookies_;
     }]);
+
     $cookies = $cookies.get('globals');
-    if (!$cookies)
-        $cookies = false;
-    else
+    if ($cookies){
         $cookies = JSON.parse($cookies);
+        currUser = $cookies.currentUser;
+    }
+
+
     $routeProvider
         .when('/', {
             controller: 'HomeController',
-            templateUrl: (!!$cookies && $cookies.currentUser.authdata[0] == '1') ? 'teacher/teacher.view.html': 'student/student.view.html',
+            templateUrl: (currUser && currUser.authdata[0] == '1') ? './teacher/teacher.view.html': './student/student.view.html',
             controllerAs: 'vm'
         })
 
         .when('/login', {
             controller: 'LoginController',
-            templateUrl: 'login/login.view.html',
+            templateUrl: './login/login.view.html',
             controllerAs: 'vm'
         })
 
         .when('/register', {
             controller: 'RegisterController',
-            templateUrl: 'register/register.view.html',
+            templateUrl: './register/register.view.html',
             controllerAs: 'vm'
         })
 
@@ -394,27 +436,36 @@ function config($routeProvider, $locationProvider) {
 run.$inject = ['$rootScope', '$location', '$cookies', '$http'];
 function run($rootScope, $location, $cookies, $http) {
     // keep user logged in after page refresh
-    $rootScope.globals = $cookies.get('globals') || {};
+    $rootScope.globals = $cookies.get('globals');
     console.log('run');
     console.log($rootScope.globals);
-    let aNiceCookie;
-    //check for "object"
-    if ($rootScope.globals.toString()[1] == "o")
-        return;
-    aNiceCookie = JSON.parse($rootScope.globals);
-    console.log(aNiceCookie.currentUser);
-    if ($rootScope.globals) {
-        $http.defaults.headers.common['Authorization'] = 'Basic ' + aNiceCookie.currentUser.authdata; // jshint ignore:line
+    if ($rootScope.globals)
+        $rootScope.globals = JSON.parse($rootScope.globals);
+    console.log($rootScope.globals);
+    if ( $rootScope.globals && $rootScope.globals.currentUser) {
+        $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata; // jshint ignore:line
     }
+
+
 
     $rootScope.$on('$locationChangeStart', function (event, next, current) {
         // redirect to login page if not logged in and trying to access a restricted page
-        var restrictedPage = $.inArray($location.path(), ['/login', '/register']) === -1;
-        var loggedIn = aNiceCookie.currentUser;
-		currUser = loggedIn;
-        console.log(loggedIn);   
-        if (restrictedPage && !loggedIn) {
+        if (($location.path() !== '/login' && $location.path() !== '/register') && !$rootScope.globals.currentUser) {
             $location.path('/login');
         }
+
+        $rootScope.globals = $cookies.get('globals');
+
+        console.log('run');
+
+        console.log($rootScope.globals);
+        if ($rootScope.globals)
+            $rootScope.globals = JSON.parse($rootScope.globals);
+        if (currUser.authdata != $rootScope.globals.currentUser.authdata) {
+            currUser = $rootScope.globals.currentUser;
+            window.location.reload();
+        }
+        
     });
 }
+
