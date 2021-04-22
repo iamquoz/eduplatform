@@ -52,6 +52,7 @@ type (
 	Int                     int
 	Bool                    bool
 	MapTheoryIDStats        map[TheoryID]Stats
+	MapTheoryIDString       map[TheoryID]String
 )
 
 // Player is a user with its role and token

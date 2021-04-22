@@ -131,9 +131,9 @@ func (p *Player) ZapTheory(thid TheoryID) {
 
 // Appoint assigns tasks by ID to students
 func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
-	query := `insert into appointments (sid, taskids, complete, correct)`
+	query := `insert into appointments (sid, taskids, complete)`
 	for _, sid := range sida {
-		_, err := dbconn.Exec(query, sid, tida, false, nil)
+		_, err := dbconn.Exec(query, sid, tida, false)
 		if err != nil {
 			log.Println(err)
 			return
@@ -143,50 +143,55 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
 
 // GetStats returns stats for a student
 func (p *Player) GetStats(StudentID) MapTheoryIDStats {
-	//appointments (sid integer, taskid integer, complete boolean, correct boolean, tries integer)
+	//appointments (sid integer, taskid integer, complete boolean,
+	//	correct boolean, tries integer, answer bytea, comment varchar)
 	query := `select (taskid, correct, tries) from appointments where sid = $1 and complete = true`
 	rows, err := dbconn.Query(query)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
-	// if there's going to be more levels fix it
-	total := make([]uint, 3)
-	correct := make([]uint, 3)
-	var totaltries uint = 0
-	for rows.Next() {
-		// WILL be ineffective on large scale
-		var r bool
-		var tid int32
-		var tries int32
-		rows.Scan(&tid, &r, &tries)
-		var compx uint
-		{
-			query := `select data from tasks where taskid = $1`
-			sub := dbconn.QueryRow(query, tid)
-			buf := make([]byte, 0, 255)
-			err = sub.Scan(buf)
-			if err != nil {
-				fmt.Println(err)
-				return nil
+	mm := make(MapTheoryIDStats)
+	for id := range p.TheoryNames() {
+		// if there are going to be more levels fix it
+		total := make([]uint, 3)
+		correct := make([]uint, 3)
+		var totaltries uint = 0
+		for rows.Next() {
+			// WILL be ineffective on large scale
+			var r bool
+			var tid int32
+			var tries int32
+			rows.Scan(&tid, &r, &tries)
+			var compx uint
+			{
+				query := `select data from tasks where taskid = $1`
+				sub := dbconn.QueryRow(query, tid)
+				buf := make([]byte, 0, 255)
+				err = sub.Scan(buf)
+				if err != nil {
+					fmt.Println(err)
+					return nil
+				}
+				tk, err := gob2task(buf)
+				if err != nil {
+					fmt.Println(err)
+					return nil
+				}
+				compx = tk.Difficulty
 			}
-			tk, err := gob2task(buf)
-			if err != nil {
-				fmt.Println(err)
-				return nil
+			// see util.go:65
+			{
+				if r {
+					correct[compx-1]++
+				}
+				total[compx-1]++
+				totaltries += uint(tries)
 			}
-			compx = tk.Difficulty
 		}
-		// see util.go:65
-		{
-			if r {
-				correct[compx-1]++
-			}
-			total[compx-1]++
-			totaltries += uint(tries)
-		}
+		mm[id] = Stats{Total: total, Correct: correct, TotalAttempts: totaltries}
 	}
-	return nil //&Stats{Total: total, Correct: correct, TotalAttempts: totaltries}
+	return mm
 }
 
 // Unread returns unrated by teacher TaskIDs for each user
@@ -229,6 +234,28 @@ func (p *Player) LoadAnswer(StudentID, TaskID) *Task {
 		return nil
 	}
 	return tk
+}
+
+func (p *Player) TheoryNames() MapTheoryIDString {
+	query := `select (id, data) from theory`
+	rows, err := dbconn.Query(query)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	m := make(MapTheoryIDString)
+	for rows.Next() {
+		var data []byte
+		var id int32
+		rows.Scan(&id, data)
+		th, err := gob2theory(data)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		m[th.ID] = String(th.Header)
+	}
+	return m
 }
 
 // func (p *Player) Rate(StudentID, TaskID, String, Bool) {
