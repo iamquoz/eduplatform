@@ -1,7 +1,7 @@
 export default function ViewStudent({id}) {
 	return (
 		<div>
-			st id = {id}
+			st id: {id}
 		</div>
 	)
 }
