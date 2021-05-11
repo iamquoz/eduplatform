@@ -102,12 +102,13 @@ label {
 }
 
 .teacherList {
-	padding-top: 5%;	
-	padding-left: 5%;
+	padding-top: 20px;	
+	padding-left: 25px;
 }
 
 .teacherList {
 	list-style-type: none;
+	text-align: center;
 }
 
 a:link, a:visited, a:hover, a:active {
@@ -138,4 +139,10 @@ a:link, a:visited, a:hover, a:active {
 	position: sticky;
 	left: 50%;
 	top: 50%
+}
+
+.sidebar {
+	min-width: 400px;
+	max-width: 400px;
+	color: #000;
 }

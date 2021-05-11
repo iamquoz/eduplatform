@@ -3,7 +3,7 @@ import LoginPage from "./Login/LoginPage.js";
 import RegisterPage from "./Login/RegisterPage.js";
 import Teach from "./Teacher/teacher.js";
 import Student from "./Students/student.js"
-
+import Base from "./Teacher/base.js"
 
 function App() {
 	
@@ -14,6 +14,7 @@ function App() {
 						<li><Link to = "/login">login </Link></li>
 						<li><Link to = "/register">reg</Link></li>
 						<li><Link to = "/student">student</Link></li>
+						<li><Link to  = "/base">base</Link></li>
 					</ul>
 				<div style = {{height: "90%"}}>
 					<Switch>
@@ -25,6 +26,9 @@ function App() {
 						</Route>
 						<Route path = "/student">
 							<Student></Student>
+						</Route>
+						<Route path = "/base">
+							<Base></Base>
 						</Route>
 						<Route path = "/">
 							<Teach></Teach>
