@@ -104,6 +104,7 @@ func writetask(tk *Task, tid TaskID, thid TheoryID) error {
 		update values set data = $3 where id = $1
 		update values set theoryid = $3 where id = $1
 	end`
+	tk = taskfilter(tk)
 	btk, err := task2gob(tk)
 	if err != nil {
 		return err
