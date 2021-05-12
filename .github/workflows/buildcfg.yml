@@ -21,7 +21,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i
-      - run: git config --list
+      
+      # ??? but ok
+      - run: git config user.name "workflow"
+      - run: git config user.email "lol@iamquoz.me"
       - run: npm run build
       # im braindead and forgot to commit first yeah.
       - run: git add .
