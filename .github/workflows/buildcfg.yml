@@ -21,8 +21,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i
+      - run: cat .gitignore
       - run: npm run build
       - run: ls -a
       - run: ls ./.. -a
+      - run: ls ./build/ -a
       # this better work
       - run: git push
