@@ -23,5 +23,9 @@ jobs:
       - run: npm i
       - run: git config --list
       - run: npm run build
-      # this better work
+      # im braindead and forgot to commit first yeah.
+      - run: git add .
+      # '[skip ci]' in the message doesn't turn cause a infinite loop 
+      # https://stackoverflow.com/a/66156840
+      - run: git commit -m "[skip ci] build by workflows"
       - run: git push
