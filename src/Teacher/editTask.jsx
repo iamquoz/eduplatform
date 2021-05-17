@@ -72,7 +72,7 @@ export default function EditTask({task}) {
 					style = {{height: "250px"}}></Input>
 				</FormGroup> }
 				<br></br>
-				{task.id != '0' && <Button type='submit' style = {{backgroundColor: "red"}}>Удалить задание</Button>}
+				{task.id !== '0' && <Button type='submit' className = "redBtn">Удалить задание</Button>}
 				<Button type='submit' style = {{float: "right"}}>Добавить задание</Button>
 			</Form>
 		</Col>

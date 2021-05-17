@@ -6,12 +6,6 @@ import {
 	Navbar,
 	NavbarBrand,
 	UncontrolledTooltip,
-	Button,
-	Modal,
-	ModalHeader,
-	ModalBody, 
-	ModalFooter, 
-	Input,
 	Row,
 	Col,
 	Nav,
@@ -28,7 +22,7 @@ import Give from "../img/give_task.svg"
 
 
 //imports 
-import ViewStudent from './viewstudent.js'
+import ViewStudent from './viewstudent.jsx'
 
 export default function Teach() {
 	const [currID, setCurrID] = useState(-1)
@@ -52,7 +46,7 @@ export default function Teach() {
 			<>
 			{stList.map(student => (
 				<NavItem key = {student.id} 
-				style = {currID === student.id ? {color: "white", backgroundColor: 'black'} : {}}>	 
+				className = {currID === student.id && "chosenSidebar"}>	 
 					<NavLink onClick = {() => setCurrID(student.id)}>
 							{student.stName}
 					</NavLink>
@@ -61,6 +55,7 @@ export default function Teach() {
 			</>
 		)
 	}
+	
     return (
 		<div>
 			<Navbar color = "dark" dark>
@@ -97,9 +92,13 @@ export default function Teach() {
 						<DisplayList />
 					</Nav>
 				</Col>
-				<Col>
-					{currID !== -1 && <ViewStudent id = {currID}/>}
-				</Col>
+				{ 
+				currID !== -1
+				? <ViewStudent student = {stList[currID]} />
+				: <Col className = "notChosenPlaceholder">
+					<p>Нажмите на элемент слева для начала работы</p>
+				  </Col>
+				}
 			</Row>
 		</div>
 		

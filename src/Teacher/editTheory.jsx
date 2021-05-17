@@ -45,7 +45,7 @@ export default function EditTheory({theory}) {
 					style = {{height: "500px"}}></Input>
 				</FormGroup>
 				<br></br>
-				{theory.id !== '0' && <Button type='submit' style = {{backgroundColor: "red"}}>Удалить теорию</Button>}
+				{theory.id !== '0' && <Button type='submit' className = "redBtn">Удалить теорию</Button>}
 				<Button type='submit' style = {{float: "right"}}>Добавить теорию</Button>
 			</Form>
 		</Col>

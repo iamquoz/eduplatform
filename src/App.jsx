@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
-import LoginPage from "./Login/LoginPage.js";
-import RegisterPage from "./Login/RegisterPage.js";
-import Teach from "./Teacher/teacher.js";
-import Student from "./Students/student.js"
-import Base from "./Teacher/base.js"
+import LoginPage from "./Login/LoginPage.jsx";
+import RegisterPage from "./Login/RegisterPage.jsx";
+import Teach from "./Teacher/teacher.jsx";
+import Student from "./Students/student.jsx"
+import Base from "./Teacher/base.jsx"
 
 function App() {
 	

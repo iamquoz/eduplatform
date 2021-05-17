@@ -7,15 +7,6 @@ import {
 	Nav, 
 	NavItem,
 	NavLink,
-	Button,
-	Form,
-	Input,
-	Dropdown,
-	DropdownItem,
-	DropdownMenu,
-	DropdownToggle,
-	Label,
-	FormText,
 	Row, Col, 
 	UncontrolledTooltip
 } from 'reactstrap'
@@ -58,6 +49,7 @@ export default function Base() {
 
 	const fetchTasks = async () => {
 		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/tasks/')
+		// temp fix, remove later
 		responce.data.forEach(task => {
 			task.id++
 		});
@@ -69,14 +61,12 @@ export default function Base() {
 			<>
 			{tasks.map(task => (
 				<NavItem key = {task.id} 
-				style = {currIDTask === task.id ? {color: "white", backgroundColor: 'black'} : {}}>	 
+				className = {currIDTask === task.id ? "chosenSidebar" : ""}>	 
 					<NavLink onClick = {() => setCurrIDTask(task.id)} id = {"tooltip" + task.id}>
 							{task.text.length > 50 ? 
 							`${task.text.substring(0, 50)}...` : task.text}
 					</NavLink>
-					{ // causes the transition and findDOMNode warnngs 
-					}
-
+					{ /* causes the transition and findDOMNode warnngs */}
 					<UncontrolledTooltip placement = "bottom" target = {"tooltip"+ task.id}>
 						{task.text}			
 					</UncontrolledTooltip>
@@ -85,12 +75,13 @@ export default function Base() {
 			</>
 		)
 	}
+
 	const DisplayListTheories = () => {
 		return (
 			<>
 			{theories.map(theory => (
 				<NavItem key = {theory.id} 
-				style = {currIDTheory === theory.id ? {color: "white", backgroundColor: 'black'} : {}}>	 
+				className = {currIDTheory === theory.id ? "chosenSidebar" : ""}>	 
 					<NavLink onClick = {() => setCurrIDTheory(theory.id)}>
 							{theory.title}
 					</NavLink>
@@ -102,19 +93,19 @@ export default function Base() {
 
 	return (
 		<div>
-			<Nav tabs style = {{marginBottom: "25px"}}>
-				<NavItem style = {{width: "50%", textAlign: "center"}}>
+			<Nav tabs style = {{marginBottom: "25px", flexDirection: "column"}}>
+				<NavItem style = {{width: "100%", textAlign: "center"}}>
 					<NavLink
 						className={classnames({ active: activeTab === 1 })}
-						style = {activeTab === 1 ? {color: "white", backgroundColor: 'black'} : {}}
+						style = {activeTab === 1 ? {color: "#fff", backgroundColor: '#343a40'} : {}}
 						onClick={() => { toggle(1); }} >
 						Задания
 					</NavLink>
 				</NavItem>
-				<NavItem style = {{width: "50%", textAlign: "center"}}>
+				<NavItem style = {{width: "100%", textAlign: "center"}}>
 					<NavLink
-						className={classnames({ active: activeTab === 2 })}
-						style = {activeTab === 2 ? {color: "white", backgroundColor: 'black'} : {}}
+						className={classnames({ active: activeTab === 2 })} 
+						style = {activeTab === 2 ? {color: "#fff", backgroundColor: '#343a40'} : {}}
 						onClick={() => { toggle(2); }}>
 						Теория
 					</NavLink>
@@ -125,9 +116,9 @@ export default function Base() {
 					<Row style = {{marginRight: "0"}}>
 						<Col className = "sidebar">
 							<Nav vertical>
-								<NavItem style = {currIDTask === 0 ? {backgroundColor: "black", color: "white"} : {}}>
+								<NavItem className = {currIDTask === 0 && "chosenSidebar"}>
 									<NavLink onClick = {() => setCurrIDTask(0)}>
-										<img alt = " " src = {PlusIc} style = {currIDTask === 0 ? {width: "40px", marginRight: "20px"} : {filter: "invert(1)", width: "40px", marginRight: "20px"}}></img>
+										<img alt = " " src = {PlusIc}></img>
 										<span>Добавить новое задание</span>
 									</NavLink>
 								</NavItem>
@@ -137,16 +128,22 @@ export default function Base() {
 								<DisplayListTasks />
 							</Nav>
 						</Col>
-						<EditTask task = {tasks[currIDTask - 1]}/>
+						{ 
+						currIDTask !== -1 
+						? <EditTask task = {tasks[currIDTask - 1]}/> 
+						: <Col className = "notChosenPlaceholder">
+							<p>Нажмите на элемент слева для начала работы</p>
+						  </Col>
+						}
 					</Row>
 				</TabPane>
 				<TabPane tabId = {2}>
 					<Row style = {{marginRight: "0"}}>
 						<Col className = "sidebar">
 							<Nav vertical>
-								<NavItem style = {currIDTheory === 0 ? {backgroundColor: "black", color: "white"} : {}}>
+								<NavItem className = {currIDTheory === 0 && "chosenSidebar"}>
 									<NavLink onClick = {() => setCurrIDTheory(0)}>
-										<img alt = " " src = {PlusIc} style = {currIDTheory === 0 ? {width: "40px", marginRight: "20px"} : {filter: "invert(1)", width: "40px", marginRight: "20px"}}></img>
+										<img alt = " " src = {PlusIc}></img>
 										<span>Добавить новый теоретический материал</span>
 									</NavLink>
 								</NavItem>
@@ -156,7 +153,12 @@ export default function Base() {
 								<DisplayListTheories />
 							</Nav>
 						</Col>
-						<EditTheory theory = {theories[currIDTheory - 1]}/>
+						{ 
+						currIDTheory !== -1
+						? <EditTheory theory = {theories[currIDTheory - 1]}/>
+						: <Col className = "notChosenPlaceholder">
+							<p>Нажмите на элемент слева для начала работы</p></Col>
+						}
 					</Row>
 				</TabPane>
 			</TabContent>

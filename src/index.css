@@ -32,6 +32,18 @@ body {
   font-family: inherit;
 }
 
+.redBtn {
+	border-color: red;
+	border-style: solid;
+	border-radius: 5px;
+	background: white;
+	color: black;
+}
+
+.redBtn:hover {
+	background-color: red;
+}
+
 .btn-block {
   display: block;
   width: 100%;
@@ -145,4 +157,26 @@ a:link, a:visited, a:hover, a:active {
 	min-width: 400px;
 	max-width: 400px;
 	color: #000;
+}
+
+.chosenSidebar {
+	border-style: none none none solid;
+	border-width: 5px;
+	border-color: black;
+}
+
+.sidebar img {
+	filter: invert(1);
+	width: 40px;
+	margin-right: 20px
+}
+
+.notChosenPlaceholder {
+    display: flex;
+	align-items: center;
+}
+
+.notChosenPlaceholder p {
+	margin-left: auto;
+    margin-right: auto;
 }
