@@ -69,7 +69,8 @@ export default function EditTask({task}) {
 				{!isOpen && <FormGroup>
 					<Label for = "answ">Ответ на задание</Label>
 					<Input type = "textarea" placeholder = {task.answer} id = "answ"
-					style = {{height: "250px"}}></Input>
+					style = {{height: "250px"}}
+					onChange = {(e) => setAnsw(e.target.value)}></Input>
 				</FormGroup> }
 				<br></br>
 				{task.id !== '0' && <Button type='submit' className = "redBtn">Удалить задание</Button>}
