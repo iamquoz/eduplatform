@@ -23,12 +23,18 @@ import Give from "../img/give_task.svg"
 
 //imports 
 import ViewStudent from './viewstudent.jsx'
+import AddModal from './modal.jsx'
 
 export default function Teach() {
-	const [currID, setCurrID] = useState(-1)
+	const [currID, setCurrID] = useState(-1);
 	const [stList, setStList] = useState([]);
 
+	// modal
+	const [modal, setModal] = useState(false);
+	const toggle = () => setModal(!modal);
+
 	useEffect(() => {
+		// why is this await? no idea lol
 		const getStudents = async () => {
 			const students = await fetchStudents();
 			setStList(students)
@@ -63,7 +69,7 @@ export default function Teach() {
 				<div className = "iconRow">
 					<img src = {Give} alt = "Выдать задания" id = "giveic"/>
 					<img src = {Edit} alt = "Редактировать базу заданий" id = "editic"/>
-					<img src = {AddSt} alt = "Добавить студента" id = "addst"/>
+					<img src = {AddSt} alt = "Добавить студента" id = "addst" onClick = {toggle}/>
 					<img src = {Exit} alt = "Выйти" id = "exitic"/>
 
 					{// causes the transition and findDOMNode warnngs 
@@ -100,7 +106,7 @@ export default function Teach() {
 				  </Col>
 				}
 			</Row>
+			<AddModal isOpen = {modal} toggle = {toggle}/>
 		</div>
-		
     )
 }
