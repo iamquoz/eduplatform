@@ -34,7 +34,7 @@ export default function ModalAdd({isOpen, toggle}) {
 		
 		// change for the real api
 		axios.post('https://6099651699011f0017140ca7.mockapi.io/students', 
-			{StName: stName})
+			{stName: stName})
 			.then(function (responce) {
 				console.log(responce.data.id);
 				setInviteLink(`${window.location.origin + '/register?id=' + responce.data.id}`);
