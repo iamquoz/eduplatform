@@ -268,6 +268,6 @@ func main() {
 		log.Println("server is on port", srvport)
 		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
 	}()
-	go console()
+	//go console()
 	killhandle()
 }
