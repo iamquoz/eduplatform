@@ -2,17 +2,20 @@ import json
 import string
 import random 
 
-data = {}
+data = []
 
-data['students'] = []
+for i in range(15):
+	data.append({
+		'id': str(i + 1),
+		'stat': []
+	})
+	for j in range(6):
+		data[i]['stat'].append({
+			'id': str(j + 1),
+			'Total': [random.randint(15, 30), random.randint(15, 30), random.randint(15, 30)],
+			'Correct': [random.randint(0, 15), random.randint(0, 15), random.randint(0, 15) ],
+			'TotalAttempts': random.randint(0, 15)
+		})
 
-for _ in range(30):
-    data['students'].append({
-		'stName': ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    })
-
-for i in range(30):
-	data['students'][i]['id'] = i
-
-with open('data.json', 'w') as outfile:
+with open('stats.json', 'w') as outfile:
     json.dump(data, outfile, indent=4)

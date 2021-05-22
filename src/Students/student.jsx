@@ -7,7 +7,7 @@ import {
 	NavLink,
 	UncontrolledTooltip
 } from 'reactstrap';
-
+import Stats from '../shared/stats.jsx'
 
 //images 
 // import bgstats from "../img/bgstats.svg"
@@ -31,6 +31,7 @@ export default function Student() {
 					</UncontrolledTooltip>
 				</div>
 			</Navbar>
+			<Stats student = {{"id": 3}}/>
 		</div>
     )
 }
