@@ -4,7 +4,6 @@ import { Button, Form, FormGroup, Label, Input, FormText, CardTitle, NavItem } f
 import {
 	Navbar,
 	NavbarBrand,
-	NavLink,
 	UncontrolledTooltip
 } from 'reactstrap';
 import Stats from '../shared/stats.jsx'

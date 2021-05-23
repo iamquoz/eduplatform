@@ -28,7 +28,8 @@ import AddModal from './modal.jsx'
 export default function Teach() {
 	const [currID, setCurrID] = useState(-1);
 	const [stList, setStList] = useState([]);
-
+	const [currentStudent, setcurrentStudent] = useState({"id": "0", "stName": ""});
+	
 	// modal
 	const [modal, setModal] = useState(false);
 	const toggle = () => setModal(!modal);
@@ -53,7 +54,11 @@ export default function Teach() {
 			{stList.map(student => (
 				<NavItem key = {student.id} 
 				className = {currID === student.id && "chosenSidebar"}>	 
-					<NavLink onClick = {() => setCurrID(student.id)}>
+					<NavLink onClick = {() => {
+						setCurrID(student.id) 
+						console.log(stList, student.id, currID);
+						setcurrentStudent(stList[student.id])
+						}}>
 							{student.stName}
 					</NavLink>
 				</NavItem>
@@ -100,7 +105,7 @@ export default function Teach() {
 				</Col>
 				{ 
 				currID !== -1
-				? <ViewStudent student = {stList[currID]} />
+				? <ViewStudent student = {currentStudent} />
 				: <Col className = "notChosenPlaceholder">
 					<p>Нажмите на элемент слева для начала работы</p>
 				  </Col>
