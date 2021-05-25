@@ -4,12 +4,12 @@ import (
 	"crypto/sha512"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -262,14 +262,20 @@ func main() {
 		http.HandleFunc("/api/"+k, v)
 	}
 	// handle frontend
-	front, err := ioutil.ReadFile("./build/index.html")
-	if err != nil {
-		panic(err)
-	}
-	http.Handle("/", http.FileServer(http.Dir("./build/")))
-	// on 404 return main page
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		rw.Write(front)
+		const dir = "./build/"
+		if r.URL.Path != "/" {
+			fullPath := dir + strings.TrimPrefix(path.Clean(r.URL.Path), "/")
+			_, err := os.Stat(fullPath)
+			if err != nil {
+				if !os.IsNotExist(err) {
+					panic(err)
+				}
+				// Requested file does not exist so we return the default (resolves to index.html)
+				r.URL.Path = "/"
+			}
+		}
+		http.FileServer(http.Dir(dir)).ServeHTTP(rw, r)
 	})
 	go func() {
 		// now here's the time for server's port number
@@ -278,5 +284,5 @@ func main() {
 		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
 	}()
 	//go console()
-	killhandle()
+	//killhandle()
 }
