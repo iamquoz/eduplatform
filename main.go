@@ -277,12 +277,12 @@ func main() {
 		}
 		http.FileServer(http.Dir(dir)).ServeHTTP(rw, r)
 	})
-	go func() {
-		// now here's the time for server's port number
-		srvport := getsrvport()
-		log.Println("server is on port", srvport)
-		log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
-	}()
+	//go func() {
+	// now here's the time for server's port number
+	srvport := getsrvport()
+	log.Println("server is on port", srvport)
+	log.Fatal(http.ListenAndServe(":"+fmt.Sprint(srvport), nil))
+	//}()
 	//go console()
 	//killhandle()
 }
