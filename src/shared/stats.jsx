@@ -17,6 +17,7 @@ export default function Stats({student}) {
 	const [stat, setStat] = useState([]);
 	const [theories, setTheories] = useState([])
 	const [currIDTheory, setCurrIDTheory] = useState(0);
+	const [currIDstudent, setCurrIDstudent] = useState(0);
 
 	const fetchTheories = async () => {
 		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/theories/')
@@ -25,41 +26,37 @@ export default function Stats({student}) {
 
 
 	const fetchStats = async () => {
-		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/stats/' + (parseInt(student.id) + 1))
-		console.log(responce.data.id, student.id);
+		const responce = (await axios.get('https://6099651699011f0017140ca7.mockapi.io/stats/' + (currIDstudent + 1)));
 		return responce.data.stat;
 	}
-
+	
 	useEffect(() => {
-		if (true){
+		setCurrIDstudent(parseInt(student.id));
+		if (currIDstudent !== parseInt(student.id)){
 			const getAll = async () => {
 				const fetchedStats = await fetchStats();
 				const tempTheories = await fetchTheories();
 				setTheories(tempTheories);
 				
-				var displayedStat = {id: "0", Total: [], Correct: [], TotalAttempts: 0}
-				
-				// holy fuck this is terrible someone fix this
-				displayedStat.TotalAttempts = fetchedStats.map(item => item.TotalAttempts)
-				.reduce((prev, curr) => prev + curr, 0)
-				
-				for (let index = 0; index < 3; index++) {
-					displayedStat.Total[index] = fetchedStats.map(item => item.Total[index])
-					.reduce((prev, curr) => prev + curr)
+				var displayedStat = {id: "0", Total: [0, 0, 0], Correct: [0, 0, 0], TotalAttempts: 0}
+
+				for (let i = 0; i < fetchedStats.length; i++) {
+					displayedStat.TotalAttempts += fetchedStats[i].TotalAttempts;
+					for (let j = 0; j < 3; j++) {
+						displayedStat.Total[j] += fetchedStats[i].Total[j];
+						displayedStat.Correct[j] += fetchedStats[i].Correct[j];
+					}
 					
-					displayedStat.Correct[index] = fetchedStats.map(item => item.Correct[index])
-					.reduce((prev, curr) => prev + curr)
 				}
-				
+
 				fetchedStats.unshift(displayedStat);
 				setStat(fetchedStats);
 			}
 			getAll();
 		}
-	}, [])
+	}, [student])
 
 	const PieWrapper = ({datum, myLabel}) => {
-		console.log(datum, student.id);
 		if (datum === undefined) 
 			return <></>
 
@@ -152,7 +149,6 @@ export default function Stats({student}) {
 							</Row>
 						</Col>
 					</div>
-					{console.log(formattedTotal)}
 					<div style = {{paddingTop: "40px"}}>
 						Сумма по всем уровням (всего / прав. / неправ.): {formattedTotal.datasets[0].data[0] + formattedTotal.datasets[0].data[1]} / {formattedTotal.datasets[0].data[0]} / {formattedTotal.datasets[0].data[1]}
 						<br></br>

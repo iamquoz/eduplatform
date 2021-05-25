@@ -56,7 +56,6 @@ export default function Teach() {
 				className = {currID === student.id && "chosenSidebar"}>	 
 					<NavLink onClick = {() => {
 						setCurrID(student.id) 
-						console.log(stList, student.id, currID);
 						setcurrentStudent(stList[student.id])
 						}}>
 							{student.stName}

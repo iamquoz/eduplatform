@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import {
 	Col,
@@ -39,6 +39,10 @@ export default function EditTask({task}) {
 		if (!answ && !isOpen) alert("Введите ответ на задание!")
 		if (isOpen && answ) setAnsw('')
 	}
+
+	useEffect(() => {
+		
+	}, [task])
 
 	return (
 		<Col>
