@@ -23,12 +23,10 @@ export default function EditTask({task}) {
 	// because react for some fucking reason uses
 	// literals and not indexes for options in select 
 
-	var retardedArray = ['Базовый', 'Продвинутый', 'Высокий']
-
-	const [text, setText] = useState('');
+	const [text, setText] = useState(task.text);
 	const [isOpen, setIsOpen] = useState(task.isOpen);
-	const [diff, setDiff] = useState(retardedArray[task.difficulty]);
-	const [answ, setAnsw] = useState('');
+	const [diff, setDiff] = useState('1');
+	const [answ, setAnsw] = useState(task.answer);
 
 	const onSubmit = (e) => {
 		e.preventDefault();
@@ -41,38 +39,49 @@ export default function EditTask({task}) {
 	}
 
 	useEffect(() => {
-		
+		console.log(task);
+		setText(task.text);
+		setIsOpen(task.isOpen);
+		setDiff(parseInt(task.difficulty));
+		setAnsw(task.answer);
 	}, [task])
 
+
+	// reason for `key` in text areas is so that they update their defaultValue prop 
+	// same for editTheory.jsx
 	return (
 		<Col>
 			<Form onSubmit = {onSubmit} style = {{marginTop: "10px"}}>
 				<FormGroup>
 					<Label for = "diff">Сложность задания</Label>
-					<Input type = "select" id = "diff"
-					onChange = {(e) => setDiff(e.target.value)}>
-						<option>Базовый</option>
-						<option>Продвинутый</option>
-						<option>Высокий</option>
-					</Input>
+					<select className = "form-control" id = "diff"
+						onChange = {(e) => setDiff(e.target.value)}>
+							<option value = '1' selected = {task.difficulty === '1'}>Базовый</option>
+							<option value = '2' selected = {task.difficulty === '2'}>Продвинутый</option>
+							<option value = '3' selected = {task.difficulty === '3'}>Высокий</option>
+					</select>
 				</FormGroup>
 				<FormGroup>
 					<Label for = "text">Текст задания</Label>
-					<Input type = "textarea" placeholder = {task.text} id = "text"
+					<Input type = "textarea" id = "text" key = {task.id}
+					defaultValue = {task.id === '0' ? '' : task.text}
+					placeholder  = {task.id === '0' ? task.text : ''}
 					style = {{height: "250px"}}
 					onChange = {(e) => setText(e.target.value)}></Input>
 				</FormGroup>
 				<FormGroup check inline 
 				style = {{marginBottom: "25px"}}>
 					<Label check>
-						<Input type = "checkbox" value = {isOpen} 
+						<Input type = "checkbox" checked = {task.isOpen} key = {task.id}
 						onChange = {(e) => setIsOpen(e.currentTarget.checked)}/>
 						Открытый вопрос (ответ отправляется преподавателю)
 					</Label>
 				</FormGroup>
 				{!isOpen && <FormGroup>
 					<Label for = "answ">Ответ на задание</Label>
-					<Input type = "textarea" placeholder = {task.answer} id = "answ"
+					<Input type = "textarea" id = "answ" key = {task.id}
+					defaultValue = {task.id === '0' ? '' : task.answer}
+					placeholder  = {task.id === '0' ? task.answer : ''}
 					style = {{height: "250px"}}
 					onChange = {(e) => setAnsw(e.target.value)}></Input>
 				</FormGroup> }

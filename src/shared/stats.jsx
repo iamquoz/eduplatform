@@ -110,9 +110,9 @@ export default function Stats({student}) {
 		return <div>
 					<div style = {{maxWidth: "300px", display: "inline-block"}}>
 						<Col>
-							<Row style = {{textAlign: "center"}}>
+							<div style = {{textAlign: "center"}}>
 								Сумма
-							</Row>
+							</div>
 							<Row>
 								<Pie data = {formattedTotal} width={200} height={200} options={options}/>
 							</Row>
@@ -121,9 +121,9 @@ export default function Stats({student}) {
 						
 					<div style = {{maxWidth: "300px", display: "inline-block"}}>
 						<Col>
-							<Row style = {{textAlign: "center"}}>
+							<div style = {{textAlign: "center"}}>
 								Базовый
-							</Row>
+							</div>
 							<Row>
 								<Pie data = {formattedEasy} width={200} height={200} options={options}/>
 							</Row>
@@ -131,9 +131,9 @@ export default function Stats({student}) {
 					</div>
 					<div style = {{maxWidth: "300px", display: "inline-block"}}>
 						<Col>
-							<Row style = {{textAlign: "center"}}>
+							<div style = {{textAlign: "center"}}>
 								Продвинутый
-							</Row>
+							</div>
 							<Row>
 								<Pie data = {formattedMedium} width={200} height={200} options={options}/>
 							</Row>
@@ -141,9 +141,9 @@ export default function Stats({student}) {
 					</div>
 					<div style = {{maxWidth: "300px", display: "inline-block"}}>
 						<Col>
-							<Row style = {{textAlign: "center"}}>
+							<div style = {{textAlign: "center"}}>
 								Высокий
-							</Row>
+							</div>
 							<Row>
 								<Pie data = {formattedHard} width={200} height={200} options={options}/>
 							</Row>
@@ -181,7 +181,7 @@ export default function Stats({student}) {
 
 	return (
 		<div>
-			<Row>
+			<Row style = {{marginRight: "0px"}}>
 				<Col className = "sidebar">
 					<Nav vertical >
 						<NavItem
