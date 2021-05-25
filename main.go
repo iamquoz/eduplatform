@@ -266,6 +266,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	http.Handle("/", http.FileServer(http.Dir("./build/")))
+	// on 404 return main page
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		rw.Write(front)
 	})
