@@ -32,6 +32,18 @@ body {
   font-family: inherit;
 }
 
+.redBtn {
+	border-color: red;
+	border-style: solid;
+	border-radius: 5px;
+	background: white;
+	color: black;
+}
+
+.redBtn:hover {
+	background-color: red;
+}
+
 .btn-block {
   display: block;
   width: 100%;
@@ -102,12 +114,13 @@ label {
 }
 
 .teacherList {
-	padding-top: 5%;	
-	padding-left: 5%;
+	padding-top: 20px;	
+	padding-left: 25px;
 }
 
 .teacherList {
 	list-style-type: none;
+	text-align: center;
 }
 
 a:link, a:visited, a:hover, a:active {
@@ -138,4 +151,32 @@ a:link, a:visited, a:hover, a:active {
 	position: sticky;
 	left: 50%;
 	top: 50%
+}
+
+.sidebar {
+	min-width: 400px;
+	max-width: 400px;
+	color: #000;
+}
+
+.chosenSidebar {
+	border-style: none none none solid;
+	border-width: 5px;
+	border-color: black;
+}
+
+.sidebar img {
+	filter: invert(1);
+	width: 40px;
+	margin-right: 20px
+}
+
+.notChosenPlaceholder {
+    display: flex;
+	align-items: center;
+}
+
+.notChosenPlaceholder p {
+	margin-left: auto;
+    margin-right: auto;
 }
