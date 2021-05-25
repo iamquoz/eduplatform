@@ -4,6 +4,7 @@ import (
 	"crypto/sha512"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -261,7 +262,13 @@ func main() {
 		http.HandleFunc("/api/"+k, v)
 	}
 	// handle frontend
-	http.Handle("/", http.FileServer(http.Dir("build/")))
+	front, err := ioutil.ReadFile("./build/index.html")
+	if err != nil {
+		panic(err)
+	}
+	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+		rw.Write(front)
+	})
 	go func() {
 		// now here's the time for server's port number
 		srvport := getsrvport()
