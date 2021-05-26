@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-
 import {
 	Col,
 	Form,
@@ -8,6 +7,8 @@ import {
 	Label,
 	Button
 } from 'reactstrap'
+
+import axios from 'axios'
 
 export default function EditTask({task}) {
 	if (task === undefined) {
@@ -39,11 +40,7 @@ export default function EditTask({task}) {
 	}
 
 	useEffect(() => {
-		console.log(task);
-		setText(task.text);
-		setIsOpen(task.isOpen);
-		setDiff(parseInt(task.difficulty));
-		setAnsw(task.answer);
+
 	}, [task])
 
 
@@ -77,7 +74,7 @@ export default function EditTask({task}) {
 						Открытый вопрос (ответ отправляется преподавателю)
 					</Label>
 				</FormGroup>
-				{!isOpen && <FormGroup>
+				{!task.isOpen && <FormGroup>
 					<Label for = "answ">Ответ на задание</Label>
 					<Input type = "textarea" id = "answ" key = {task.id}
 					defaultValue = {task.id === '0' ? '' : task.answer}

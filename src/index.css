@@ -180,3 +180,58 @@ a:link, a:visited, a:hover, a:active {
 	margin-left: auto;
     margin-right: auto;
 }
+
+.statsMrgn {
+	max-width: 300px;
+	display: inline-block;
+	margin-top: 25px;
+}
+
+@media (max-width: 1080px) {
+	.tabWrapper .nav-item {
+		width: 100%;
+		text-align: center;
+	}
+}
+
+@media (min-width: 1081px) {
+	.tabWrapper .nav-item {
+		width: 50%;
+		text-align: center;
+	}
+	.tabs3 .nav-item{
+		width: 33%;
+	}
+}
+
+.tabWrapper .nav-item a.active,
+.card.active {
+	color: #fff;
+	background-color: #343a40
+}
+
+.customFooter {
+	position: fixed;
+	left: 0;
+	background: white;
+	border-style: solid none none none;
+	border-color: #343a40;
+	bottom: 0;
+	height: 80px;
+	width: 100%;
+}
+
+.taskSelection {
+	width: 100%;
+	font-size: 20px; 
+	margin-bottom: 1rem
+}
+
+.taskDifficultyLine {
+	margin-top: 25px;
+	margin-bottom: 15px;
+}
+
+.form-check-input {
+	margin-top: 0.55rem
+}

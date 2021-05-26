@@ -108,45 +108,45 @@ export default function Stats({student}) {
 
 
 		return <div>
-					<div style = {{maxWidth: "300px", display: "inline-block"}}>
+					<div className = "statsMrgn">
 						<Col>
 							<div style = {{textAlign: "center"}}>
 								Сумма
 							</div>
-							<Row>
+							<div style = {{textAlign: "center"}}>
 								<Pie data = {formattedTotal} width={200} height={200} options={options}/>
-							</Row>
+							</div>
 						</Col>
 					</div>
 						
-					<div style = {{maxWidth: "300px", display: "inline-block"}}>
+					<div className = "statsMrgn">
 						<Col>
 							<div style = {{textAlign: "center"}}>
 								Базовый
 							</div>
-							<Row>
+							<div style = {{textAlign: "center"}}>
 								<Pie data = {formattedEasy} width={200} height={200} options={options}/>
-							</Row>
+							</div>
 						</Col>
 					</div>
-					<div style = {{maxWidth: "300px", display: "inline-block"}}>
+					<div className = "statsMrgn">
 						<Col>
 							<div style = {{textAlign: "center"}}>
 								Продвинутый
 							</div>
-							<Row>
+							<div style = {{textAlign: "center"}}>
 								<Pie data = {formattedMedium} width={200} height={200} options={options}/>
-							</Row>
+							</div>
 						</Col>
 					</div>
-					<div style = {{maxWidth: "300px", display: "inline-block"}}>
+					<div className = "statsMrgn">
 						<Col>
 							<div style = {{textAlign: "center"}}>
 								Высокий
 							</div>
-							<Row>
+							<div style = {{textAlign: "center"}}>
 								<Pie data = {formattedHard} width={200} height={200} options={options}/>
-							</Row>
+							</div>
 						</Col>
 					</div>
 					<div style = {{paddingTop: "40px"}}>

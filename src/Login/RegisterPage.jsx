@@ -131,12 +131,12 @@ export default function RegisterPage() {
 					{validConfirm === 2 && <FormFeedback>Пароли отличаются</FormFeedback>}
 				</FormGroup>
 				<Button style = {{marginTop: "10%", width: "100%"}} type = "submit">Зарегистрироваться</Button>
-				<Button style = {{marginTop: "10%", width: "100%"}}  onClick = {() => history.push('/login')}>Назад</Button>
+				<Button style = {{marginTop: "10%", width: "100%"}}  onClick = {() => history.push('/')}>Назад</Button>
 			</Form> :
 			// alternate
 			<Form>
 				<h1 style = {{textAlign: "center"}}>Ошиблись ссылкой?</h1>
-				<Button style = {{marginTop: "10%", width: "100%"}}  onClick = {() => history.push('/login')}>Назад</Button>
+				<Button style = {{marginTop: "10%", width: "100%"}}  onClick = {() => history.push('/')}>Назад</Button>
 			</Form>
 			}
 		</div>

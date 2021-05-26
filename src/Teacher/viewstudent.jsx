@@ -23,19 +23,17 @@ export default function ViewStudent({student}) {
 
 	return (
 		<Col>
-			<Nav tabs style = {{marginBottom: "25px", flexDirection: "column"}}>
-				<NavItem style = {{width: "100%", textAlign: "center"}}>
+			<Nav tabs className = "tabWrapper">
+				<NavItem>
 					<NavLink
 						className={classnames({ active: activeTab === 1 })}
-						style = {activeTab === 1 ? {color: "#fff", backgroundColor: '#343a40'} : {}}
 						onClick={() => { toggle(1); }} >
 						Статистика
 					</NavLink>
 				</NavItem>
-				<NavItem style = {{width: "100%", textAlign: "center"}}>
+				<NavItem>
 					<NavLink
 						className={classnames({ active: activeTab === 2 })} 
-						style = {activeTab === 2 ? {color: "#fff", backgroundColor: '#343a40'} : {}}
 						onClick={() => { toggle(2); }}>
 						Задания
 					</NavLink>

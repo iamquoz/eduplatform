@@ -8,6 +8,8 @@ import {
 	Button,
 } from 'reactstrap'
 
+import axios from 'axios'
+
 export default function EditTheory({theory}) {
 	if (theory === undefined) {
 		theory = {

@@ -49,10 +49,6 @@ export default function Base() {
 
 	const fetchTasks = async () => {
 		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/tasks/')
-		// temp fix, remove later
-		responce.data.forEach(task => {
-			task.id++
-		});
 		return responce.data;
 	}
 
@@ -93,19 +89,17 @@ export default function Base() {
 
 	return (
 		<div>
-			<Nav tabs style = {{marginBottom: "25px", flexDirection: "column"}}>
-				<NavItem style = {{width: "100%", textAlign: "center"}}>
+			<Nav tabs className = "tabWrapper">
+				<NavItem>
 					<NavLink
 						className={classnames({ active: activeTab === 1 })}
-						style = {activeTab === 1 ? {color: "#fff", backgroundColor: '#343a40'} : {}}
 						onClick={() => { toggle(1); }} >
 						Задания
 					</NavLink>
 				</NavItem>
-				<NavItem style = {{width: "100%", textAlign: "center"}}>
+				<NavItem>
 					<NavLink
 						className={classnames({ active: activeTab === 2 })} 
-						style = {activeTab === 2 ? {color: "#fff", backgroundColor: '#343a40'} : {}}
 						onClick={() => { toggle(2); }}>
 						Теория
 					</NavLink>
