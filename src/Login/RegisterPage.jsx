@@ -40,8 +40,10 @@ export default function RegisterPage() {
 
 	useEffect(() => {
 		const getName = async () => {
+			if (query === null)
+				return
 			const name = await fetchName();
-
+			
 			if (valid(name.id)) {
 				setFullname(name.stName);
 				setid(name.id);

@@ -26,7 +26,7 @@ export default function Stats({student}) {
 
 
 	const fetchStats = async () => {
-		const responce = (await axios.get('https://6099651699011f0017140ca7.mockapi.io/stats/' + (currIDstudent + 1)));
+		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/stats/' + student.id);
 		return responce.data.stat;
 	}
 	
@@ -82,7 +82,6 @@ export default function Stats({student}) {
 
 		var formattedEasy = {
 			labels: myLabels,
-			label: "Легкий",
 			datasets: [{
 				data: [datum.Correct[0], datum.Total[0] - datum.Correct[0]],
 				backgroundColor: bgColor

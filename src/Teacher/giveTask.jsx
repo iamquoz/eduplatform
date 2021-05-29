@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
+import { useHistory } from 'react-router-dom'
 
 import {
 	Nav,
@@ -16,13 +17,15 @@ import {
 } from 'reactstrap'
 
 export default function GiveTask() {
+
+	const history = useHistory();
+
 	const onSubmit = (e) => {
 		e.preventDefault();
 		
 		if (activeTab !== 4)
 			return
 		
-		alert("the end");
 		console.log("students: ", chosenStudents, "theory:", chosenTheory, "tasks:", chosenTasks);
 		
 		setChosenTasks([]);
@@ -198,7 +201,7 @@ export default function GiveTask() {
 				</NavItem>
 			</Nav>
 			<Form onSubmit = {onSubmit}>
-				<TabContent activeTab = {activeTab}>
+				<TabContent activeTab = {activeTab} style = {{ paddingBottom: "80px", paddingRight: "10px"}}>
 					<TabPane tabId = {1}>
 						<DisplayTheory />
 					</TabPane>
@@ -216,6 +219,11 @@ export default function GiveTask() {
 							setActiveTab(activeTab + 1);
 						}}>
 							Продолжить
+					</Button>
+					<Button style = {{marginTop: "15px", marginLeft: "40px"}}
+					className = "redBtn" 
+					onClick = {() => history.push('/teacher')}>
+							Вернуться в ЛК
 					</Button>
 				</div>
 			</Form>

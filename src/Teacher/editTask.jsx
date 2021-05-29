@@ -14,10 +14,10 @@ export default function EditTask({task}) {
 	if (task === undefined) {
 		task = {
 			"id": "0",
-			"text": "Введите текст задания",
-			"answer": "Введите ответ",
+			"text": "",
+			"answer": "",
 			"isOpen": false,
-			"difficulty": 2
+			"difficulty": 1
 		}
 	}
 
@@ -34,13 +34,68 @@ export default function EditTask({task}) {
 
 		console.log(task.id, text, isOpen, diff, answ);
 
-		if (!text)	alert("Введите текст задания!")
-		if (!answ && !isOpen) alert("Введите ответ на задание!")
+		if (!text) {
+			alert("Введите текст задания!") 
+			return;
+		}
+		if (!answ && !isOpen) {
+			alert("Введите ответ на задание!")
+			return;
+		}
+
 		if (isOpen && answ) setAnsw('')
+
+		if (task.id !== '0') {
+			axios.put('https://6099651699011f0017140ca7.mockapi.io/tasks/' + task.id,
+			{
+				id: task.id,
+				text: text,
+				answer: answ,
+				isOpen: isOpen,
+				difficulty: diff
+			})
+			.then(function(responce) {
+				console.log(responce)
+			})
+			.catch(function(responce) {
+				console.log(responce)
+			})
+		}
+		else {
+			axios.post('https://6099651699011f0017140ca7.mockapi.io/tasks',
+			{
+				id: task.id,
+				text: text,
+				answer: answ,
+				isOpen: isOpen,
+				difficulty: diff
+			})
+			.then(function(responce) {
+				console.log(responce)
+			})
+			.catch(function(responce) {
+				console.log(responce)
+			})
+		}
+	}
+
+	const onDelete = () => {
+		axios.delete('https://6099651699011f0017140ca7.mockapi.io/tasks/' + task.id)
+		.then(function(responce) {
+			console.log(responce);
+		})
+		.catch(function(responce) {
+			console.log(responce);
+		})
 	}
 
 	useEffect(() => {
-
+		if (task.id === '0')
+			return;
+		setText(task.text);
+		setIsOpen(task.isOpen);
+		setDiff(task.difficulty);
+		setAnsw(task.answer);
 	}, [task])
 
 
@@ -48,7 +103,7 @@ export default function EditTask({task}) {
 	// same for editTheory.jsx
 	return (
 		<Col>
-			<Form onSubmit = {onSubmit} style = {{marginTop: "10px"}}>
+			<Form onSubmit = {onSubmit} style = {{marginTop: "10px", marginLeft: "15px"}}>
 				<FormGroup>
 					<Label for = "diff">Сложность задания</Label>
 					<select className = "form-control" id = "diff"
@@ -62,7 +117,7 @@ export default function EditTask({task}) {
 					<Label for = "text">Текст задания</Label>
 					<Input type = "textarea" id = "text" key = {task.id}
 					defaultValue = {task.id === '0' ? '' : task.text}
-					placeholder  = {task.id === '0' ? task.text : ''}
+					placeholder  = {task.id === '0' ? 'Введите текст задания' : ''}
 					style = {{height: "250px"}}
 					onChange = {(e) => setText(e.target.value)}></Input>
 				</FormGroup>
@@ -78,12 +133,13 @@ export default function EditTask({task}) {
 					<Label for = "answ">Ответ на задание</Label>
 					<Input type = "textarea" id = "answ" key = {task.id}
 					defaultValue = {task.id === '0' ? '' : task.answer}
-					placeholder  = {task.id === '0' ? task.answer : ''}
+					placeholder  = {task.id === '0' ? 'Введите ответ' : ''}
 					style = {{height: "250px"}}
 					onChange = {(e) => setAnsw(e.target.value)}></Input>
 				</FormGroup> }
 				<br></br>
-				{task.id !== '0' && <Button type='submit' className = "redBtn">Удалить задание</Button>}
+				{task.id !== '0' && 
+				<Button type='submit' className = "redBtn" onClick = {onDelete}>Удалить задание</Button>}
 				<Button type='submit' style = {{float: "right"}}>Добавить задание</Button>
 			</Form>
 		</Col>

@@ -1,4 +1,5 @@
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import classnames from 'classnames'
 /* eslint-disable */
 import {
@@ -8,7 +9,8 @@ import {
 	NavItem,
 	NavLink,
 	Row, Col, 
-	UncontrolledTooltip
+	UncontrolledTooltip,
+	Button
 } from 'reactstrap'
 /* eslint-enable */
 
@@ -18,6 +20,7 @@ import EditTheory from './editTheory'
 import EditTask from './editTask'
 
 export default function Base() {
+	const history = useHistory();
 
 	const [tasks, setTasks] = useState([])
 	const [theories, setTheories] = useState([])
@@ -25,11 +28,14 @@ export default function Base() {
 	const [currIDTheory, setCurrIDTheory] = useState(-1);
 	const [activeTab, setActiveTab] = useState(1);
 
+	const [showSidebar, setShowSidebar] = useState(true);
+
 	const toggle = tab => {
 		setCurrIDTask(-1);
 		setCurrIDTheory(-1);
+		setShowSidebar(true);
 		if (activeTab !== tab) 
-		setActiveTab(tab);
+			setActiveTab(tab);
 	}
 
 	useEffect(() => {
@@ -57,8 +63,8 @@ export default function Base() {
 			<>
 			{tasks.map(task => (
 				<NavItem key = {task.id} 
-				className = {currIDTask === task.id ? "chosenSidebar" : ""}>	 
-					<NavLink onClick = {() => setCurrIDTask(task.id)} id = {"tooltip" + task.id}>
+				className = {classnames({chosenSidebar: currIDTask === task.id})}>	 
+					<NavLink onClick = {() => {setCurrIDTask(task.id); setShowSidebar(false)}} id = {"tooltip" + task.id}>
 							{task.text.length > 50 ? 
 							`${task.text.substring(0, 50)}...` : task.text}
 					</NavLink>
@@ -76,9 +82,9 @@ export default function Base() {
 		return (
 			<>
 			{theories.map(theory => (
-				<NavItem key = {theory.id} 
-				className = {currIDTheory === theory.id ? "chosenSidebar" : ""}>	 
-					<NavLink onClick = {() => setCurrIDTheory(theory.id)}>
+				<NavItem key = {theory.id}
+				className = {classnames({chosenSidebar: currIDTheory === theory.id})}>	 
+					<NavLink onClick = {() => {setCurrIDTheory(theory.id); setShowSidebar(false)}}>
 							{theory.title}
 					</NavLink>
 				</NavItem>
@@ -107,10 +113,11 @@ export default function Base() {
 			</Nav>
 			<TabContent activeTab={activeTab}>
 				<TabPane tabId = {1}>
-					<Row style = {{marginRight: "0"}}>
+					<Row style = {{marginRight: "0", paddingBottom: "80px"}}>
+						{showSidebar && 
 						<Col className = "sidebar">
 							<Nav vertical>
-								<NavItem className = {currIDTask === 0 && "chosenSidebar"}>
+								<NavItem className = {classnames({chosenSidebar: currIDTask === 0})}>
 									<NavLink onClick = {() => setCurrIDTask(0)}>
 										<img alt = " " src = {PlusIc}></img>
 										<span>Добавить новое задание</span>
@@ -122,20 +129,21 @@ export default function Base() {
 								<DisplayListTasks />
 							</Nav>
 						</Col>
+						}
 						{ 
 						currIDTask !== -1 
 						? <EditTask task = {tasks[currIDTask - 1]}/> 
-						: <Col className = "notChosenPlaceholder">
-							<p>Нажмите на элемент слева для начала работы</p>
-						  </Col>
+						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
+							<p>Выберите элемент для начала работы</p></Col>
 						}
 					</Row>
 				</TabPane>
 				<TabPane tabId = {2}>
-					<Row style = {{marginRight: "0"}}>
+					<Row style = {{marginRight: "0", paddingBottom: "80px"}}>
+						{showSidebar && 
 						<Col className = "sidebar">
 							<Nav vertical>
-								<NavItem className = {currIDTheory === 0 && "chosenSidebar"}>
+								<NavItem className = {classnames({chosenSidebar: currIDTheory === 0})}>
 									<NavLink onClick = {() => setCurrIDTheory(0)}>
 										<img alt = " " src = {PlusIc}></img>
 										<span>Добавить новый теоретический материал</span>
@@ -147,15 +155,29 @@ export default function Base() {
 								<DisplayListTheories />
 							</Nav>
 						</Col>
+						}
 						{ 
-						currIDTheory !== -1
+						currIDTheory !== -1 
 						? <EditTheory theory = {theories[currIDTheory - 1]}/>
-						: <Col className = "notChosenPlaceholder">
-							<p>Нажмите на элемент слева для начала работы</p></Col>
+						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
+							<p>Выберите элемент для начала работы</p></Col>
 						}
 					</Row>
 				</TabPane>
 			</TabContent>
+			<div className = "customFooter">
+					<Button style = {{marginTop: "15px", marginLeft: "20px"}}
+					className = "possiblyHidden"
+					onClick = {() => setShowSidebar(!showSidebar)}>
+						Показать задания
+					</Button>
+					<Button 
+					style = {{float: "right", marginTop: "15px", marginRight: "40px"}}
+					className = "redBtn" 
+					onClick = {() => history.push('/teacher')}>
+							Вернуться в ЛК
+					</Button>
+				</div>
 		</div>
 	)
 }

@@ -13,7 +13,6 @@ import {
 import Stats from '../shared/stats.jsx'
 
 export default function ViewStudent({student}) {
-
 	const [activeTab, setActiveTab] = useState(1);
 
 	const toggle = tab => {
@@ -22,7 +21,7 @@ export default function ViewStudent({student}) {
 	}
 
 	return (
-		<Col>
+		<Col style = {{paddingRight: "0"}}>
 			<Nav tabs className = "tabWrapper">
 				<NavItem>
 					<NavLink

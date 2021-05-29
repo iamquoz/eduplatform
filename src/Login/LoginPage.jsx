@@ -8,10 +8,12 @@ import {
 	Label, 
 	Input 
 } from 'reactstrap';
+
 import axios from 'axios'
 
 export default function LoginPage() {
 	const history = useHistory();
+	
 	const [login, setlogin] = useState('');
 	const [password, setpassword] = useState('');
 
