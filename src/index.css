@@ -205,14 +205,14 @@ a:link, a:visited, a:hover, a:active {
 	margin-top: 25px;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 768px) {
 	.tabWrapper .nav-item {
 		width: 100%;
 		text-align: center;
 	}
 }
 
-@media (min-width: 1081px) {
+@media (min-width: 768px) {
 	.tabWrapper .nav-item {
 		width: 50%;
 		text-align: center;

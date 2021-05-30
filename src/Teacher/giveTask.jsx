@@ -213,14 +213,14 @@ export default function GiveTask() {
 					</TabPane>
 				</TabContent>
 				<div className = "customFooter">
-					<Button style = {{float: "right", marginTop: "15px", marginRight: "40px"}}
+					<Button style = {{float: "right", marginTop: "15px", marginRight: "40px", width: "200px"}}
 					type = "submit"
 					onClick = {() => {
 							setActiveTab(activeTab + 1);
 						}}>
 							Продолжить
 					</Button>
-					<Button style = {{marginTop: "15px", marginLeft: "40px"}}
+					<Button style = {{marginTop: "15px", marginLeft: "40px", width: "200px"}}
 					className = "redBtn" 
 					onClick = {() => history.push('/teacher')}>
 							Вернуться в ЛК

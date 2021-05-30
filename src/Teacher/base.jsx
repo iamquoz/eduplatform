@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, SyntheticEvent } from 'react'
 import { useHistory } from 'react-router-dom'
 import classnames from 'classnames'
-/* eslint-disable */
+import { useGlobalEvent } from 'beautiful-react-hooks'
+
 import {
 	TabPane, 
 	TabContent,
@@ -12,7 +13,6 @@ import {
 	UncontrolledTooltip,
 	Button
 } from 'reactstrap'
-/* eslint-enable */
 
 import axios from 'axios'
 import PlusIc from '../img/plus.svg'
@@ -29,6 +29,14 @@ export default function Base() {
 	const [activeTab, setActiveTab] = useState(1);
 
 	const [showSidebar, setShowSidebar] = useState(true);
+	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+	const onWindowResize = useGlobalEvent('resize');
+
+	// this is fine, don't worry about it
+	onWindowResize((event: SyntheticEvent) => {
+		setWindowWidth(window.innerWidth);
+	})
 
 	const toggle = tab => {
 		setCurrIDTask(-1);
@@ -114,7 +122,7 @@ export default function Base() {
 			<TabContent activeTab={activeTab}>
 				<TabPane tabId = {1}>
 					<Row style = {{marginRight: "0", paddingBottom: "80px"}}>
-						{showSidebar && 
+						{(showSidebar || windowWidth > 768) && 
 						<Col className = "sidebar">
 							<Nav vertical>
 								<NavItem className = {classnames({chosenSidebar: currIDTask === 0})}>
@@ -132,7 +140,7 @@ export default function Base() {
 						}
 						{ 
 						currIDTask !== -1 
-						? <EditTask task = {tasks[currIDTask - 1]}/> 
+						? <EditTask task = {tasks.find(task => task.id === currIDTask)}/> 
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
 							<p>Выберите элемент для начала работы</p></Col>
 						}
@@ -140,7 +148,7 @@ export default function Base() {
 				</TabPane>
 				<TabPane tabId = {2}>
 					<Row style = {{marginRight: "0", paddingBottom: "80px"}}>
-						{showSidebar && 
+						{(showSidebar || windowWidth > 768) && 
 						<Col className = "sidebar">
 							<Nav vertical>
 								<NavItem className = {classnames({chosenSidebar: currIDTheory === 0})}>
@@ -158,7 +166,7 @@ export default function Base() {
 						}
 						{ 
 						currIDTheory !== -1 
-						? <EditTheory theory = {theories[currIDTheory - 1]}/>
+						? <EditTheory theory = {theories.find(theory => theory.id === currIDTheory)}/>
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
 							<p>Выберите элемент для начала работы</p></Col>
 						}
@@ -166,13 +174,13 @@ export default function Base() {
 				</TabPane>
 			</TabContent>
 			<div className = "customFooter">
-					<Button style = {{marginTop: "15px", marginLeft: "20px"}}
+					<Button style = {{marginTop: "15px", marginLeft: "20px", width: "200px"}}
 					className = "possiblyHidden"
 					onClick = {() => setShowSidebar(!showSidebar)}>
 						Показать задания
 					</Button>
 					<Button 
-					style = {{float: "right", marginTop: "15px", marginRight: "40px"}}
+					style = {{float: "right", marginTop: "15px", marginRight: "40px", width: "200px"}}
 					className = "redBtn" 
 					onClick = {() => history.push('/teacher')}>
 							Вернуться в ЛК

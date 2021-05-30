@@ -20,7 +20,7 @@ export default function Student() {
 			<Navbar color = "dark" dark>
 				<NavbarBrand href = "/">Личный кабинет</NavbarBrand>
 				<div className = "iconRow">
-					<Link id = "tasktxt" to = "/student" style={{color: 'white', paddingTop: "2px"}}>Задания</Link>
+					<Link id = "tasktxt" to = "/student" style={{color: 'white', paddingTop: "5px"}}>Задания</Link>
 					<UncontrolledTooltip placement= "bottom" target = "tasktxt">
 						Решайте задания, выданные преподавателем
 					</UncontrolledTooltip>

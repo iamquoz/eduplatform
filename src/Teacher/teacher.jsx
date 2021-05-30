@@ -58,8 +58,8 @@ export default function Teach() {
 				<NavItem key = {student.id} 
 				className = {classNames({chosenSidebar: currID === parseInt(student.id - 2)})}>	 
 					<NavLink onClick = {() => {
-						setCurrID(student.id - 2) 
-						setcurrentStudent(stList[student.id - 2])
+						setCurrID(student.id - 2)
+						setcurrentStudent(stList.find(st => st.id === student.id)) 
 						}}>
 							{student.stName}
 					</NavLink>
@@ -73,7 +73,7 @@ export default function Teach() {
 		return (
 			<>
 			{stList.map(student => (
-				<option value = {student.id - 2} key = {student.id}
+				<option value = {student.id} key = {student.id}
 				selected = {student.id - 2 === parseInt(currID)}>
 					{student.stName}
 				</option>
@@ -90,8 +90,8 @@ export default function Teach() {
 				<Collapse isOpen = {barOpen} navbar>
 						<select className = "form-control possiblyHidden" style = {{margin: "10px 0"}}
 							onChange = {(e) => {
-								setCurrID(e.target.value)
-								setcurrentStudent(stList[e.target.value])
+								setCurrID(e.target.value - 2)
+								setcurrentStudent(stList.find(st => st.id === e.target.value))
 							}}>
 							<option value = "" disabled selected>Выберите студента</option>
 							<DisplayMobileList />
