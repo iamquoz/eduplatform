@@ -29,10 +29,8 @@ jobs:
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rv {} \;
       - run: git init
       - run: git remote add origin https://github.com/iamquoz/matstat.git
-      - run: git reset origin/master
-      - run: git fetch
-      - run: git checkout -t origin/master
       - run: git add . 
+      - run: ls .
       
       - run: git config user.name "workflow"
       - run: git config user.email "lol@iamquoz.me"
