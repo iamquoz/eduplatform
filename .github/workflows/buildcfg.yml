@@ -33,6 +33,7 @@ jobs:
       - run: ls .
       - run: cat .gitignore
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rv {} \;
+      - run: git clone https://github.com/iamquoz/matstat.git
       - run: ls .
       
       # '[skip ci]' in the message doesn't cause a infinite loop 
