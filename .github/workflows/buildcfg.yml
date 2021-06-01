@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
+      - run: git config --global credential.helper 'cache --timeout=3600'
       - run: npm i
       
       - run: npm run build
