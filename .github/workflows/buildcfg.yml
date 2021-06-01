@@ -19,9 +19,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
-      #- run: npm i
+      - run: npm i
       
-      #- run: npm run build
+      - run: npm run build
             
       # ??? but ok
       #- run: git config user.name "workflow"
@@ -29,9 +29,13 @@ jobs:
       
       # im braindead and forgot to commit first yeah.
       - run: git add .
-      - run: ls .
-      - run: git checkout
+      
+      - run: cd .
+      - run: git checkout -b
       - run: cat .gitignore
+      - run: shopt -s extglob
+      - run: rm -vr !(/build)
+      - run: cd .
       # '[skip ci]' in the message doesn't cause a infinite loop 
       # since this is triggered upon push 
       
