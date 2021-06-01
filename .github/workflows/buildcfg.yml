@@ -2,9 +2,9 @@ name: Deploy
 
 on:
   push:
-    branches: [ gena ]
+    branches: [ front ]
   pull_request:
-    branches: [ gena ]
+    branches: [ front ]
 
 jobs:
   build:
