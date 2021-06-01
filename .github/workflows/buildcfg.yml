@@ -22,19 +22,25 @@ jobs:
       - run: npm i
       
       - run: npm run build
-            
-      # ??? but ok
-      #- run: git config user.name "workflow"
-      #- run: git config user.email "lol@iamquoz.me"
       
-      # im braindead and forgot to commit first yeah.
-      - run: git add .
       
       - run: ls .
       - run: cat .gitignore
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rv {} \;
-      - run: git clone https://github.com/iamquoz/matstat.git
+      - run: git init
+      - run: git remote add origin https://github.com/iamquoz/matstat.git
+      - run: git reset origin/master
+      - run: git fetch
+      - run: git checkout -t origin/master
+      - run: git add . 
+      
+      - run: git config user.name "workflow"
+      - run: git config user.email "lol@iamquoz.me"
+      
+      - run: git commmit -m "[skip ci] build by workflows"
+      - run: git push
       - run: ls .
+      
       
       # '[skip ci]' in the message doesn't cause a infinite loop 
       # since this is triggered upon push 
