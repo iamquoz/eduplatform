@@ -34,7 +34,7 @@ jobs:
       
       - run: git add .
       - run: git commit -m "[skip ci] build by workflows"
-      
+      - run: git push
           
       
     
