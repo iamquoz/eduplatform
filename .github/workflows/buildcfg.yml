@@ -32,8 +32,7 @@ jobs:
       
       - run: ls .
       - run: cat .gitignore
-      - run: shopt -s extglob
-      - run: rm -vr !(/build)
+      - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rv {} \;
       - run: ls .
       
       # '[skip ci]' in the message doesn't cause a infinite loop 
