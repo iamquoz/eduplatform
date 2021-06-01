@@ -29,6 +29,9 @@ jobs:
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rf {} \;
       - run: git init
       - run: git remote add origin https://github.com/iamquoz/matstat.git
+      - run: git add .
+      - run: git commit -m "init"
+      
       - run: git stash
       
       - run: git pull https://github.com/iamquoz/matstat.git prod
