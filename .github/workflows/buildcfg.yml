@@ -29,7 +29,7 @@ jobs:
       
       # im braindead and forgot to commit first yeah.
       - run: git add .
-      - run: cd ls
+      - run: ls .
       - run: git checkout
       - run: cat .gitignore
       # '[skip ci]' in the message doesn't cause a infinite loop 
