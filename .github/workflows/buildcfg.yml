@@ -21,26 +21,22 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-          
-      - run: npm i
+        
+      - run: rm -rf .git
       
-      - run: npm run build
-      
-      - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rf {} \;
       - run: git init
       - run: git remote add origin https://github.com/iamquoz/matstat.git
+      - run: git pull origin prod
       
       - run: git config user.name "workflow"
       - run: git config user.email "lol@iamquoz.me"
       
+      - run: npm i
+      
+      - run: npm run build
+      
+      - run: find . -maxdepth 1 ! -name build ! -name .git ! -name . -exec rm -rf {} \;
       - run: git add .
-      - run: git commit -m "init"
-      
-      - run: git stash
-      
-      - run: git pull origin prod
-      - run: git stash pop
-      
       - run: git commit -m "[skip ci] build by workflows"
       
       - name: Push changes
