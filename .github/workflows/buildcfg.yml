@@ -34,8 +34,8 @@ jobs:
       - run: git add . 
       - run: ls .
       
-      - run: git config user.name "workflow"
-      - run: git config user.email "lol@iamquoz.me"
+#      - run: git config user.name "workflow"
+#      - run: git config user.email "lol@iamquoz.me"
       
       - run: git commit -m "[skip ci] build by workflows"
       - run: git push --set-upstream origin master
