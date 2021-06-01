@@ -30,7 +30,7 @@ jobs:
       
       - run: npm run build
       
-      - run: git checkout prod
+      - run: git checkout prod -f
       
       - run: git add .
       - run: git commit -m "[skip ci] build by workflows"
