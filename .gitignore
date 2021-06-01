@@ -9,7 +9,7 @@
 /coverage
 
 # we actually production build lol so yeah no
-# /build
+/build
 
 # misc
 .DS_Store
