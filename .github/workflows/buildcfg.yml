@@ -29,20 +29,15 @@ jobs:
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rv {} \;
       - run: git init
       - run: git remote add origin https://github.com/iamquoz/matstat.git
+      - run: git fetch
       - run: git add . 
       - run: ls .
       
       - run: git config user.name "workflow"
       - run: git config user.email "lol@iamquoz.me"
       
-      - run: git commmit -m "[skip ci] build by workflows"
+      - run: git commit -m "[skip ci] build by workflows"
       - run: git push
       - run: ls .
       
-      
-      # '[skip ci]' in the message doesn't cause a infinite loop 
-      # since this is triggered upon push 
-      
-      # https://stackoverflow.com/a/66156840
-      #- run: git commit -m "[skip ci] build by workflows"
-      #- run: git push
+    
