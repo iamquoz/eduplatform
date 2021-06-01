@@ -3,6 +3,8 @@ name: Deploy
 on:
   push:
     branches: [ front ]
+    paths-ignore: 
+     - .github/workflows/buildcfg.yml
   pull_request:
     branches: [ front ]
 
