@@ -38,7 +38,7 @@ jobs:
       
       - run: git stash
       
-      - run: git pull origin master
+      - run: git pull origin prod
       - run: git stash pop
       
       - run: git commit -m "[skip ci] build by workflows"
