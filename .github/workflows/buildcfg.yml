@@ -23,22 +23,21 @@ jobs:
       
       - run: npm run build
       
-      
-      - run: ls .
-      - run: cat .gitignore
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rf {} \;
-      - run: cat ${{ secrets.GITHUB_TOKEN }}
       - run: git init
       - run: git remote add origin https://github.com/iamquoz/matstat.git
       - run: git fetch
       - run: git add . 
-      - run: ls .
       
       - run: git config user.name "workflow"
       - run: git config user.email "lol@iamquoz.me"
       
       - run: git commit -m "[skip ci] build by workflows"
-      - run: git push --set-upstream origin master --force
-      - run: ls .
+      
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          
       
     
