@@ -20,10 +20,7 @@ export default function EditTask({task}) {
 			"difficulty": 1
 		}
 	}
-
-	// because react for some fucking reason uses
-	// literals and not indexes for options in select 
-
+	
 	const [text, setText] = useState(task.text);
 	const [isOpen, setIsOpen] = useState(task.isOpen);
 	const [diff, setDiff] = useState('1');
