@@ -19,7 +19,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           
-      - run: git config --global credential.helper 'cache --timeout=3600'
       - run: npm i
       
       - run: npm run build
@@ -28,6 +27,7 @@ jobs:
       - run: ls .
       - run: cat .gitignore
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rf {} \;
+      - run: cat ${{ secrets.GITHUB_TOKEN }}
       - run: git init
       - run: git remote add origin https://github.com/iamquoz/matstat.git
       - run: git fetch
