@@ -29,13 +29,13 @@ jobs:
       - run: cat .gitignore
       - run: find . -maxdepth 1 ! -name build ! -name . -exec rm -rf {} \;
       - run: git init
-      - run: git remote add origin https://github.com/iamquoz/matstat.git
+      - run: git remote add origin git@github.com:iamquoz/matstat.git
       - run: git fetch
       - run: git add . 
       - run: ls .
       
-#      - run: git config user.name "workflow"
-#      - run: git config user.email "lol@iamquoz.me"
+      - run: git config user.name "workflow"
+      - run: git config user.email "lol@iamquoz.me"
       
       - run: git commit -m "[skip ci] build by workflows"
       - run: git push --set-upstream origin master
