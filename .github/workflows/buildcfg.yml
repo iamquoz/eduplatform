@@ -2,9 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [ gena ]
-  pull_request:
-    branches: [ gena ]
+    branches: [ front ]
 
 jobs:
   build:
@@ -16,24 +14,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 
+        
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-          
-      - run: npm i
       
-      - run: npm run build
-            
-      # ??? but ok
+      
       - run: git config user.name "workflow"
       - run: git config user.email "lol@iamquoz.me"
       
-      # im braindead and forgot to commit first yeah.
-      - run: git add .
-      # '[skip ci]' in the message doesn't cause a infinite loop 
-      # since this is triggered upon push 
+      - run: npm i
       
-      # https://stackoverflow.com/a/66156840
+      - run: npm run build
+      
+      - run: git checkout prod -f
+      
+      - run: git add .
       - run: git commit -m "[skip ci] build by workflows"
       - run: git push
+          
+      
+    
