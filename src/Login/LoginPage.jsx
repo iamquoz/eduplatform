@@ -6,16 +6,24 @@ import {
 	FormFeedback,
 	FormGroup, 
 	Label, 
-	Input 
+	Input, 
+	Alert
 } from 'reactstrap';
 
-import axios from 'axios'
+import { auth } from '../shared/auth.jsx'
 
 export default function LoginPage() {
+
+	
 	const history = useHistory();
 	
+	if (auth.currUserValue)
+		history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
+	
+
 	const [login, setlogin] = useState('');
 	const [password, setpassword] = useState('');
+	const [status, setStatus] = useState('');
 
 	const [validPW, setvalidPW] = useState(false);
 	// 0 means all good
@@ -44,6 +52,17 @@ export default function LoginPage() {
 		}
 
 		console.log(login, password);
+
+		auth.login(login, password)
+			.then(
+				user => {
+					history.push(login === '1' ? 'teacher' : '/student')
+				},
+				error => {
+					setStatus(error);
+				}
+			)
+
 	}
 
 	useEffect(() => {
@@ -81,7 +100,13 @@ export default function LoginPage() {
 					placeholder="Введите пароль" />
 					<FormFeedback>Пароль не может быть пустым</FormFeedback>
 				</FormGroup>
-				<Button style = {{marginTop: "10%",  width: "100%"}} type = "submit">
+
+				{ status &&
+					<Alert color = "danger">
+						{status}
+					</Alert>
+				}
+				<Button style = {{marginTop: "5%",  width: "100%"}} type = "submit">
 					Войти
 				</Button>
 			</Form>

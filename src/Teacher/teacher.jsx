@@ -25,6 +25,7 @@ import Give from "../img/give_task.svg"
 import ViewStudent from './viewstudent.jsx'
 import AddModal from './modal.jsx'
 import classNames from 'classnames';
+import { auth } from '../shared/auth';
 
 export default function Teach() {
 	const history = useHistory();
@@ -97,7 +98,7 @@ export default function Teach() {
 							<DisplayMobileList />
 						</select>
 						<Nav navbar>
-							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => history.push('/give')}>
+							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => history.push('/handout')}>
 								<img src = {Give} alt = "Выдать задания" id = "giveic"/>
 								{barOpen && <span>Выдать задание</span>}
 							</li>
@@ -109,7 +110,7 @@ export default function Teach() {
 								<img src = {AddSt} alt = "Добавить студента" id = "addst"/>
 								{barOpen && <span>Добавить студента</span>}
 							</li>
-							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => history.push('/')}>
+							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => auth.logout()}>
 								<img src = {Exit} alt = "Выйти" id = "exitic"/>
 								{barOpen && <span>Выйти</span>}
 							</li>

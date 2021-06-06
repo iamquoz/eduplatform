@@ -2,6 +2,8 @@ import { useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
+import { auth } from '../shared/auth.jsx'
+
 import { 
 	Button, 
 	Form,
@@ -15,6 +17,9 @@ export default function RegisterPage() {
 	let query = new URLSearchParams(window.location.search);
 	query = query.get('id');
 	const history = useHistory();
+
+	if (auth.currUserValue)
+		history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
 
 	// get name of a register
 	const [fullname, setFullname] = useState('')

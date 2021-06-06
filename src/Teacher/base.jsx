@@ -174,13 +174,13 @@ export default function Base() {
 				</TabPane>
 			</TabContent>
 			<div className = "customFooter">
-					<Button style = {{marginTop: "15px", marginLeft: "20px", width: "200px"}}
+					<Button style = {{marginTop: "15px", marginLeft: "20px", width: "170px"}}
 					className = "possiblyHidden"
 					onClick = {() => setShowSidebar(!showSidebar)}>
-						Показать задания
+						{!showSidebar ? "Открыть" : "Скрыть"} задания
 					</Button>
 					<Button 
-					style = {{float: "right", marginTop: "15px", marginRight: "40px", width: "200px"}}
+					style = {{float: "right", marginTop: "15px", marginRight: "20px", width: "170px"}}
 					className = "redBtn" 
 					onClick = {() => history.push('/teacher')}>
 							Вернуться в ЛК

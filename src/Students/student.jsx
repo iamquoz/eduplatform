@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-// eslint-disable-next-line
-import { Button, Form, FormGroup, Label, Input, FormText, CardTitle, NavItem } from 'reactstrap';
+import { auth } from '../shared/auth.jsx'
+
 import {
 	Navbar,
 	NavbarBrand,
@@ -24,13 +24,13 @@ export default function Student() {
 					<UncontrolledTooltip placement= "bottom" target = "tasktxt">
 						Решайте задания, выданные преподавателем
 					</UncontrolledTooltip>
-					<img src = {Exit} alt = "Выйти" id = "exitic"/>
+					<img src = {Exit} alt = "Выйти" id = "exitic" onClick = {() => auth.logout()}/>
 					<UncontrolledTooltip placement= "bottom" target = "exitic">
 						Выйти
 					</UncontrolledTooltip>
 				</div>
 			</Navbar>
-			<Stats student = {{"id": 3}}/>
+			<Stats student = {{"id": auth.currUserValue.id}}/>
 		</div>
     )
 }

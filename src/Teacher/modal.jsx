@@ -70,8 +70,8 @@ export default function ModalAdd({isOpen, toggle}) {
 					</FormGroup>
 				</ModalBody>
 				<ModalFooter>
-					<Button onClick = {toggle} className = "redBtn" style = {{float: "left"}}>Отмена</Button>
-					<Button type='submit' style = {{float: "right"}}>Добавить студента</Button>
+					<Button onClick = {toggle} className = "redBtn" style = {{float: "left", padding: "10px 20px"}}>Отмена</Button>
+					<Button type='submit' style = {{float: "right", padding: "10px 20px"}}>Добавить студента</Button>
 				</ModalFooter>
 			</Form>
 		</Modal>
