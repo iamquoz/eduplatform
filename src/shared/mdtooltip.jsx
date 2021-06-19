@@ -72,8 +72,9 @@ export default function MdTooltip({isOpen, toggle}) {
 					<Col> [Ссылка](https://astu.org)</Col>
 					<Col className = "rightal"><a href = "https://astu.org">Ссылка</a></Col>
 				</Row>
+				<hr />
 				<Row>
-					Два пробела в конце строки - переход на новую строку
+					<Col> Два пробела в конце строки - переход на новую строку</Col>
 				</Row>
 			</ModalBody>
 			<ModalFooter>

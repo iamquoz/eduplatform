@@ -7,6 +7,7 @@ import Base from "./Teacher/base.jsx"
 import GiveTask from "./Teacher/giveTask.jsx"
 import RestrictedRoute from './shared/restricted.jsx'
 import About from './shared/about.jsx'
+import NotFound from "./shared/notfound.jsx";
 
 function App() {
 	
@@ -20,6 +21,7 @@ function App() {
 					<Route path = "/register" component = {RegisterPage} />
 					<Route path = "/about" component = {About} />
 					<Route exact path = "/" component = {LoginPage} />
+					<Route component = {NotFound} />
 				</Switch>
 			</Router>
 	);
