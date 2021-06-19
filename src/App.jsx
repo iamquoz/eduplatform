@@ -6,6 +6,7 @@ import Student from "./Students/student.jsx"
 import Base from "./Teacher/base.jsx"
 import GiveTask from "./Teacher/giveTask.jsx"
 import RestrictedRoute from './shared/restricted.jsx'
+import About from './shared/about.jsx'
 
 function App() {
 	
@@ -17,6 +18,7 @@ function App() {
 					<RestrictedRoute path = '/base' component = {Base} requiredrole = '1'/>
 					<RestrictedRoute path = '/student' component = {Student} />
 					<Route path = "/register" component = {RegisterPage} />
+					<Route path = "/about" component = {About} />
 					<Route exact path = "/" component = {LoginPage} />
 				</Switch>
 			</Router>

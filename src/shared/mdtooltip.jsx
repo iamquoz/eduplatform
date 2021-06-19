@@ -72,6 +72,9 @@ export default function MdTooltip({isOpen, toggle}) {
 					<Col> [Ссылка](https://astu.org)</Col>
 					<Col className = "rightal"><a href = "https://astu.org">Ссылка</a></Col>
 				</Row>
+				<Row>
+					Два пробела в конце строки - переход на новую строку
+				</Row>
 			</ModalBody>
 			<ModalFooter>
 				<Button onClick = {toggle} style = {{padding: "10px 20px"}}>
