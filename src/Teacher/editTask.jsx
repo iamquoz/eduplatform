@@ -9,6 +9,8 @@ import {
 } from 'reactstrap'
 
 import axios from 'axios'
+import Question from '../shared/question'
+import MdTooltip from '../shared/mdtooltip'
 
 export default function EditTask({task}) {
 	if (task === undefined) {
@@ -20,6 +22,10 @@ export default function EditTask({task}) {
 			"difficulty": 1
 		}
 	}
+	
+	// modal
+	const [modal, setModal] = useState(false);
+	const toggle = () => setModal(!modal);
 	
 	const [text, setText] = useState(task.text);
 	const [isOpen, setIsOpen] = useState(task.isOpen);
@@ -111,7 +117,7 @@ export default function EditTask({task}) {
 					</select>
 				</FormGroup>
 				<FormGroup>
-					<Label for = "text">Текст задания</Label>
+					<Label for = "text">Текст задания</Label> <span onClick = {toggle}><Question /></span>
 					<Input type = "textarea" id = "text" key = {task.id}
 					defaultValue = {task.id === '0' ? '' : task.text}
 					placeholder  = {task.id === '0' ? 'Введите текст задания' : ''}
@@ -139,6 +145,7 @@ export default function EditTask({task}) {
 				<Button type='submit' className = "redBtn" onClick = {onDelete}>Удалить задание</Button>}
 				<Button type='submit' style = {{float: "right"}}>Добавить задание</Button>
 			</Form>
+			<MdTooltip isOpen = {modal} toggle = {toggle} />
 		</Col>
 	)
 }

@@ -9,6 +9,8 @@ import {
 } from 'reactstrap'
 
 import axios from 'axios'
+import MdTooltip from '../shared/mdtooltip'
+import Question from '../shared/question'
 
 export default function EditTheory({theory}) {
 	if (theory === undefined) {
@@ -18,6 +20,11 @@ export default function EditTheory({theory}) {
 		"text": ""
 		}
 	}
+
+		
+	// modal
+	const [modal, setModal] = useState(false);
+	const toggle = () => setModal(!modal);
 
 	const [title, setTitle] = useState('');
 	const [text, setText] = useState('');
@@ -95,7 +102,7 @@ export default function EditTheory({theory}) {
 					onChange = {(e) => setTitle(e.target.value)}></Input>
 				</FormGroup>
 				<FormGroup>
-					<Label for = "title">Текст материала</Label>
+					<Label for = "title">Текст материала</Label><span onClick = {toggle}><Question /></span>
 					<Input type = "textarea" key = {theory.id}
 					defaultValue = {theory.id === '0' ? '' : theory.text}
 					placeholder = {theory.id === '0' ? 'Введите текст материала' : ''}
@@ -108,6 +115,7 @@ export default function EditTheory({theory}) {
 				}
 				<Button type='submit' style = {{float: "right"}}>Добавить теорию</Button>
 			</Form>
+			<MdTooltip isOpen = {modal} toggle = {toggle} />
 		</Col>
 	)
 }

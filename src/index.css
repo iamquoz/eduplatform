@@ -139,11 +139,6 @@ label {
 	text-align: center;
 }
 
-a:link, a:visited, a:hover, a:active {
-	text-decoration: none;
-	color: black;
-}
-
 .studentCard {
 	height: 100%;
 	width: 100%;
@@ -223,7 +218,7 @@ a:link, a:visited, a:hover, a:active {
 }
 
 .tabWrapper .nav-item a.active,
-.card.active {
+.tabWrapper .card.active {
 	color: #fff;
 	background-color: #343a40
 }
@@ -252,4 +247,20 @@ a:link, a:visited, a:hover, a:active {
 
 .form-check-input {
 	margin-top: 0.55rem
+}
+
+.rightal {
+	text-align: right;
+}
+
+.modal-body .row {
+	padding-bottom: 0.8rem;
+}
+
+.rightal li {
+	list-style-position: inside;
+}
+
+.modal-body ol, .modal-body ul {
+	margin-bottom: 0px;
 }
