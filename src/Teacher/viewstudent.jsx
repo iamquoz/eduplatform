@@ -7,13 +7,27 @@ import {
 	Nav, 
 	NavItem,
 	NavLink,
-	Col
+	Col, 
+	Button
 } from 'reactstrap'
+import { useGlobalEvent } from 'beautiful-react-hooks'
 
 import Stats from '../shared/stats.jsx'
 
 export default function ViewStudent({student}) {
 	const [activeTab, setActiveTab] = useState(1);
+
+
+	const [showSidebar, setShowSidebar] = useState(true);
+	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+	const onWindowResize = useGlobalEvent('resize');
+
+	// this is fine, don't worry about it
+	onWindowResize((event) => {
+		setWindowWidth(window.innerWidth);
+	})
+
 
 	const toggle = tab => {
 		if (activeTab !== tab) 
@@ -21,7 +35,7 @@ export default function ViewStudent({student}) {
 	}
 
 	return (
-		<Col style = {{paddingRight: "0"}}>
+		<Col style = {{paddingRight: "0", marginBottom: "30px"}} >
 			<Nav tabs className = "tabWrapper">
 				<NavItem>
 					<NavLink
@@ -40,12 +54,19 @@ export default function ViewStudent({student}) {
 			</Nav>
 			<TabContent activeTab={activeTab}>
 				<TabPane tabId = {1}>
-					<Stats student = {student}/>
+					<Stats student = {student} showSidebar = {showSidebar} windowWidth = {windowWidth}/>
 				</TabPane>
 				<TabPane tabId = {2}>
 					{student.stName}
 				</TabPane>
 			</TabContent>
+			<div className = "customFooter possiblyHidden">
+				<Button style = {{marginTop: "15px", marginLeft: "20px", width: "170px"}}
+				className = "possiblyHidden"
+				onClick = {() => setShowSidebar(!showSidebar)}>
+					{!showSidebar ? "Открыть" : "Скрыть"} теорию
+				</Button>
+			</div>
 		</Col>
 	)
 }

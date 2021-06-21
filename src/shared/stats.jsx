@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import {Pie} from 'react-chartjs-2'
 import axios from 'axios'
+import DisplayListTheories from './theorylist'
 
 import {
 	NavItem,
@@ -12,7 +13,7 @@ import {
 	Col
 } from 'reactstrap'
 
-export default function Stats({student}) {
+export default function Stats({student, showSidebar, windowWidth}) {
 
 	const [stat, setStat] = useState([]);
 	const [theories, setTheories] = useState([])
@@ -148,7 +149,7 @@ export default function Stats({student}) {
 							</div>
 						</Col>
 					</div>
-					<div style = {{paddingTop: "40px"}}>
+					<div style = {{paddingTop: "40px", paddingLeft: "10px"}}>
 						Сумма по всем уровням (всего / прав. / неправ.): {formattedTotal.datasets[0].data[0] + formattedTotal.datasets[0].data[1]} / {formattedTotal.datasets[0].data[0]} / {formattedTotal.datasets[0].data[1]}
 						<br></br>
 						Базовый уровень: {formattedEasy.datasets[0].data[0] + formattedEasy.datasets[0].data[1]} / {formattedEasy.datasets[0].data[0]} / {formattedEasy.datasets[0].data[1]}
@@ -162,25 +163,10 @@ export default function Stats({student}) {
 			</div>
 	}
 
-	const DisplayListTheories = () => {
-		return (
-			<>
-			{theories.map(theory => (
-				<NavItem key = {theory.id} 
-				className = {currIDTheory === theory.id ? "chosenSidebar" : ""}
-				style = {{maxWidth: "300px"}}>	 
-					<NavLink onClick = {() => setCurrIDTheory(theory.id)}>
-							{theory.title}
-					</NavLink>
-				</NavItem>
-			))}
-			</>
-		)
-	}
-
 	return (
 		<div>
 			<Row style = {{marginRight: "0px"}}>
+				{(showSidebar || windowWidth > 768) && 
 				<Col className = "sidebar">
 					<Nav vertical >
 						<NavItem
@@ -189,9 +175,10 @@ export default function Stats({student}) {
 								Общее
 							</NavLink>
 						</NavItem>
-						<DisplayListTheories/>
+						<DisplayListTheories theories = {theories} currIDTheory = {currIDTheory} setCurrIDTheory = {setCurrIDTheory}/>
 					</Nav>
 				</Col>
+				}
 				<Col>
 					<PieWrapper datum = {stat[currIDTheory]}/>
 				</Col>

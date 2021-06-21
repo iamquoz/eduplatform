@@ -15,8 +15,6 @@ function App() {
 			<Router>
 				<Switch>
 					<RestrictedRoute path = '/teacher' component = {Teach} requiredrole = '1'/>
-					<RestrictedRoute path = '/handout' component = {GiveTask} requiredrole = '1'/>
-					<RestrictedRoute path = '/base' component = {Base} requiredrole = '1'/>
 					<RestrictedRoute path = '/student' component = {Student} />
 					<Route path = "/register" component = {RegisterPage} />
 					<Route path = "/about" component = {About} />

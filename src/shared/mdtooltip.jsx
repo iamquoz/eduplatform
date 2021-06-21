@@ -9,8 +9,6 @@ import {
 
 
 export default function MdTooltip({isOpen, toggle}) {
-	console.log(isOpen, toggle);
-
 	return (
 		<Modal isOpen = {isOpen} toggle = {toggle}>
 			<ModalHeader>Форматирование</ModalHeader>

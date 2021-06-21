@@ -20,7 +20,6 @@ import EditTheory from './editTheory'
 import EditTask from './editTask'
 
 export default function Base() {
-	const history = useHistory();
 
 	const [tasks, setTasks] = useState([])
 	const [theories, setTheories] = useState([])
@@ -34,7 +33,7 @@ export default function Base() {
 	const onWindowResize = useGlobalEvent('resize');
 
 	// this is fine, don't worry about it
-	onWindowResize((event: SyntheticEvent) => {
+	onWindowResize((event) => {
 		setWindowWidth(window.innerWidth);
 	})
 
@@ -173,17 +172,11 @@ export default function Base() {
 					</Row>
 				</TabPane>
 			</TabContent>
-			<div className = "customFooter">
+			<div className = "customFooter possiblyHidden">
 					<Button style = {{marginTop: "15px", marginLeft: "20px", width: "170px"}}
 					className = "possiblyHidden"
 					onClick = {() => setShowSidebar(!showSidebar)}>
 						{!showSidebar ? "Открыть" : "Скрыть"} задания
-					</Button>
-					<Button 
-					style = {{float: "right", marginTop: "15px", marginRight: "20px", width: "170px"}}
-					className = "redBtn" 
-					onClick = {() => history.push('/teacher')}>
-							Вернуться в ЛК
 					</Button>
 				</div>
 		</div>

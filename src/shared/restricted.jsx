@@ -7,7 +7,6 @@ export default function RestrictedRoute( {component: Component, requiredrole} ) 
 		<Route render = {
 			props => {
 				const current = auth.currUserValue;
-				console.log(Component, current, requiredrole);
 				if (!current)
 					return <Redirect to = {{pathname: '/'}} />
 

@@ -5,27 +5,29 @@ import {
 	Navbar,
 	NavbarBrand,
 	UncontrolledTooltip,
-	Row,
-	Col,
-	Nav,
+	Row, Col, Nav,
 	NavItem,
 	NavLink,
 	NavbarToggler,
 	Collapse,
+	TabPane,
+	TabContent
 } from 'reactstrap';
 
-//images 
+// images 
 import AddSt from "../img/addSt.svg"
 import Edit from "../img/edit.svg"
 import Exit from "../img/exit.svg"
 import Give from "../img/give_task.svg"
 
 
-//imports 
+// imports 
 import ViewStudent from './viewstudent.jsx'
 import AddModal from './modal.jsx'
 import classNames from 'classnames';
 import { auth } from '../shared/auth';
+import Handout from './giveTask'
+import Base from './base'
 
 export default function Teach() {
 	const history = useHistory();
@@ -38,6 +40,9 @@ export default function Teach() {
 	// modal
 	const [modal, setModal] = useState(false);
 	const toggle = () => setModal(!modal);
+
+	// tabs
+	const [activeTab, setActiveTab] = useState(1);
 
 	useEffect(() => {
 		const getStudents = async () => {
@@ -86,9 +91,10 @@ export default function Teach() {
     return (
 		<div>
 			<Navbar color = "dark" dark expand = "md">
-				<NavbarBrand href = "/teacher">Личный кабинет</NavbarBrand>
+				<NavbarBrand style = {{color: "white"}} onClick = {() => history.push("/")}>Личный кабинет</NavbarBrand>
 				<NavbarToggler onClick = {() => setBarOpen(!barOpen)}></NavbarToggler>
 				<Collapse isOpen = {barOpen} navbar>
+					{ activeTab === 1 &&
 						<select className = "form-control possiblyHidden" style = {{margin: "10px 0"}}
 							onChange = {(e) => {
 								setCurrID(e.target.value - 2)
@@ -97,12 +103,13 @@ export default function Teach() {
 							<option value = "" disabled selected>Выберите студента</option>
 							<DisplayMobileList />
 						</select>
+					}	
 						<Nav navbar>
-							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => history.push('/handout')}>
+							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => setActiveTab(2)}>
 								<img src = {Give} alt = "Выдать задания" id = "giveic"/>
 								{barOpen && <span>Выдать задание</span>}
 							</li>
-							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => history.push('/base')}>
+							<li className = "iconRow" style = {{color: "#fff"}} onClick = {() => setActiveTab(3)}>
 								<img src = {Edit} alt = "Редактировать базу заданий" id = "editic"/>
 								{barOpen && <span>Редактировать базу заданий</span>}
 							</li>
@@ -132,25 +139,35 @@ export default function Teach() {
 					</Nav>
 				</Collapse>
 			</Navbar>
-			<Row style = {{marginRight: "0"}}>
-				<Col className = "sidebar dontShowMd">
-					<Nav vertical>
-						<NavItem><NavLink>Список студентов</NavLink></NavItem>
-						<NavItem>
-							<div className = "dropdown-divider"></div>
-						</NavItem>
-						<DisplayList />
-					</Nav>
-				</Col>
-				{ 
-				currID !== -1
-				? <ViewStudent student = {currentStudent} />
-				: <Col className = "notChosenPlaceholder">
-					<p className = "dontShowMd">Нажмите на элемент слева для начала работы</p>
-					<p className = "possiblyHidden">Список студентов доступен в выпадающем меню</p>
-				  </Col>
-				}
-			</Row>
+			<TabContent activeTab = {activeTab}>
+				<TabPane tabId = {1}>
+					<Row style = {{marginRight: "0"}}>
+						<Col className = "sidebar dontShowMd">
+							<Nav vertical>
+								<NavItem><NavLink>Список студентов</NavLink></NavItem>
+								<NavItem>
+									<div className = "dropdown-divider"></div>
+								</NavItem>
+								<DisplayList />
+							</Nav>
+						</Col>
+						{ 
+						currID !== -1
+						? <ViewStudent student = {currentStudent} />
+						: <Col className = "notChosenPlaceholder">
+							<p className = "dontShowMd">Нажмите на элемент слева для начала работы</p>
+							<p className = "possiblyHidden">Список студентов доступен в выпадающем меню</p>
+						</Col>
+						}
+					</Row>
+				</TabPane>
+				<TabPane tabId = {2}>
+					<Handout />
+				</TabPane>
+				<TabPane tabId = {3}>
+					<Base />
+				</TabPane>
+			</TabContent>
 			<AddModal isOpen = {modal} toggle = {toggle}/>
 		</div>
     )

@@ -59,7 +59,7 @@ export default function LoginPage() {
 					history.push(login === '1' ? 'teacher' : '/student')
 				},
 				error => {
-					setStatus(error);
+					setStatus(error.message);
 				}
 			)
 

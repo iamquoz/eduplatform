@@ -220,11 +220,6 @@ export default function GiveTask() {
 						}}>
 							Продолжить
 					</Button>
-					<Button style = {{marginTop: "15px", marginLeft: "20px", width: "170px"}}
-					className = "redBtn" 
-					onClick = {() => history.push('/teacher')}>
-							Вернуться в ЛК
-					</Button>
 				</div>
 			</Form>
 		</div>
