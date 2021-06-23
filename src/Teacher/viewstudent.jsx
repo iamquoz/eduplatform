@@ -20,12 +20,14 @@ export default function ViewStudent({student}) {
 
 	const [showSidebar, setShowSidebar] = useState(true);
 	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
+	const [width, setWidth] = useState(0);
 	const onWindowResize = useGlobalEvent('resize');
 
 	// this is fine, don't worry about it
 	onWindowResize((event) => {
 		setWindowWidth(window.innerWidth);
+		if (width !== 150)
+			setWidth(150);
 	})
 
 
@@ -54,7 +56,7 @@ export default function ViewStudent({student}) {
 			</Nav>
 			<TabContent activeTab={activeTab}>
 				<TabPane tabId = {1}>
-					<Stats student = {student} showSidebar = {showSidebar} windowWidth = {windowWidth}/>
+					<Stats student = {student} showSidebar = {showSidebar} windowWidth = {windowWidth} width = {width}/>
 				</TabPane>
 				<TabPane tabId = {2}>
 					{student.stName}

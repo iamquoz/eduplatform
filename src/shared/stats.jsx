@@ -13,13 +13,14 @@ import {
 	Col
 } from 'reactstrap'
 
-export default function Stats({student, showSidebar, windowWidth}) {
-
+export default function Stats({student, showSidebar, windowWidth, width}) {
+	
 	const [stat, setStat] = useState([]);
 	const [theories, setTheories] = useState([])
 	const [currIDTheory, setCurrIDTheory] = useState(0);
 	const [currIDstudent, setCurrIDstudent] = useState(0);
 
+	
 	const fetchTheories = async () => {
 		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/theories/')
 		return responce.data;
@@ -114,7 +115,7 @@ export default function Stats({student, showSidebar, windowWidth}) {
 								Сумма
 							</div>
 							<div style = {{textAlign: "center"}}>
-								<Pie data = {formattedTotal} width={200} height={200} options={options}/>
+								<Pie data = {formattedTotal} width={width} height={width} options={options}/>
 							</div>
 						</Col>
 					</div>
@@ -125,7 +126,7 @@ export default function Stats({student, showSidebar, windowWidth}) {
 								Базовый
 							</div>
 							<div style = {{textAlign: "center"}}>
-								<Pie data = {formattedEasy} width={200} height={200} options={options}/>
+								<Pie data = {formattedEasy} width={width} height={width} options={options}/>
 							</div>
 						</Col>
 					</div>
@@ -135,7 +136,7 @@ export default function Stats({student, showSidebar, windowWidth}) {
 								Продвинутый
 							</div>
 							<div style = {{textAlign: "center"}}>
-								<Pie data = {formattedMedium} width={200} height={200} options={options}/>
+								<Pie data = {formattedMedium} width={width} height={width} options={options}/>
 							</div>
 						</Col>
 					</div>
@@ -145,11 +146,11 @@ export default function Stats({student, showSidebar, windowWidth}) {
 								Высокий
 							</div>
 							<div style = {{textAlign: "center"}}>
-								<Pie data = {formattedHard} width={200} height={200} options={options}/>
+								<Pie data = {formattedHard} width={width} height={width} options={options}/>
 							</div>
 						</Col>
 					</div>
-					<div style = {{paddingTop: "40px", paddingLeft: "10px"}}>
+					<div style = {{paddingTop: "40px", paddingLeft: "10px", paddingBottom: "80px"}}>
 						Сумма по всем уровням (всего / прав. / неправ.): {formattedTotal.datasets[0].data[0] + formattedTotal.datasets[0].data[1]} / {formattedTotal.datasets[0].data[0]} / {formattedTotal.datasets[0].data[1]}
 						<br></br>
 						Базовый уровень: {formattedEasy.datasets[0].data[0] + formattedEasy.datasets[0].data[1]} / {formattedEasy.datasets[0].data[0]} / {formattedEasy.datasets[0].data[1]}

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import classnames from 'classnames'
 import axios from 'axios'
-import { useHistory } from 'react-router-dom'
 
 import {
 	Nav,
@@ -17,8 +16,6 @@ import {
 } from 'reactstrap'
 
 export default function GiveTask() {
-
-	const history = useHistory();
 
 	const onSubmit = (e) => {
 		e.preventDefault();

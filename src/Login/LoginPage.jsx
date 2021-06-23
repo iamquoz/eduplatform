@@ -10,6 +10,8 @@ import {
 	Alert
 } from 'reactstrap';
 
+import classnames from 'classnames'
+
 import { auth } from '../shared/auth.jsx'
 
 export default function LoginPage() {
@@ -25,6 +27,8 @@ export default function LoginPage() {
 	const [password, setpassword] = useState('');
 	const [status, setStatus] = useState('');
 
+	const [submitting, setSubmitting] = useState(false);
+
 	const [validPW, setvalidPW] = useState(false);
 	// 0 means all good
 	// 1 means login is empty
@@ -34,6 +38,7 @@ export default function LoginPage() {
 	const onSubmit = (e) => {
 		e.preventDefault();
 
+		
 		if (login.length === 0) {
 			alert("Введите логин");
 			return;
@@ -51,7 +56,6 @@ export default function LoginPage() {
 			return
 		}
 
-		console.log(login, password);
 
 		auth.login(login, password)
 			.then(
@@ -60,7 +64,8 @@ export default function LoginPage() {
 				},
 				error => {
 					setStatus(error.message);
-				}
+				},
+				setSubmitting(false)
 			)
 
 	}
@@ -106,7 +111,10 @@ export default function LoginPage() {
 						{status}
 					</Alert>
 				}
-				<Button style = {{marginTop: "5%",  width: "100%"}} type = "submit">
+				<Button style = {{marginTop: "5%",  width: "100%", marginBottom: "2%"}}
+				onClick = {() => document.getElementById("submitbtn").classList.add("submitbtn")} 
+				className = {classnames({submitbtn: submitting}) } type = "submit"
+				id = "submitbtn">
 					Войти
 				</Button>
 			</Form>

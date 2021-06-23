@@ -1,5 +1,4 @@
-import React, { useEffect, useState, SyntheticEvent } from 'react'
-import { useHistory } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
 import classnames from 'classnames'
 import { useGlobalEvent } from 'beautiful-react-hooks'
 

@@ -19,15 +19,13 @@ function login(u, p) {
 
 	return fetch('https://60bb9c2e42e1d00017620e1d.mockapi.io/logins/' + u, requestOptions)
 		.then(function (responce) {
-			console.log(responce, u, p);
 			return responce.text().then(text => {
 				const data = text && JSON.parse(text);
-				console.log(data, u, p);
 				if (!responce.ok || data.pass !== p) {
 					if ([401, 403].indexOf(responce.status) !== -1) {
 						auth.logout();
 					}
-					const error = "Неправильный логин или пароль";
+					const error = {message: "Неправильный логин или пароль"};
 					return Promise.reject(error);
 				}
 				return data;
