@@ -33,7 +33,7 @@ Clone the repository and start a server in the /build directory
 ## Authors: 
 [@iamquoz](https://github.com/iamquoz) - Frontend
 
-[@dodikcraft](https://github.com/dodikcraft) - Backend
+[@neputevshina](https://github.com/neputevshina) - Backend
 
 [@ofu-hub](https://github.com/ofu-hub) - Backend
 
