@@ -22,6 +22,7 @@ var methods map[string]http.HandlerFunc
 
 var ts *TokenStore
 var dbconn *pgx.ConnPool
+
 var shutdown chan struct{}
 
 const (
@@ -212,15 +213,17 @@ func killhandle() {
 	}
 }
 
-func gethash(id StudentID) ([]byte, int, error) {
+func gethash(id StudentID) ([64]byte, int, error) {
 	row := dbconn.QueryRow("select hash, role from Logins where id = $1;", id)
 	var rpassw []byte
 	var role int
 	err := row.Scan(&rpassw, &role)
 	if err != nil {
-		return nil, 0, err
+		return [64]byte{}, 0, err
 	}
-	return rpassw, role, nil
+	var p64 [64]byte
+	copy(p64[:], rpassw)
+	return p64, role, nil
 }
 
 func main() {
@@ -231,7 +234,9 @@ func main() {
 			log.Print(err)
 			return
 		}
-		hash := sesh(q.Get("passw"))
+		passw := q.Get("passw")
+		hash := sesh(passw)
+		fmt.Println([]byte(passw))
 		uid := StudentID(id)
 		shash, role, err := gethash(uid)
 		if err != nil {
@@ -241,7 +246,7 @@ func main() {
 		}
 
 		fmt.Printf("uid %v has tried to authorize and ", uid)
-		if !hcomp(shash, hash) {
+		if shash != hash {
 			w.WriteHeader(403)
 			w.Write([]byte("Incorrect credentials"))
 			fmt.Println("failed")

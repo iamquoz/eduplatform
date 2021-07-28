@@ -23,21 +23,8 @@ func maxid(tab string) (u int, err error) {
 }
 
 // gets a hash of a password string
-func sesh(passw string) []byte {
-	var hasher = sha512.New()
-	return hasher.Sum([]byte(passw))
-}
-
-func hcomp(a []byte, b []byte) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
+func sesh(passw string) [64]byte {
+	return sha512.Sum512([]byte(passw))
 }
 
 func task2gob(tk *Task) ([]byte, error) {
