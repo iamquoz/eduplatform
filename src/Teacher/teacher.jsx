@@ -19,11 +19,12 @@ import AddSt from "../img/addSt.svg"
 import Edit from "../img/edit.svg"
 import Exit from "../img/exit.svg"
 import Give from "../img/give_task.svg"
-
+import Pencil from "../shared/Pencil"
 
 // imports 
-import ViewStudent from './viewstudent.jsx'
-import AddModal from './modal.jsx'
+import ViewStudent from './viewstudent'
+import AddModal from './modal'
+import EditModal from './editmodal'
 import classNames from 'classnames';
 import { auth } from '../shared/auth';
 import Handout from './giveTask'
@@ -37,9 +38,13 @@ export default function Teach() {
 	const [currentStudent, setcurrentStudent] = useState({"id": "0", "stName": ""});
 	const [barOpen, setBarOpen] = useState(false);
 
-	// modal
-	const [modal, setModal] = useState(false);
-	const toggle = () => setModal(!modal);
+	// modal adding
+	const [modalAdd, setModalAdd] = useState(false);
+	const toggleAdd = () => setModalAdd(!modalAdd);
+
+	// modal edit
+	const [modalEdit, setModalEdit] = useState(false);
+	const toggleEdit = () => setModalEdit(!modalEdit);
 
 	// tabs
 	const [activeTab, setActiveTab] = useState(1);
@@ -53,6 +58,9 @@ export default function Teach() {
 	}, [])
 	
 	const fetchStudents = async () => {
+		axios.post('/api/Flop', {})
+			.then(res => console.log(res))
+			.catch(err => console.log(err));
 		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/students/')
 		return responce.data;
 	}
@@ -68,6 +76,7 @@ export default function Teach() {
 						setcurrentStudent(stList.find(st => st.id === student.id)) 
 						}}>
 							{student.stName}
+						<span style = {{float: "right"}} onClick = {toggleEdit}>{currID === parseInt(student.id - 2) && <Pencil />}</span>
 					</NavLink>
 				</NavItem>
 			))}
@@ -113,7 +122,7 @@ export default function Teach() {
 								<img src = {Edit} alt = "Редактировать базу заданий" id = "editic"/>
 								{barOpen && <span>Редактировать базу заданий</span>}
 							</li>
-							<li className = "iconRow" style = {{color: "#fff"}} onClick = {toggle}>
+							<li className = "iconRow" style = {{color: "#fff"}} onClick = {toggleAdd}>
 								<img src = {AddSt} alt = "Добавить студента" id = "addst"/>
 								{barOpen && <span>Добавить студента</span>}
 							</li>
@@ -156,7 +165,7 @@ export default function Teach() {
 						? <ViewStudent student = {currentStudent} />
 						: <Col className = "notChosenPlaceholder">
 							<p className = "dontShowMd">Нажмите на элемент слева для начала работы</p>
-							<p className = "possiblyHidden">Список студентов доступен в выпадающем меню</p>
+							<p className = "possiblyHidden" style = {{textAlign: "center"}}>Список студентов доступен в выпадающем меню</p>
 						</Col>
 						}
 					</Row>
@@ -168,7 +177,8 @@ export default function Teach() {
 					<Base />
 				</TabPane>
 			</TabContent>
-			<AddModal isOpen = {modal} toggle = {toggle}/>
+			<AddModal isOpen = {modalAdd} toggle = {toggleAdd}/>
+			<EditModal isOpen = {modalEdit} toggle = {toggleEdit} student = {currentStudent}/> 
 		</div>
     )
 }

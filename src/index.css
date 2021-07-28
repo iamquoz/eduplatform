@@ -165,9 +165,16 @@ label {
 }
 
 .sidebar {
-	min-width: 400px;
-	max-width: 400px;
+	min-width: 350px;
+	max-width: 350px;
 	color: #000;
+}
+
+@media (max-width:768px) {
+	.sidebar {
+		min-width: 100%;
+		max-width: 100%;
+	}
 }
 
 .chosenSidebar {

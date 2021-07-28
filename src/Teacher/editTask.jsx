@@ -12,7 +12,7 @@ import axios from 'axios'
 import Question from '../shared/question'
 import MdTooltip from '../shared/mdtooltip'
 
-export default function EditTask({task}) {
+export default function EditTask({task, className}) {
 	if (task === undefined) {
 		task = {
 			"id": "0",
@@ -105,7 +105,7 @@ export default function EditTask({task}) {
 	// reason for `key` in text areas is so that they update their defaultValue prop 
 	// same for editTheory.jsx
 	return (
-		<Col>
+		<Col className = {className}>
 			<Form onSubmit = {onSubmit} style = {{marginTop: "10px", marginLeft: "15px"}}>
 				<FormGroup>
 					<Label for = "diff">Сложность задания</Label>

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import {Pie} from 'react-chartjs-2'
 import axios from 'axios'
-import DisplayListTheories from './theorylist'
+import classnames from 'classnames'
 
+import DisplayListTheories from './theorylist'
 import {
 	NavItem,
 	NavLink,
@@ -13,7 +14,7 @@ import {
 	Col
 } from 'reactstrap'
 
-export default function Stats({student, showSidebar, windowWidth, width}) {
+export default function Stats({student, showSidebar, windowWidth, width, setShowSidebar}) {
 	
 	const [stat, setStat] = useState([]);
 	const [theories, setTheories] = useState([])
@@ -58,7 +59,7 @@ export default function Stats({student, showSidebar, windowWidth, width}) {
 		}
 	}, [student])
 
-	const PieWrapper = ({datum, myLabel}) => {
+	const PieWrapper = ({datum, className}) => {
 		if (datum === undefined) 
 			return <></>
 
@@ -108,7 +109,7 @@ export default function Stats({student, showSidebar, windowWidth, width}) {
 
 
 
-		return <div>
+		return <div className = {className} style = {{textAlign: 'center'}}>
 					<div className = "statsMrgn">
 						<Col>
 							<div style = {{textAlign: "center"}}>
@@ -151,7 +152,7 @@ export default function Stats({student, showSidebar, windowWidth, width}) {
 						</Col>
 					</div>
 					<div style = {{paddingTop: "40px", paddingLeft: "10px", paddingBottom: "80px"}}>
-						Сумма по всем уровням (всего / прав. / неправ.): {formattedTotal.datasets[0].data[0] + formattedTotal.datasets[0].data[1]} / {formattedTotal.datasets[0].data[0]} / {formattedTotal.datasets[0].data[1]}
+						Сумма всех уровней (всего / прав. / неправ.): {formattedTotal.datasets[0].data[0] + formattedTotal.datasets[0].data[1]} / {formattedTotal.datasets[0].data[0]} / {formattedTotal.datasets[0].data[1]}
 						<br></br>
 						Базовый уровень: {formattedEasy.datasets[0].data[0] + formattedEasy.datasets[0].data[1]} / {formattedEasy.datasets[0].data[0]} / {formattedEasy.datasets[0].data[1]}
 						<br></br>
@@ -169,19 +170,18 @@ export default function Stats({student, showSidebar, windowWidth, width}) {
 			<Row style = {{marginRight: "0px"}}>
 				{(showSidebar || windowWidth > 768) && 
 				<Col className = "sidebar">
-					<Nav vertical >
-						<NavItem
-						className = {currIDTheory === 0 && "chosenSidebar"}>
-							<NavLink onClick = {() => setCurrIDTheory(0)}>
+					<Nav vertical>
+						<NavItem className = {classnames({chosenSidebar: currIDTheory === 0})}>
+							<NavLink onClick = {() => {setCurrIDTheory(0); setShowSidebar(false)}}>
 								Общее
 							</NavLink>
 						</NavItem>
-						<DisplayListTheories theories = {theories} currIDTheory = {currIDTheory} setCurrIDTheory = {setCurrIDTheory}/>
+						<DisplayListTheories theories = {theories} currIDTheory = {currIDTheory} setCurrIDTheory = {setCurrIDTheory} setShowSidebar = {setShowSidebar}/>
 					</Nav>
 				</Col>
 				}
 				<Col>
-					<PieWrapper datum = {stat[currIDTheory]}/>
+					<PieWrapper datum = {stat[currIDTheory]} className = {classnames({dontShowMd: showSidebar})}/>
 				</Col>
 			</Row>
 		</div>

@@ -12,7 +12,7 @@ import axios from 'axios'
 import MdTooltip from '../shared/mdtooltip'
 import Question from '../shared/question'
 
-export default function EditTheory({theory}) {
+export default function EditTheory({theory, className}) {
 	if (theory === undefined) {
 		theory = {
 		"title": "",
@@ -21,7 +21,6 @@ export default function EditTheory({theory}) {
 		}
 	}
 
-		
 	// modal
 	const [modal, setModal] = useState(false);
 	const toggle = () => setModal(!modal);
@@ -45,32 +44,16 @@ export default function EditTheory({theory}) {
 		}
 
 		if (theory.id !== '0') {
-			axios.put('https://6099651699011f0017140ca7.mockapi.io/theories/' + theory.id,
-			{
-				title: title,
-				id: theory.id,
-				text: text
-			})
-			.then(function(responce) {
-				console.log(responce)
-			})
-			.catch(function(responce) {
-				console.log(responce)
-			})
+			var j = {thid: theory.id, th: {ID: theory.id, Header: title, Body: text}};
+			console.log(j);
+			axios.post('/api/RenewTheory', j)
+				.then(res => console.log(res))
+				.catch(err => console.log(err));
 		}
 		else {
-			axios.post('https://6099651699011f0017140ca7.mockapi.io/theories/',
-			{
-				title: title,
-				id: theory.id,
-				text: text
-			})
-			.then(function(responce) {
-				console.log(responce)
-			})
-			.catch(function(responce) {
-				console.log(responce)
-			})
+			axios.post('/api/NewTheory', {ID: theory.id, Header: title, Body: text})
+				.then(res => console.log(res))
+				.catch(err => console.log(err));
 		}
 	}
 
@@ -92,7 +75,7 @@ export default function EditTheory({theory}) {
 	}, [theory])
 
 	return (
-		<Col>	
+		<Col className = {className}>	
 			<Form onSubmit = {onSubmit} style = {{marginTop: "10px", marginLeft: "15px"}}>
 				<FormGroup>
 					<Label for = "title">Название темы</Label>

@@ -18,7 +18,8 @@ import PlusIc from '../img/plus.svg'
 import EditTheory from './editTheory'
 import EditTask from './editTask'
 
-export default function Base() {
+export default function Base({tab}) {
+
 
 	const [tasks, setTasks] = useState([])
 	const [theories, setTheories] = useState([])
@@ -138,7 +139,7 @@ export default function Base() {
 						}
 						{ 
 						currIDTask !== -1 
-						? <EditTask task = {tasks.find(task => task.id === currIDTask)}/> 
+						? <EditTask task = {tasks.find(task => task.id === currIDTask)} className = {classnames({dontShowMd: showSidebar})}/> 
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
 							<p>Выберите элемент для начала работы</p></Col>
 						}
@@ -164,7 +165,7 @@ export default function Base() {
 						}
 						{ 
 						currIDTheory !== -1 
-						? <EditTheory theory = {theories.find(theory => theory.id === currIDTheory)}/>
+						? <EditTheory theory = {theories.find(theory => theory.id === currIDTheory)} className = {classnames({dontShowMd: showSidebar})}/>
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
 							<p>Выберите элемент для начала работы</p></Col>
 						}

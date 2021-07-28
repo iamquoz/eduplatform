@@ -15,7 +15,7 @@ function App() {
 	
 	return (
 			<Router>
-				<Suspense fallback = {<div className = "container"><img src = {Loading} alt = "Подождите"></img></div>}>
+				<Suspense fallback = {<div className = "container"><img src = {Loading} style = {{maxWidth: "100%"}} alt = "Подождите"></img></div>}>
 					<Switch>
 						<RestrictedRoute path = '/teacher' component = {Teach} requiredrole = '1'/>
 						<RestrictedRoute path = '/student' component = {Student} />

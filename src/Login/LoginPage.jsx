@@ -10,8 +10,6 @@ import {
 	Alert
 } from 'reactstrap';
 
-import classnames from 'classnames'
-
 import { auth } from '../shared/auth.jsx'
 
 export default function LoginPage() {
@@ -19,16 +17,15 @@ export default function LoginPage() {
 	
 	const history = useHistory();
 	
-	if (auth.currUserValue)
-		history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
 	
-
+	if (auth.currUserValue)
+	history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
+	
+	
 	const [login, setlogin] = useState('');
 	const [password, setpassword] = useState('');
 	const [status, setStatus] = useState('');
-
-	const [submitting, setSubmitting] = useState(false);
-
+	
 	const [validPW, setvalidPW] = useState(false);
 	// 0 means all good
 	// 1 means login is empty
@@ -37,10 +34,12 @@ export default function LoginPage() {
 	
 	const onSubmit = (e) => {
 		e.preventDefault();
-
+		
+		document.getElementById("submitbtn").classList.add("submitbtn");
 		
 		if (login.length === 0) {
 			alert("Введите логин");
+			document.getElementById("submitbtn").classList.remove("submitbtn");
 			return;
 		}
 
@@ -48,24 +47,27 @@ export default function LoginPage() {
 		// https://stackoverflow.com/a/1779019/16029300
 		if (!/^\d+$/.test(login)) {
 			alert("Логин может содержать лишь цифры")
+			document.getElementById("submitbtn").classList.remove("submitbtn");
 			return;
 		}
 
 		if (password.length === 0) {
 			alert("Введите пароль")
+			document.getElementById("submitbtn").classList.remove("submitbtn");
 			return
 		}
 
-
 		auth.login(login, password)
-			.then(
-				user => {
-					history.push(login === '1' ? 'teacher' : '/student')
-				},
-				error => {
-					setStatus(error.message);
-				},
-				setSubmitting(false)
+			.then(res => {
+				localStorage.setItem('currentUser', JSON.stringify({id: login, token: res.data}))
+				document.cookie = `token=${res.data}`
+				history.push(login === '1' ? '/teacher' : '/student')
+			}
+			).catch(err => {
+				console.log(err); 
+				setStatus('Неправильный логин или пароль')
+				document.getElementById("submitbtn").classList.remove("submitbtn");
+				}
 			)
 
 	}
@@ -112,9 +114,7 @@ export default function LoginPage() {
 					</Alert>
 				}
 				<Button style = {{marginTop: "5%",  width: "100%", marginBottom: "2%"}}
-				onClick = {() => document.getElementById("submitbtn").classList.add("submitbtn")} 
-				className = {classnames({submitbtn: submitting}) } type = "submit"
-				id = "submitbtn">
+				type = "submit" id = "submitbtn">
 					Войти
 				</Button>
 			</Form>

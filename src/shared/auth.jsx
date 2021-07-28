@@ -12,30 +12,11 @@ export const auth = {
 };
 
 function login(u, p) {
-	const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-    };
-
-	return fetch('https://60bb9c2e42e1d00017620e1d.mockapi.io/logins/' + u, requestOptions)
-		.then(function (responce) {
-			return responce.text().then(text => {
-				const data = text && JSON.parse(text);
-				if (!responce.ok || data.pass !== p) {
-					if ([401, 403].indexOf(responce.status) !== -1) {
-						auth.logout();
-					}
-					const error = {message: "Неправильный логин или пароль"};
-					return Promise.reject(error);
-				}
-				return data;
-			})
-		})
-		.then(user => {
-			localStorage.setItem('currentUser', JSON.stringify(user));
-			currUser.next(user);
-			return user;
-		})
+	return axios.get('/Authorize', {
+		params: {
+			id: u,
+			passw: p
+		}})
 }
 
 function logout() {
