@@ -30,6 +30,14 @@ const (
 	taskpath string = "tasks/"
 )
 
+func report(v ...interface{}) {
+	var tracebuf = make([]byte, 20000)
+	log.Println(v...)
+	n := runtime.Stack(tracebuf, true)
+	tracebuf = tracebuf[:n]
+	log.Printf("%s", tracebuf)
+}
+
 func makeAuth(r *http.Request) (*Player, int) {
 	t, err := r.Cookie("token")
 	if err != nil {
@@ -166,7 +174,7 @@ func init() {
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte(err.Error()))
-				log.Println(err)
+				report(err)
 				return
 			}
 
@@ -236,11 +244,10 @@ func main() {
 		}
 		passw := q.Get("passw")
 		hash := sesh(passw)
-		fmt.Println([]byte(passw))
 		uid := StudentID(id)
 		shash, role, err := gethash(uid)
 		if err != nil {
-			log.Print(err)
+			report(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

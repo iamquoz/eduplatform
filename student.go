@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
 // StLogout is a deauth method
@@ -27,19 +26,20 @@ func (p *Player) StRegister(new String) {
 	query := `update logins set hash = $1 where id = $2`
 	_, err := dbconn.Exec(query, sesh(string(new)), p.StudentID)
 	if err != nil {
-		log.Print(err)
+		report(err)
 	}
 }
 
 // StGetTheory loads theory data by ID
 func (p *Player) StGetTheory(tid TheoryID) *Theory {
-	row := dbconn.QueryRow(`select from theory where id = $1`)
+	row := dbconn.QueryRow(`select from theory where id = $1`, tid)
 	theory := new(Theory)
 	err := row.Scan(theory)
 	if err != nil {
-		log.Print(err)
+		report(err)
 		return nil
 	}
+	theory.ID = tid
 	return theory
 }
 
@@ -53,7 +53,7 @@ func (p *Player) StRating() MapTaskIDInt {
 	m := make(MapTaskIDInt)
 	rows, err := dbconn.Query(query, p.StudentID)
 	if err != nil {
-		log.Print(err)
+		report(err)
 		return nil
 	}
 	for rows.Next() {
@@ -75,7 +75,7 @@ func (p *Player) StSent() TaskIDArray {
 	rows, err := dbconn.Query(query, p.StudentID)
 	a := make(TaskIDArray, 0, 10)
 	if err != nil {
-		log.Print(err)
+		report(err)
 		return nil
 	}
 	for rows.Next() {
@@ -92,7 +92,7 @@ func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
 	var n int32
 	err := row.Scan(&n)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return -1
 	}
 	// student haven't sent answers yet
@@ -102,12 +102,12 @@ func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
 			where sid = $2 and taskid = $3`
 		tk, err := task2gob(&task)
 		if err != nil {
-			log.Println(err)
+			report(err)
 			return -1
 		}
 		_, err = dbconn.Exec(query, tk, p.StudentID, tid)
 		if err != nil {
-			log.Println(err)
+			report(err)
 			return -1
 		}
 		return Int(MaxAttempts - n)
@@ -121,7 +121,7 @@ func (p *Player) StCommentary(tid TaskID) String {
 	var comm String
 	err := row.Scan(&comm)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return ""
 	}
 	return comm

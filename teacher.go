@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
 // Flop is a test method, it returns a string to check that server is working correctly
@@ -22,7 +21,7 @@ func (p *Player) AddStudent(name String) StudentID {
 	var id StudentID
 	err := row.Scan(&id)
 	if err != nil {
-		log.Print(err)
+		report(err)
 	}
 	return id
 }
@@ -34,11 +33,11 @@ func (p *Player) ZapStudent(u StudentID) {
 	qapp := `delete from appointments where sid = $1`
 	_, err := dbconn.Exec(qlogin, u)
 	if err != nil {
-		log.Print(err)
+		report(err)
 	}
 	_, err = dbconn.Exec(qapp, u)
 	if err != nil {
-		log.Print(err)
+		report(err)
 	}
 }
 
@@ -47,7 +46,7 @@ func (p *Player) GetStudents() MapStudentIDString {
 	query := `select (id, names) from logins`
 	rows, err := dbconn.Query(query)
 	if err != nil {
-		log.Print(err)
+		report(err)
 		return nil
 	}
 	m := make(MapStudentIDString)
@@ -64,7 +63,7 @@ func (p *Player) GetStudents() MapStudentIDString {
 func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
 	id, err := writetask(&tk, nil, thid)
 	if err != nil {
-		log.Println(err)
+		report(err)
 	}
 	return id
 }
@@ -73,7 +72,7 @@ func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
 func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
 	taid, err := writetask(&tk, &taid, thid)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return -1
 	}
 	return taid
@@ -85,7 +84,7 @@ func (p *Player) ZapTask(tid TaskID) {
 	query := `delete from tasks where id = $1`
 	_, err = dbconn.Exec(query, tid)
 	if err != nil {
-		log.Print(err)
+		report(err)
 	}
 }
 
@@ -97,7 +96,7 @@ func (p *Player) NewTheory(th Theory) TheoryID {
 	var id TheoryID
 	err = r.Scan(&id)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return -1
 	}
 	return id
@@ -109,7 +108,7 @@ func (p *Player) RenewTheory(thid TheoryID, th Theory) TheoryID {
 	query := `update theory set data = $2 where id = $1`
 	_, err = dbconn.Exec(query, thid, bts)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return -1
 	}
 	return thid
@@ -120,7 +119,7 @@ func (p *Player) ZapTheory(thid TheoryID) {
 	query := `delete from theory where id = $1`
 	_, err := dbconn.Exec(query, thid)
 	if err != nil {
-		log.Print(err)
+		report(err)
 	}
 }
 
@@ -130,7 +129,7 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray) {
 	for _, sid := range sida {
 		_, err := dbconn.Exec(query, sid, tida, false)
 		if err != nil {
-			log.Println(err)
+			report(err)
 			return
 		}
 	}
@@ -143,7 +142,7 @@ func (p *Player) GetStats(StudentID) MapTheoryIDStats {
 	query := `select (taskid, correct, tries) from appointments where sid = $1 and complete = true`
 	rows, err := dbconn.Query(query)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return nil
 	}
 	mm := make(MapTheoryIDStats)
@@ -196,7 +195,7 @@ func (p *Player) Unread() MapStudentIDArrayTaskID {
 	query := `select (sid, taskid) from appointments where rated = false`
 	rows, err := dbconn.Query(query)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return nil
 	}
 	m := make(MapStudentIDArrayTaskID)
@@ -221,12 +220,12 @@ func (p *Player) LoadAnswer(StudentID, TaskID) *Task {
 	buf := make([]byte, 0, 255)
 	err := row.Scan(buf)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return nil
 	}
 	tk, err := gob2task(buf)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return nil
 	}
 	return tk
@@ -236,7 +235,7 @@ func (p *Player) TheoryNames() MapTheoryIDString {
 	query := `select (id, data) from theory`
 	rows, err := dbconn.Query(query)
 	if err != nil {
-		log.Println(err)
+		report(err)
 		return nil
 	}
 	m := make(MapTheoryIDString)
@@ -246,7 +245,7 @@ func (p *Player) TheoryNames() MapTheoryIDString {
 		rows.Scan(&id, data)
 		th, err := gob2theory(data)
 		if err != nil {
-			log.Println(err)
+			report(err)
 			return nil
 		}
 		m[th.ID] = String(th.Header)
@@ -263,6 +262,6 @@ func (p *Player) Rate(sid StudentID, tid TaskID, comment String, correct Bool) {
 		where sid = $1 and taskid = $2`
 	_, err := dbconn.Exec(query, sid, tid, comment, correct)
 	if err != nil {
-		log.Println(err)
+		report(err)
 	}
 }
