@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"crypto/sha512"
 	"encoding/gob"
+	"log"
+	"runtime"
 )
 
 // TaskLength is a maximum length of a gob containing a task in DB.
@@ -11,6 +13,14 @@ import (
 const TaskLength = 6 * 1 << 10
 
 const MaxAttempts = 2
+
+func report(v ...interface{}) {
+	var tracebuf = make([]byte, 20000)
+	log.Println(v...)
+	n := runtime.Stack(tracebuf, false)
+	tracebuf = tracebuf[:n]
+	log.Printf("%s", tracebuf)
+}
 
 // gets a hash of a password string
 func sesh(passw string) [64]byte {

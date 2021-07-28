@@ -30,21 +30,15 @@ const (
 	taskpath string = "tasks/"
 )
 
-func report(v ...interface{}) {
-	var tracebuf = make([]byte, 20000)
-	log.Println(v...)
-	n := runtime.Stack(tracebuf, true)
-	tracebuf = tracebuf[:n]
-	log.Printf("%s", tracebuf)
-}
-
 func makeAuth(r *http.Request) (*Player, int) {
 	t, err := r.Cookie("token")
 	if err != nil {
+		report(err)
 		return nil, http.StatusBadRequest
 	}
 	k, err := strconv.ParseUint(t.Value, 16, 64)
 	if err != nil {
+		report(err)
 		return nil, http.StatusBadRequest
 	}
 	player := ts.GetAuth(k)

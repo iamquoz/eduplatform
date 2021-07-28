@@ -86,7 +86,7 @@ func (p *Player) StSent() TaskIDArray {
 	return a
 }
 
-func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
+func (p *Player) StSendAnswers(tid TaskID, task *Task) Int {
 	sel := `select tries from appointments where taskid = $1 and sid = $2`
 	row := dbconn.QueryRow(sel, tid, p.StudentID)
 	var n int32
@@ -100,7 +100,7 @@ func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
 		query := `update appointments 
 			set answer = $1
 			where sid = $2 and taskid = $3`
-		tk, err := task2gob(&task)
+		tk, err := task2gob(task)
 		if err != nil {
 			report(err)
 			return -1
