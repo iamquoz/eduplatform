@@ -212,6 +212,17 @@ func killhandle() {
 	}
 }
 
+func gethash(id StudentID) ([]byte, int, error) {
+	row := dbconn.QueryRow("select hash, role from Logins where id = $1;", id)
+	var rpassw []byte
+	var role int
+	err := row.Scan(&rpassw, &role)
+	if err != nil {
+		return nil, 0, err
+	}
+	return rpassw, role, nil
+}
+
 func main() {
 	http.HandleFunc("/Authorize", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
@@ -220,37 +231,25 @@ func main() {
 			log.Print(err)
 			return
 		}
-		// Andrew, you will send me hashes. No questions.
-		passw := q.Get("passw")
-		if passw == "" {
-			log.Print(err)
-			return
-		}
-		// Okay, send me fucking plaintext password...
-		hash := sesh(passw)
-		// You'll regret this.
+		hash := sesh(q.Get("passw"))
 		uid := StudentID(id)
-
-		row := dbconn.QueryRow("select hash, role from Logins where id = $1;", uid)
-		var rpassw []byte
-		var role int
-		err = row.Scan(&rpassw, &role)
+		shash, role, err := gethash(uid)
 		if err != nil {
 			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
-		// unidiomatic, but i don't give a fuck
-		fmt.Printf("uid %v has tried to authorize and ", uid)
 
-		if hcomp(rpassw, hash) {
-			tok := ts.MakeToken(uid, role)
-			w.Write([]byte(strconv.FormatUint(tok, 16)))
-			fmt.Println("succeeded")
-		} else {
+		fmt.Printf("uid %v has tried to authorize and ", uid)
+		if !hcomp(shash, hash) {
 			w.WriteHeader(403)
 			w.Write([]byte("Incorrect credentials"))
 			fmt.Println("failed")
 			return
 		}
+		tok := ts.MakeToken(uid, role)
+		w.Write([]byte(strconv.FormatUint(tok, 16)))
+		fmt.Println("succeeded")
 	})
 	for k, v := range methods {
 		http.HandleFunc("/api/"+k, v)

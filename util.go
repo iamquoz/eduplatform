@@ -7,7 +7,7 @@ import (
 )
 
 // TaskLength is a maximum length of a gob containing a task in DB.
-// We got this value empirically.
+// We got this value empirically. Untested though.
 const TaskLength = 6 * 1 << 10
 
 const MaxAttempts = 2
@@ -22,7 +22,7 @@ func maxid(tab string) (u int, err error) {
 	return
 }
 
-// gets a hash of password string
+// gets a hash of a password string
 func sesh(passw string) []byte {
 	var hasher = sha512.New()
 	return hasher.Sum([]byte(passw))
