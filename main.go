@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/sha512"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -214,7 +213,6 @@ func killhandle() {
 }
 
 func main() {
-	var hasher = sha512.New()
 	http.HandleFunc("/Authorize", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		id, err := strconv.ParseUint(q.Get("id"), 10, 64)
@@ -229,16 +227,12 @@ func main() {
 			return
 		}
 		// Okay, send me fucking plaintext password...
-		hashs := hasher.Sum([]byte(passw))
-		hash := int32(hashs[1]) |
-			int32(hashs[2])<<8 |
-			int32(hashs[3])<<16 |
-			int32(hashs[4])<<24
+		hash := sesh(passw)
 		// You'll regret this.
 		uid := StudentID(id)
 
 		row := dbconn.QueryRow("select hash, role from Logins where id = $1;", uid)
-		var rpassw int32
+		var rpassw []byte
 		var role int
 		err = row.Scan(&rpassw, &role)
 		if err != nil {
@@ -247,7 +241,7 @@ func main() {
 		// unidiomatic, but i don't give a fuck
 		fmt.Printf("uid %v has tried to authorize and ", uid)
 
-		if rpassw == hash {
+		if hcomp(rpassw, hash) {
 			tok := ts.MakeToken(uid, role)
 			w.Write([]byte(strconv.FormatUint(tok, 16)))
 			fmt.Println("succeeded")
