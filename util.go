@@ -12,16 +12,6 @@ const TaskLength = 6 * 1 << 10
 
 const MaxAttempts = 2
 
-// get maximum id in table `tab`
-func maxid(tab string) (u int, err error) {
-	row := dbconn.QueryRow(`select max(id) from ` + tab)
-	err = row.Scan(&u)
-	if err != nil {
-		return 0, err
-	}
-	return
-}
-
 // gets a hash of a password string
 func sesh(passw string) [64]byte {
 	return sha512.Sum512([]byte(passw))
@@ -88,24 +78,24 @@ func readtask(tid TaskID) (*Task, error) {
 }
 
 // writetask writes task to the store
-func writetask(tk *Task, tid TaskID, thid TheoryID) error {
+func writetask(tk *Task, tid *TaskID, thid TheoryID) (TaskID, error) {
 	var err error
 	// FIXME
 	query := `
-	case when select id from tasks is not null then
-		insert into tasks (id, data, theoryid) values ($1, $2, $3)
-	else
-		update values set data = $3 where id = $1
-		update values set theoryid = $3 where id = $1
-	end`
+	insert into tasks (id, data, theoryid) values ($1, $2, $3)
+		on conflict id do update set data = $2, theoryid = $2
+		returning id
+	`
 	tk = taskfilter(tk)
 	btk, err := task2gob(tk)
 	if err != nil {
-		return err
+		return -1, err
 	}
-	_, err = dbconn.Exec(query, tid, btk, thid)
+	row := dbconn.QueryRow(query, tid, btk, thid)
+	var id TaskID
+	err = row.Scan(&id)
 	if err != nil {
-		return err
+		return -1, err
 	}
-	return nil
+	return id, nil
 }

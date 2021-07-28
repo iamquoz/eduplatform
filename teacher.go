@@ -17,14 +17,14 @@ func (p *Player) Echo(i Int) Int {
 
 // AddStudent creates a new student account with empty password.
 func (p *Player) AddStudent(name String) StudentID {
-	query := `insert into logins (id, hash, names, role) values ($1, $2, $3, 1)`
-	uid, err := maxid(`logins`)
-	sid := StudentID(uid + 1)
-	_, err = dbconn.Exec(query, sid, sesh(""), name)
+	query := `insert into logins (hash, names, role) values ($1, $2, 1) returning id`
+	row := dbconn.QueryRow(query, sesh(""), name)
+	var id StudentID
+	err := row.Scan(&id)
 	if err != nil {
 		log.Print(err)
 	}
-	return sid
+	return id
 }
 
 // ZapStudent removes a student from database along with its data
@@ -62,17 +62,16 @@ func (p *Player) GetStudents() MapStudentIDString {
 
 // NewTask saves task data. Returns -1 on error.
 func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
-	taid, err := maxid(`tasks`)
+	id, err := writetask(&tk, nil, thid)
 	if err != nil {
 		log.Println(err)
-		return -1
 	}
-	return p.RenewTask(TaskID(taid), tk, thid)
+	return id
 }
 
 // RenewTask updates task data saved under ID. Returns -1 on error.
 func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
-	err := writetask(&tk, taid, thid)
+	taid, err := writetask(&tk, &taid, thid)
 	if err != nil {
 		log.Println(err)
 		return -1
@@ -92,20 +91,16 @@ func (p *Player) ZapTask(tid TaskID) {
 
 // NewTheory saves theory data on server. Returns -1 on error.
 func (p *Player) NewTheory(th Theory) TheoryID {
-	uid, err := maxid(`theory`)
-	tid := TheoryID(uid + 1)
-	if err != nil {
-		log.Println(err)
-		return -1
-	}
 	bts, err := theory2gob(&th)
-	query := `insert into theory (id, data) values ($1, $2)`
-	_, err = dbconn.Exec(query, tid, bts)
+	query := `insert into theory (data) values ($1) returning id`
+	r := dbconn.QueryRow(query, bts)
+	var id TheoryID
+	err = r.Scan(&id)
 	if err != nil {
 		log.Println(err)
 		return -1
 	}
-	return tid
+	return id
 }
 
 // RenewTheory updates theory data saved under ID. Returns -1 on error.
