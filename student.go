@@ -152,6 +152,7 @@ func (p *Player) StDigest() MapTheoryIDTheory {
 		if err(e) {
 			return nil
 		}
+		th.ID = thid
 		m[thid] = *th
 	}
 	return m
