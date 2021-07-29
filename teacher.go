@@ -17,7 +17,8 @@ func (p *Player) Echo(i Int) Int {
 // AddStudent creates a new student account with empty password.
 func (p *Player) AddStudent(name String) StudentID {
 	query := `insert into logins (hash, names, role) values ($1, $2, 1) returning id`
-	row := dbconn.QueryRow(query, sesh(""), name)
+	hash := sesh("")
+	row := dbconn.QueryRow(query, hash[:], name)
 	var id StudentID
 	err := row.Scan(&id)
 	if err != nil {
