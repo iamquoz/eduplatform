@@ -266,3 +266,34 @@ func (p *Player) Rate(sid StudentID, tid TaskID, comment String, correct Bool) {
 		report(err)
 	}
 }
+
+func (p *Player) EveryTask() MapTaskIDTask {
+	err := func(err error) bool {
+		if err != nil {
+			report(err)
+			return true
+		}
+		return false
+	}
+	m := make(MapTaskIDTask)
+	q := `select id, data from tasks *`
+	rs, e := dbconn.Query(q)
+	if err(e) {
+		return nil
+	}
+	var tid TaskID
+	var gob []byte
+	for rs.Next() {
+		e = rs.Scan(&tid, &gob)
+		if err(e) {
+			return nil
+		}
+		t, e := gob2task(gob)
+		if err(e) {
+			return nil
+		}
+		t.ID = tid
+		m[tid] = *t
+	}
+	return m
+}
