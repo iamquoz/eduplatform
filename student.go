@@ -136,19 +136,23 @@ func (p *Player) StDigest() MapTheoryIDTheory {
 		return false
 	}
 	m := make(MapTheoryIDTheory)
-	q := `select from theory *`
+	q := `select id, data from theory *`
 	rs, e := dbconn.Query(q)
 	if err(e) {
 		return nil
 	}
 	var thid TheoryID
-	var th Theory
+	var gob []byte
 	for rs.Next() {
-		e = rs.Scan(&thid, &th)
+		e = rs.Scan(&thid, &gob)
 		if err(e) {
 			return nil
 		}
-		m[thid] = th
+		th, e := gob2theory(gob)
+		if err(e) {
+			return nil
+		}
+		m[thid] = *th
 	}
 	return m
 }
