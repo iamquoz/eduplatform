@@ -89,8 +89,8 @@ func (p *Player) ZapTask(tid TaskID) {
 }
 
 // NewTheory saves theory data on server. Returns -1 on error.
-func (p *Player) NewTheory(th *Theory) TheoryID {
-	bts, err := theory2gob(th)
+func (p *Player) NewTheory(th Theory) TheoryID {
+	bts, err := theory2gob(&th)
 	query := `insert into theory (data) values ($1) returning id`
 	r := dbconn.QueryRow(query, bts)
 	var id TheoryID
@@ -103,8 +103,8 @@ func (p *Player) NewTheory(th *Theory) TheoryID {
 }
 
 // RenewTheory updates theory data saved under ID. Returns -1 on error.
-func (p *Player) RenewTheory(thid TheoryID, th *Theory) TheoryID {
-	bts, err := theory2gob(th)
+func (p *Player) RenewTheory(thid TheoryID, th Theory) TheoryID {
+	bts, err := theory2gob(&th)
 	query := `update theory set data = $2 where id = $1`
 	_, err = dbconn.Exec(query, thid, bts)
 	if err != nil {
@@ -214,9 +214,9 @@ func (p *Player) Unread() MapStudentIDArrayTaskID {
 	return m
 }
 
-func (p *Player) LoadAnswer(StudentID, TaskID) *Task {
+func (p *Player) LoadAnswer(sid StudentID, tid TaskID) *Task {
 	query := `select data from appointments where sid = $1 and taskid = $2`
-	row := dbconn.QueryRow(query)
+	row := dbconn.QueryRow(query, sid, tid)
 	buf := make([]byte, 0, 255)
 	err := row.Scan(buf)
 	if err != nil {

@@ -56,6 +56,7 @@ func structsynth(m reflect.Method) (in reflect.Type) {
 			Type: m.Type.In(i),
 			Name: m.Type.In(i).Name(),
 		}
+		fmt.Printf("%#v\n%#v\n---\n", m.Type.In(i), m.Type.In(i).Name())
 	}
 	in = reflect.StructOf(fields)
 	// json.Unmarshall will correctly generate all maps and slices
@@ -140,6 +141,7 @@ func init() {
 		i := ii
 		m := reflect.TypeOf(&Player{}).Method(i)
 		intyp := structsynth(m)
+		println(m.Name)
 		// handler wrapper
 		methods[m.Name] = func(w http.ResponseWriter, r *http.Request) {
 			var err error
