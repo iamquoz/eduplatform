@@ -126,3 +126,29 @@ func (p *Player) StCommentary(tid TaskID) String {
 	}
 	return comm
 }
+
+func (p *Player) StDigest() MapTheoryIDTheory {
+	err := func(err error) bool {
+		if err != nil {
+			report(err)
+			return true
+		}
+		return false
+	}
+	m := make(MapTheoryIDTheory)
+	q := `select from theory *`
+	rs, e := dbconn.Query(q)
+	if err(e) {
+		return nil
+	}
+	var thid TheoryID
+	var th Theory
+	for rs.Next() {
+		e = rs.Scan(&thid, &th)
+		if err(e) {
+			return nil
+		}
+		m[thid] = th
+	}
+	return m
+}

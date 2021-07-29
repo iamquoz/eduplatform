@@ -54,6 +54,7 @@ type (
 	MapTheoryIDStats        map[TheoryID]Stats
 	MapTheoryIDString       map[TheoryID]String
 	MapTaskIDInt            map[TaskID]Int
+	MapTheoryIDTheory       map[TheoryID]Theory
 )
 
 // Player is a user with its role and token
