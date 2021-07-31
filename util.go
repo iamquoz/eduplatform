@@ -86,26 +86,3 @@ func readtask(tid TaskID) (*Task, error) {
 	}
 	return tk, nil
 }
-
-// writetask writes task to the store
-func writetask(tk *Task, tid *TaskID, thid TheoryID) (TaskID, error) {
-	var err error
-	// FIXME
-	query := `
-	insert into tasks (id, data, theoryid) values ($1, $2, $3)
-		on conflict id do update set data = $2, theoryid = $2
-		returning id
-	`
-	tk = taskfilter(tk)
-	btk, err := task2gob(tk)
-	if err != nil {
-		return -1, err
-	}
-	row := dbconn.QueryRow(query, tid, btk, thid)
-	var id TaskID
-	err = row.Scan(&id)
-	if err != nil {
-		return -1, err
-	}
-	return id, nil
-}

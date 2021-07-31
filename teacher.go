@@ -62,7 +62,17 @@ func (p *Player) GetStudents() MapStudentIDString {
 
 // NewTask saves task data. Returns -1 on error.
 func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
-	id, err := writetask(&tk, nil, thid)
+	var err error
+	query := `insert into tasks (data, theoryid) values ($1, $2) returning id`
+	tk = *taskfilter(&tk)
+	btk, err := task2gob(&tk)
+	if err != nil {
+		report(err)
+		return -1
+	}
+	row := dbconn.QueryRow(query, btk, thid)
+	var id TaskID
+	err = row.Scan(&id)
 	if err != nil {
 		report(err)
 	}
@@ -71,7 +81,15 @@ func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
 
 // RenewTask updates task data saved under ID. Returns -1 on error.
 func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
-	taid, err := writetask(&tk, &taid, thid)
+	var err error
+	query := `update tasks set data = $2, theoryid = $3 where id = $1`
+	tk = *taskfilter(&tk)
+	btk, err := task2gob(&tk)
+	if err != nil {
+		report(err)
+		return -1
+	}
+	_, err = dbconn.Exec(query, taid, btk, thid)
 	if err != nil {
 		report(err)
 		return -1
