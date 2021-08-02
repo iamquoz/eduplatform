@@ -44,7 +44,7 @@ func (p *Player) ZapStudent(u StudentID) {
 
 // GetStudents returns a list of all students
 func (p *Player) GetStudents() MapStudentIDString {
-	query := `select (id, names) from logins`
+	query := "select id, names from logins where role = 1"
 	rows, err := dbconn.Query(query)
 	if err != nil {
 		report(err)
