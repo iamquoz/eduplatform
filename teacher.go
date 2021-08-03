@@ -144,12 +144,14 @@ func (p *Player) ZapTheory(thid TheoryID) {
 
 // Appoint assigns tasks by ID to students
 func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray, thid TheoryID) {
-	query := `insert into appointments sid, taskids, theoryid values $1, $2, $3`
+	query := `insert into appointments (sid, taskid, theoryid) values ($1, $2, $3)`
 	for _, sid := range sida {
-		_, err := dbconn.Exec(query, sid, tida, thid)
-		if err != nil {
-			report(err)
-			return
+		for _, tid := range tida {
+			_, err := dbconn.Exec(query, sid, tid, thid)
+			if err != nil {
+				report(err)
+				return
+			}
 		}
 	}
 }
