@@ -229,6 +229,20 @@ func gethash(id StudentID) ([64]byte, int, error) {
 }
 
 func main() {
+	http.HandleFunc("/Peek", func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		id, err := strconv.ParseUint(q.Get("id"), 10, 64)
+		if err != nil {
+			report(err)
+			return
+		}
+		dbq := `select names from logins where id = $1 and role > 0`
+		row := dbconn.QueryRow(dbq, id)
+		name := ""
+		err = row.Scan(&name)
+		w.Write([]byte(name))
+		return
+	})
 	http.HandleFunc("/Authorize", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		id, err := strconv.ParseUint(q.Get("id"), 10, 64)

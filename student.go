@@ -70,6 +70,15 @@ func (p *Player) StRating() MapTaskIDInt {
 	return m
 }
 
+func (p *Player) StRename(new String) {
+	q := `update logins set names = $2 where id = $1`
+	_, err := dbconn.Exec(q, p.StudentID, new)
+	if err != nil {
+		report(err)
+	}
+	return
+}
+
 func (p *Player) StSent() TaskIDArray {
 	query := `select from appointments taskid where sid = $1`
 	rows, err := dbconn.Query(query, p.StudentID)
