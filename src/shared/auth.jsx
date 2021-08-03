@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { BehaviorSubject } from 'rxjs'
+import Cookies from 'universal-cookie'
 
 const currUser = new BehaviorSubject(JSON.parse(localStorage.getItem('currentUser')))
 
@@ -20,6 +21,10 @@ function login(u, p) {
 }
 
 function logout() {
+	const cookies = new Cookies();
+
+	cookies.remove('token', {path: '/'});
+
 	localStorage.removeItem('currentUser');
 	currUser.next(null);
 	window.location.reload();

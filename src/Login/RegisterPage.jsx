@@ -1,6 +1,7 @@
 import { useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Cookies from 'universal-cookie'
 
 import { auth } from '../shared/auth.jsx'
 
@@ -23,36 +24,22 @@ export default function RegisterPage() {
 
 	// get name of a register
 	const [fullname, setFullname] = useState('')
-	const [id, setid] = useState(0); 
 	const [isStudent, setIsStudent] = useState(false);
-	function valid(testid) {
-		let tempid = parseInt(testid);
-		// fix for real values
-		if (isFinite(tempid) && tempid > 0) {
-			setIsStudent(true); 
-			return true;
-		}
-		else {
-			setIsStudent(false);
-			return false;
-		}
-	}
-
-	const fetchName = async () => {
-		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/students/' + query)
-		return responce.data;
-	}
 
 	useEffect(() => {
 		const getName = async () => {
 			if (query === null)
 				return
-			const name = await fetchName();
-			
-			if (valid(name.id)) {
-				setFullname(name.stName);
-				setid(name.id);
-			}
+			axios.get(`/Peek?id=${query}`)
+				.then(res => {
+					if (res.data !== '') {
+						setFullname(res.data);
+						setIsStudent(true);
+					}
+					else 
+						setIsStudent(false);
+				})
+				.catch(err => {setIsStudent(false); console.log(err)});
 		}
 		// workaround for the 2nd useEffect i do later
 		// i don't want to fucking hammer the server with a request for each keystoke lmao
@@ -87,11 +74,16 @@ export default function RegisterPage() {
 			alert("Пароли не совпадают")
 			return
 		}
-		
 
-		// fix create an actual request
-		console.log(id, password, confirmPW);
-	}
+		auth.login(query, '')
+			.then(res => {
+				const cookies = new Cookies();
+				cookies.set('token', res.data, {path: '/', maxAge: 86400});
+				localStorage.setItem('currentUser', JSON.stringify({id: query, token: res.data, time: Date.now()}))
+				axios.post('/api/StRegister', {String: password})
+					.then(res => console.log(res))
+					.catch(err => console.log(err))})
+			}
 
 	useEffect(() => {
 		if (password.length === 0)
@@ -119,7 +111,7 @@ export default function RegisterPage() {
 			<h2>Регистрация</h2>
 				<Label>Здравствуй, {fullname}</Label>
 				<br></br>
-				<Label>Ваш будущий логин - {query}</Label>
+				<Label>Твой будущий логин - {query}</Label>
 				<FormGroup style = {{marginTop: "2em"}}>
 					<Label for="pwEnter">Пароль</Label>
 					<Input invalid = {!validPW} type="password" 

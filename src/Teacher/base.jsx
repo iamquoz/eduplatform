@@ -18,7 +18,7 @@ import PlusIc from '../img/plus.svg'
 import EditTheory from './editTheory'
 import EditTask from './editTask'
 
-export default function Base({tab}) {
+export default function Base() {
 
 
 	const [tasks, setTasks] = useState([])
@@ -46,38 +46,39 @@ export default function Base({tab}) {
 	}
 
 	useEffect(() => {
-		const getAll = async () => {
-			const th = await fetchTheories();
-			const tas = await fetchTasks();
-			setTasks(tas);
-			setTheories(th);
-		}
-		getAll()
+		axios.post('/api/StDigest', {})
+			.then(res => {
+				var arr = [];
+				for(const prop in res.data.MapTheoryIDTheory)
+					arr.push(res.data.MapTheoryIDTheory[prop]);
+				
+				setTheories(arr);
+			})
+			.catch(err => console.log(err));
+		axios.post('/api/EveryTask', {})
+			.then(res => {
+				var arr = [];
+				for(const prop in res.data.MapTaskIDTask)
+					arr.push(res.data.MapTaskIDTask[prop]);
+				
+				setTasks(arr);
+			})
+			.catch(err => console.log(err));
 	}, [])
-	
-	const fetchTheories = async () => {
-		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/theories/')
-		return responce.data;
-	}
-
-	const fetchTasks = async () => {
-		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/tasks/')
-		return responce.data;
-	}
 
 	const DisplayListTasks = () => {
 		return (
 			<>
 			{tasks.map(task => (
-				<NavItem key = {task.id} 
-				className = {classnames({chosenSidebar: currIDTask === task.id})}>	 
-					<NavLink onClick = {() => {setCurrIDTask(task.id); setShowSidebar(false)}} id = {"tooltip" + task.id}>
-							{task.text.length > 50 ? 
-							`${task.text.substring(0, 50)}...` : task.text}
+				<NavItem key = {task.ID} 
+				className = {classnames({chosenSidebar: currIDTask === task.ID})}>	 
+					<NavLink onClick = {() => {setCurrIDTask(task.ID); setShowSidebar(false)}} id = {"tooltipT" + task.ID}>
+							{task.Question.length > 50 ? 
+							`${task.Question.substring(0, 50)}...` : task.Question}
 					</NavLink>
 					{ /* causes the transition and findDOMNode warnngs */}
-					<UncontrolledTooltip placement = "bottom" target = {"tooltip"+ task.id}>
-						{task.text}			
+					<UncontrolledTooltip placement = "bottom" target = {"tooltipT"+ task.ID}>
+						{task.Question}			
 					</UncontrolledTooltip>
 				</NavItem>
 			))}
@@ -89,10 +90,10 @@ export default function Base({tab}) {
 		return (
 			<>
 			{theories.map(theory => (
-				<NavItem key = {theory.id}
-				className = {classnames({chosenSidebar: currIDTheory === theory.id})}>	 
-					<NavLink onClick = {() => {setCurrIDTheory(theory.id); setShowSidebar(false)}}>
-							{theory.title}
+				<NavItem key = {theory.ID}
+				className = {classnames({chosenSidebar: currIDTheory === theory.ID})}>	 
+					<NavLink onClick = {() => {setCurrIDTheory(theory.ID); setShowSidebar(false)}}>
+							{theory.Header}
 					</NavLink>
 				</NavItem>
 			))}
@@ -139,7 +140,9 @@ export default function Base({tab}) {
 						}
 						{ 
 						currIDTask !== -1 
-						? <EditTask task = {tasks.find(task => task.id === currIDTask)} className = {classnames({dontShowMd: showSidebar})}/> 
+						? <EditTask task = {tasks.find(task => task.ID === currIDTask)}
+						   className = {classnames({dontShowMd: showSidebar})}
+						   setTasks = {setTasks} tasks = {tasks}/> 
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
 							<p>Выберите элемент для начала работы</p></Col>
 						}
@@ -165,7 +168,9 @@ export default function Base({tab}) {
 						}
 						{ 
 						currIDTheory !== -1 
-						? <EditTheory theory = {theories.find(theory => theory.id === currIDTheory)} className = {classnames({dontShowMd: showSidebar})}/>
+						? <EditTheory theory = {theories.find(theory => theory.ID === currIDTheory)}
+						   className = {classnames({dontShowMd: showSidebar})}
+						   setTheory = {setTheories} theories = {theories}/>
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
 							<p>Выберите элемент для начала работы</p></Col>
 						}

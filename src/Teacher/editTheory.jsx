@@ -12,12 +12,13 @@ import axios from 'axios'
 import MdTooltip from '../shared/mdtooltip'
 import Question from '../shared/question'
 
-export default function EditTheory({theory, className}) {
+export default function EditTheory({theory, className, setTheories, theories}) {
+
 	if (theory === undefined) {
 		theory = {
-		"title": "",
-		"id": "0", 
-		"text": ""
+		"ID": 0, 
+		"Header": "",
+		"Body": ""
 		}
 	}
 
@@ -25,14 +26,14 @@ export default function EditTheory({theory, className}) {
 	const [modal, setModal] = useState(false);
 	const toggle = () => setModal(!modal);
 
-	const [title, setTitle] = useState('');
-	const [text, setText] = useState('');
+	const [title, setTitle] = useState(theory.Header);
+	const [text, setText] = useState(theory.Body);
 
 	
 	const onSubmit = (e) => {
 		e.preventDefault();
 
-		console.log(theory.id, title, text);
+		console.log(theory.ID, title, text);
 
 		if (!title) {	
 			alert("Введите название теории!")
@@ -43,35 +44,28 @@ export default function EditTheory({theory, className}) {
 			return;
 		}
 
-		if (theory.id !== '0') {
-			var j = {thid: theory.id, th: {ID: theory.id, Header: title, Body: text}};
-			console.log(j);
+		if (theory.ID !== 0) {
+			var j = {TheoryID: (theory.ID), Theory: {Header: title, Body: text}};
 			axios.post('/api/RenewTheory', j)
-				.then(res => console.log(res))
 				.catch(err => console.log(err));
 		}
 		else {
-			axios.post('/api/NewTheory', {ID: theory.id, Header: title, Body: text})
-				.then(res => console.log(res))
+			var jth = {Header: title, Body: text};
+			axios.post('/api/NewTheory', {Theory: jth})
+				.then(res => {jth.ID = res.data.TheoryID; setTheories([...theories, jth])})
 				.catch(err => console.log(err));
 		}
 	}
 
 	const onDelete = () => {
-		axios.delete('https://6099651699011f0017140ca7.mockapi.io/theories/' + theory.id)
-		.then(function(responce) {
-			console.log(responce);
-		})
-		.catch(function(responce) {
-			console.log(responce);
-		})
+		axios.post('/api/ZapTheory', {TheoryID: theory.ID})
+			.then(res => setTheories(theories.filter(item => item.ID !== theory.ID)))
+			.catch(err => console.log(err));
 	}
 
 	useEffect(() => {
-		if (theory.id === '0')
-			return;
-		setTitle(theory.title)
-		setText(theory.text);
+		setTitle(theory.Header)
+		setText(theory.Body);
 	}, [theory])
 
 	return (
@@ -79,21 +73,22 @@ export default function EditTheory({theory, className}) {
 			<Form onSubmit = {onSubmit} style = {{marginTop: "10px", marginLeft: "15px"}}>
 				<FormGroup>
 					<Label for = "title">Название темы</Label>
-					<Input type = "textarea" key = {theory.id}
-					defaultValue = {theory.id === '0' ? '' : theory.title} 
-					placeholder = {theory.id === '0' ? 'Введите название темы' : ''}
+					<Input type = "textarea" key = {theory.ID}
+					defaultValue = {theory.ID === 0 ? '' : theory.Header} 
+					placeholder = {theory.ID === 0 ? 'Введите название темы' : ''}
 					onChange = {(e) => setTitle(e.target.value)}></Input>
 				</FormGroup>
 				<FormGroup>
-					<Label for = "title">Текст материала</Label><span onClick = {toggle}><Question /></span>
-					<Input type = "textarea" key = {theory.id}
-					defaultValue = {theory.id === '0' ? '' : theory.text}
-					placeholder = {theory.id === '0' ? 'Введите текст материала' : ''}
+					<Label for = "title">Текст материала</Label>
+					<span onClick = {toggle}><Question /></span>
+					<Input type = "textarea" key = {theory.ID}
+					defaultValue = {theory.ID === 0 ? '' : theory.Body}
+					placeholder = {theory.ID === 0 ? 'Введите текст материала' : ''}
 					onChange = {(e) => setText(e.target.value)}
 					style = {{height: "500px"}}></Input>
 				</FormGroup>
 				<br></br>
-				{theory.id !== '0' && 
+				{theory.ID !== 0 && 
 				<Button className = "redBtn" onClick = {onDelete}>Удалить теорию</Button>
 				}
 				<Button type='submit' style = {{float: "right"}}>Добавить теорию</Button>

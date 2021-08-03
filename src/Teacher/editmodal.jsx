@@ -13,20 +13,17 @@ import {
 
 import axios from 'axios'
 
-export default function ModalAdd({isOpen, toggle, student}) {
+export default function ModalAdd({isOpen, toggle, student, stList, setStList}) {
 	const [stName, setStName] = useState(student.stName);
 
 	const onDelete = () => {
-		axios.delete(`https://6099651699011f0017140ca7.mockapi.io/students/${student.id}`)
-		.then(function (responce) {
-			console.log(responce);
-		})
-		.catch(function (responce) {
-			console.log(responce);
-		})
-
-		toggle();
-
+		axios.post('/api/ZapStudent', {StudentID: student.ID})
+			.then(_ => {
+				setStList(stList.filter(st => st.ID !== student.ID));
+				toggle();
+			})
+			.catch(err => console.log(err));
+		
 	}
 
 	const onSubmit = (e) => {
@@ -68,7 +65,7 @@ export default function ModalAdd({isOpen, toggle, student}) {
 						<Input type = "textarea" id = "fullname"
 						style = {{height: "80px"}}
 						onChange = {(e) => setStName(e.target.value)}
-						defaultValue = {student.stName}></Input>
+						defaultValue = {student.StName}></Input>
 					</FormGroup>
 				</ModalBody>
 				<ModalFooter style = {{justifyContent: "space-between"}}>

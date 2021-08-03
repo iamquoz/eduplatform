@@ -34,8 +34,8 @@ export default function Stats({student, showSidebar, windowWidth, width, setShow
 	}
 	
 	useEffect(() => {
-		setCurrIDstudent(parseInt(student.id));
-		if (currIDstudent !== parseInt(student.id)){
+		setCurrIDstudent(parseInt(student.ID));
+		if (currIDstudent !== parseInt(student.ID)){
 			const getAll = async () => {
 				const fetchedStats = await fetchStats();
 				const tempTheories = await fetchTheories();

@@ -62,7 +62,7 @@ export default function ViewStudent({student}) {
 					<Stats student = {student} showSidebar = {showSidebar} windowWidth = {windowWidth} width = {width} setShowSidebar = {setShowSidebar}/>
 				</TabPane>
 				<TabPane tabId = {2}>
-					{student.stName}
+					{student.StName}
 				</TabPane>
 			</TabContent>
 			<div className = "customFooter possiblyHidden">

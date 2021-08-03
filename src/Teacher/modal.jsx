@@ -13,7 +13,7 @@ import {
 
 import axios from 'axios'
 
-export default function ModalAdd({isOpen, toggle}) {
+export default function ModalAdd({isOpen, toggle, stList, setStList}) {
 
 	const [stName, setStName] = useState('');
 	const [inviteLink, setInviteLink] = useState('')
@@ -31,17 +31,13 @@ export default function ModalAdd({isOpen, toggle}) {
 	function request() {
 		if (stName === '')
 			return;
-		
-		// change for the real api
-		axios.post('https://6099651699011f0017140ca7.mockapi.io/students', 
-			{stName: stName})
-			.then(function (responce) {
-				console.log(responce.data.id);
-				setInviteLink(`${window.location.origin + '/register?id=' + responce.data.id}`);
+
+		axios.post('/api/AddStudent', {String: stName})	
+			.then(res => {
+				setStList([...stList, {ID: parseInt(res.data.StudentID), StName: stName}]);
+				setInviteLink(`${window.location.origin + '/register?id=' + res.data.StudentID}`);
 			})
-			.catch(function (responce) {
-				console.log(responce)
-			})
+			.catch(err => console.log(err));
 	}
 
 	return (

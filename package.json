@@ -23,6 +23,7 @@
 		"reactstrap": "^8.9.0",
 		"recharts": "^2.0.9",
 		"rxjs": "^6.6.7",
+		"universal-cookie": "^4.0.4",
 		"web-vitals": "^1.1.1",
 		"yup": "^0.32.9"
 	},

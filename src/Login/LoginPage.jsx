@@ -9,6 +9,7 @@ import {
 	Input, 
 	Alert
 } from 'reactstrap';
+import Cookies from 'universal-cookie'
 
 import { auth } from '../shared/auth.jsx'
 
@@ -19,7 +20,7 @@ export default function LoginPage() {
 	
 	
 	if (auth.currUserValue)
-	history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
+		history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
 	
 	
 	const [login, setlogin] = useState('');
@@ -59,16 +60,16 @@ export default function LoginPage() {
 
 		auth.login(login, password)
 			.then(res => {
-				localStorage.setItem('currentUser', JSON.stringify({id: login, token: res.data}))
-				document.cookie = `token=${res.data}`
-				history.push(login === '1' ? '/teacher' : '/student')
-			}
-			).catch(err => {
+				const cookies = new Cookies();
+				cookies.set('token', res.data, {path: '/', maxAge: 86400});
+				localStorage.setItem('currentUser', JSON.stringify({id: login, token: res.data, time: Date.now()}))
+				window.location.reload();
+			})
+			.catch(err => {
 				console.log(err); 
 				setStatus('Неправильный логин или пароль')
 				document.getElementById("submitbtn").classList.remove("submitbtn");
-				}
-			)
+			})
 
 	}
 
