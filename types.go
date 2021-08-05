@@ -43,19 +43,24 @@ type (
 	// because `reflect` doesn't provide a way to get an argument of primitive or private type
 	//
 	// And also for sake of orthogonality, yyyeeeaaaaahhhh...
-	String                  string
-	TaskIDArray             []TaskID
-	StudentIDArray          []StudentID
-	MapStudentIDString      map[StudentID]string
-	MapStudentIDTaskID      map[StudentID]TaskID
-	MapStudentIDArrayTaskID map[StudentID][]TaskID
-	Int                     int
-	Bool                    bool
-	MapTheoryIDStats        map[TheoryID]Stats
-	MapTheoryIDString       map[TheoryID]String
-	MapTaskIDInt            map[TaskID]Int
-	MapTheoryIDTheory       map[TheoryID]Theory
-	MapTaskIDTask           map[TaskID]Task
+	String                   string
+	TaskIDArray              []TaskID
+	StudentIDArray           []StudentID
+	MapStudentIDString       map[StudentID]string
+	MapStudentIDTaskID       map[StudentID]TaskID
+	MapStudentIDArrayTaskID  map[StudentID][]TaskID
+	Int                      int
+	Bool                     bool
+	MapTheoryIDStats         map[TheoryID]Stats
+	MapTheoryIDString        map[TheoryID]String
+	MapTaskIDInt             map[TaskID]Int
+	MapTheoryIDTheory        map[TheoryID]Theory
+	MapTaskIDTask            map[TaskID]Task
+	TheoryIDTaskIDArrayArray []struct {
+		TheoryID    TheoryID
+		TaskIDArray []TaskID
+	}
+	MapTheoryIDTaskIDArray map[TheoryID][]TaskID
 )
 
 // Player is a user with its role and token

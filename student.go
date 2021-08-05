@@ -50,7 +50,7 @@ func (p *Player) StSelfStats() MapTheoryIDStats {
 }
 
 func (p *Player) StRating() MapTaskIDInt {
-	query := `select from appointments (taskid, correct) where sid = $1`
+	query := `select taskid, correct from appointments where sid = $1`
 	m := make(MapTaskIDInt)
 	rows, err := dbconn.Query(query, p.StudentID)
 	if err != nil {
@@ -80,18 +80,25 @@ func (p *Player) StRename(new String) {
 	return
 }
 
-func (p *Player) StSent() TaskIDArray {
-	query := `select from appointments taskid where sid = $1`
+type sentstruct struct {
+	TaskID
+	TheoryID
+}
+
+func (p *Player) StSent() MapTheoryIDTaskIDArray {
+	query := `select taskid, theoryid from appointments where sid = $1 and complete = false`
 	rows, err := dbconn.Query(query, p.StudentID)
-	a := make(TaskIDArray, 0, 10)
+	a := make(MapTheoryIDTaskIDArray, 10)
 	if err != nil {
 		report(err)
 		return nil
 	}
+
 	for rows.Next() {
 		var taskid TaskID
-		rows.Scan(&taskid)
-		a = append(a, taskid)
+		var theoryid TheoryID
+		rows.Scan(&taskid, &theoryid)
+		a[theoryid] = append(a[theoryid], taskid)
 	}
 	return a
 }
@@ -126,7 +133,7 @@ func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
 }
 
 func (p *Player) StCommentary(tid TaskID) String {
-	query := `select from appointments comment where taskid = $1`
+	query := `select comment from appointments where taskid = $1`
 	row := dbconn.QueryRow(query, tid)
 	var comm String
 	err := row.Scan(&comm)
