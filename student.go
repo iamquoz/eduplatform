@@ -11,14 +11,14 @@ func (p *Player) StLogout() {
 
 // StGetTask returns a task by id. Any user can get any task, this is
 // not intentional. Probably needs to be fixed.
-func (p *Player) StGetTask(id TaskID) (Task, bool) {
+func (p *Player) StGetTask(id TaskID) Task {
 	v, err := readtask(id)
 	if err != nil {
 		fmt.Println(err)
-		return Task{}, true
+		return Task{ID: -1}
 	}
 	v.Correct = ""
-	return *v, false
+	return *v
 }
 
 // StRegister changes password for a user
@@ -32,21 +32,21 @@ func (p *Player) StRegister(new String) {
 }
 
 // StGetTheory loads theory data by ID
-func (p *Player) StGetTheory(tid TheoryID) (Theory, bool) {
+func (p *Player) StGetTheory(tid TheoryID) Theory {
 	buf := make([]byte, 0, TaskLength)
 	row := dbconn.QueryRow(`select data from theory where id = $1`, tid)
 	err := row.Scan(&buf)
 	if err != nil {
 		report(err)
-		return Theory{}, true
+		return Theory{ID: -1}
 	}
 	th, err := gob2theory(buf)
 	if err != nil {
 		report(err)
-		return Theory{}, true
+		return Theory{ID: -1}
 	}
 	th.ID = tid
-	return *th, false
+	return *th
 }
 
 // StSelfStats returns stats for the student himself
