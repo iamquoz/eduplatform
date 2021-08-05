@@ -93,7 +93,6 @@ func (p *Player) StSent() MapTheoryIDTaskIDArray {
 		report(err)
 		return nil
 	}
-
 	for rows.Next() {
 		var taskid TaskID
 		var theoryid TheoryID
