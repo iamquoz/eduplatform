@@ -76,7 +76,7 @@ func taskfilter(tk *Task) *Task {
 func readtask(tid TaskID) (*Task, error) {
 	buf := make([]byte, 0, TaskLength)
 	row := dbconn.QueryRow("select data from tasks where id = $1", tid)
-	err := row.Scan(buf)
+	err := row.Scan(&buf)
 	if err != nil {
 		return nil, err
 	}

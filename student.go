@@ -33,15 +33,20 @@ func (p *Player) StRegister(new String) {
 
 // StGetTheory loads theory data by ID
 func (p *Player) StGetTheory(tid TheoryID) *Theory {
-	row := dbconn.QueryRow(`select from theory where id = $1`, tid)
-	theory := new(Theory)
-	err := row.Scan(theory)
+	buf := make([]byte, 0, TaskLength)
+	row := dbconn.QueryRow(`select data from theory where id = $1`, tid)
+	err := row.Scan(&buf)
 	if err != nil {
 		report(err)
 		return nil
 	}
-	theory.ID = tid
-	return theory
+	th, err := gob2theory(buf)
+	if err != nil {
+		report(err)
+		return nil
+	}
+	th.ID = tid
+	return th
 }
 
 // StSelfStats returns stats for the student himself
