@@ -26,12 +26,18 @@ type Theory struct {
 }
 
 // Stats describes student's statistics in system.
-// This structure with its asocciated methods are subjects to change
-// in future versions.
 type Stats struct {
 	Total         []uint
 	Correct       []uint
 	TotalAttempts uint
+}
+
+// TaskCard describes a pair of user-sent task and a correct answer with teacher's comments.
+type TaskCard struct {
+	Task    Task
+	Answer  Task
+	Correct bool
+	Comment string
 }
 
 // StudentID is used to discriminate users in database
@@ -61,6 +67,7 @@ type (
 		TaskIDArray []TaskID
 	}
 	MapTheoryIDTaskIDArray map[TheoryID][]TaskID
+	MapTheoryIDTaskCard    map[TheoryID]TaskCard
 )
 
 // Player is a user with its role and token

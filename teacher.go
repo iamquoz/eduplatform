@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 // Flop is a test method, it returns a string to check that server is working correctly
 func (p *Player) Flop() String {
 	return "i am wanted for war crimes in uganda"
@@ -65,7 +61,7 @@ func (p *Player) NewTask(tk Task, thid TheoryID) TaskID {
 	var err error
 	query := `insert into tasks (data, theoryid) values ($1, $2) returning id`
 	tk = *taskfilter(&tk)
-	btk, err := task2gob(&tk)
+	btk, err := task2gob(&tk, nil)
 	if err != nil {
 		report(err)
 		return -1
@@ -84,7 +80,7 @@ func (p *Player) RenewTask(taid TaskID, tk Task, thid TheoryID) TaskID {
 	var err error
 	query := `update tasks set data = $2, theoryid = $3 where id = $1`
 	tk = *taskfilter(&tk)
-	btk, err := task2gob(&tk)
+	btk, err := task2gob(&tk, nil)
 	if err != nil {
 		report(err)
 		return -1
@@ -109,7 +105,7 @@ func (p *Player) ZapTask(tid TaskID) {
 
 // NewTheory saves theory data on server. Returns -1 on error.
 func (p *Player) NewTheory(th Theory) TheoryID {
-	bts, err := theory2gob(&th)
+	bts, err := theory2gob(&th, nil)
 	query := `insert into theory data values $1 returning id`
 	r := dbconn.QueryRow(query, bts)
 	var id TheoryID
@@ -123,7 +119,7 @@ func (p *Player) NewTheory(th Theory) TheoryID {
 
 // RenewTheory updates theory data saved under ID. Returns -1 on error.
 func (p *Player) RenewTheory(thid TheoryID, th Theory) TheoryID {
-	bts, err := theory2gob(&th)
+	bts, err := theory2gob(&th, nil)
 	query := `update theory set data = $2 where id = $1`
 	_, err = dbconn.Exec(query, thid, bts)
 	if err != nil {
@@ -158,8 +154,7 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray, thid TheoryID) {
 
 // GetStats returns stats for a student
 func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
-	//appointments (sid integer, taskid integer, complete boolean,
-	//	correct boolean, tries integer, answer bytea, comment varchar)
+	// select sid, taskid, complete, correct, tries from appointments inner join tasks on tasks.id = appointments.taskid and sid = 2
 	query := `select (taskid, correct, tries) from appointments where sid = $1 and complete = true`
 	rows, err := dbconn.Query(query, sid)
 	if err != nil {
@@ -184,13 +179,9 @@ func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
 				sub := dbconn.QueryRow(query, tid)
 				buf := make([]byte, 0, 255)
 				err = sub.Scan(buf)
+				tk, err := gob2task(buf, err)
 				if err != nil {
-					fmt.Println(err)
-					return nil
-				}
-				tk, err := gob2task(buf)
-				if err != nil {
-					fmt.Println(err)
+					report(err)
 					return nil
 				}
 				compx = tk.Difficulty
@@ -215,15 +206,12 @@ func (p *Player) Unread() MapStudentIDArrayTaskID {
 	//	rated boolean, tries integer, answer bytea, comment varchar)
 	query := `select (sid, taskid) from appointments where rated = false`
 	rows, err := dbconn.Query(query)
-	if err != nil {
-		report(err)
-		return nil
-	}
+
 	m := make(MapStudentIDArrayTaskID)
-	for rows.Next() {
+	for rows.Next() && err == nil {
 		var sid StudentID
 		var taskid TaskID
-		rows.Scan(&sid, &taskid)
+		err = rows.Scan(&sid, &taskid)
 		if _, k := m[sid]; k {
 			m[sid] = append(m[sid], taskid)
 		} else {
@@ -231,6 +219,10 @@ func (p *Player) Unread() MapStudentIDArrayTaskID {
 			// multiplied to total students count
 			m[sid] = make([]TaskID, 0, 10)
 		}
+	}
+	if err != nil {
+		report(err)
+		return nil
 	}
 	return m
 }
@@ -240,11 +232,7 @@ func (p *Player) LoadAnswer(sid StudentID, tid TaskID) *Task {
 	row := dbconn.QueryRow(query, sid, tid)
 	buf := make([]byte, 0, 255)
 	err := row.Scan(buf)
-	if err != nil {
-		report(err)
-		return nil
-	}
-	tk, err := gob2task(buf)
+	tk, err := gob2task(buf, err)
 	if err != nil {
 		report(err)
 		return nil
@@ -253,23 +241,23 @@ func (p *Player) LoadAnswer(sid StudentID, tid TaskID) *Task {
 }
 
 func (p *Player) TheoryNames() MapTheoryIDString {
-	query := `select (id, data) from theory`
-	rows, err := dbconn.Query(query)
+	m := make(MapTheoryIDString)
+	q := `select (id, data) from theory`
+	rows, err := dbconn.Query(q)
+
+	for rows.Next() && err == nil {
+		var data []byte
+		var id int32
+
+		e := rows.Scan(&id, data)
+		th, e := gob2theory(data, e)
+		err = e
+
+		m[th.ID] = String(th.Header)
+	}
 	if err != nil {
 		report(err)
 		return nil
-	}
-	m := make(MapTheoryIDString)
-	for rows.Next() {
-		var data []byte
-		var id int32
-		rows.Scan(&id, data)
-		th, err := gob2theory(data)
-		if err != nil {
-			report(err)
-			return nil
-		}
-		m[th.ID] = String(th.Header)
 	}
 	return m
 }
@@ -288,32 +276,57 @@ func (p *Player) Rate(sid StudentID, tid TaskID, comment String, correct Bool) {
 }
 
 func (p *Player) EveryTask() MapTaskIDTask {
-	err := func(err error) bool {
-		if err != nil {
-			report(err)
-			return true
-		}
-		return false
-	}
 	m := make(MapTaskIDTask)
 	q := `select id, data from tasks *`
-	rs, e := dbconn.Query(q)
-	if err(e) {
-		return nil
-	}
-	var tid TaskID
-	var gob []byte
-	for rs.Next() {
-		e = rs.Scan(&tid, &gob)
-		if err(e) {
-			return nil
-		}
-		t, e := gob2task(gob)
-		if err(e) {
-			return nil
-		}
+	rs, err := dbconn.Query(q)
+
+	for rs.Next() && err == nil {
+		var tid TaskID
+		var gob []byte
+
+		e := rs.Scan(&tid, &gob)
+		t, e := gob2task(gob, e)
+		err = e
+
 		t.ID = tid
 		m[tid] = *t
+	}
+	if err != nil {
+		report(err)
+		return nil
+	}
+	return m
+}
+
+func (p *Player) GetDone(s StudentID) MapTheoryIDTaskCard {
+	m := make(MapTheoryIDTaskCard)
+	q := `select data, answer, correct, comment, appointments.theoryid 
+		from appointments inner join tasks 
+		on sid = $1 and taskid = tasks.id and complete = true`
+	rs, err := dbconn.Query(q, s)
+
+	for rs.Next() && err == nil {
+		var data []byte
+		var answer []byte
+		var correct bool
+		var comment string
+		var thid TheoryID
+
+		e := rs.Scan(&data, &answer, &correct, &comment, &thid)
+		task, e := gob2task(data, e)
+		ans, e := gob2task(answer, e)
+		err = e
+		// if err != nil we add incorrect data here and ignore it all in the next block
+		m[thid] = TaskCard{
+			Task:    *task,
+			Answer:  *ans,
+			Correct: correct,
+			Comment: comment,
+		}
+	}
+	if err != nil {
+		report(err)
+		return nil
 	}
 	return m
 }

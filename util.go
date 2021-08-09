@@ -27,38 +27,45 @@ func sesh(passw string) [64]byte {
 	return sha512.Sum512([]byte(passw))
 }
 
-func task2gob(tk *Task) ([]byte, error) {
-	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
-	ge := gob.NewEncoder(buf)
-	err := ge.Encode(tk)
+// thanks @cristaloleg for showing this in your tg channel
+func task2gob(tk *Task, err error) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return buf.Bytes(), nil
+	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
+	ge := gob.NewEncoder(buf)
+	err = ge.Encode(tk)
+	return buf.Bytes(), err
 }
 
-func gob2task(btk []byte) (tk *Task, err error) {
+func gob2task(btk []byte, err error) (*Task, error) {
+	if err != nil {
+		return nil, err
+	}
 	gd := gob.NewDecoder(bytes.NewBuffer(btk))
-	tk = new(Task)
+	tk := new(Task)
 	err = gd.Decode(tk)
-	return
+	return tk, err
 }
 
-func theory2gob(th *Theory) ([]byte, error) {
-	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
-	ge := gob.NewEncoder(buf)
-	err := ge.Encode(th)
+func theory2gob(th *Theory, err error) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return buf.Bytes(), nil
+	buf := bytes.NewBuffer(make([]byte, 0, TaskLength))
+	ge := gob.NewEncoder(buf)
+	err = ge.Encode(th)
+	return buf.Bytes(), err
 }
 
-func gob2theory(btk []byte) (th *Theory, err error) {
+func gob2theory(btk []byte, err error) (*Theory, error) {
+	if err != nil {
+		return nil, err
+	}
 	gd := gob.NewDecoder(bytes.NewBuffer(btk))
-	th = new(Theory)
+	th := new(Theory)
 	err = gd.Decode(th)
-	return
+	return th, err
 }
 
 // this function tries to fix incorrect data sent by client
@@ -77,10 +84,7 @@ func readtask(tid TaskID) (*Task, error) {
 	buf := make([]byte, 0, TaskLength)
 	row := dbconn.QueryRow("select data from tasks where id = $1", tid)
 	err := row.Scan(&buf)
-	if err != nil {
-		return nil, err
-	}
-	tk, err := gob2task(buf)
+	tk, err := gob2task(buf, err)
 	if err != nil {
 		return nil, err
 	}

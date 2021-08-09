@@ -36,11 +36,7 @@ func (p *Player) StGetTheory(tid TheoryID) Theory {
 	buf := make([]byte, 0, TaskLength)
 	row := dbconn.QueryRow(`select data from theory where id = $1`, tid)
 	err := row.Scan(&buf)
-	if err != nil {
-		report(err)
-		return Theory{ID: -1}
-	}
-	th, err := gob2theory(buf)
+	th, err := gob2theory(buf, err)
 	if err != nil {
 		report(err)
 		return Theory{ID: -1}
@@ -121,7 +117,7 @@ func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
 		query := `update appointments 
 			set answer = $1
 			where sid = $2 and taskid = $3`
-		tk, err := task2gob(&task)
+		tk, err := task2gob(&task, nil)
 		if err != nil {
 			report(err)
 			return -1
@@ -149,32 +145,28 @@ func (p *Player) StCommentary(tid TaskID) String {
 }
 
 func (p *Player) StDigest() MapTheoryIDTheory {
-	err := func(err error) bool {
-		if err != nil {
-			report(err)
-			return true
-		}
-		return false
-	}
 	m := make(MapTheoryIDTheory)
 	q := `select id, data from theory *`
-	rs, e := dbconn.Query(q)
-	if err(e) {
+	rs, err := dbconn.Query(q)
+	if err != nil {
+		report(err)
 		return nil
 	}
 	var thid TheoryID
 	var gob []byte
 	for rs.Next() {
-		e = rs.Scan(&thid, &gob)
-		if err(e) {
-			return nil
-		}
-		th, e := gob2theory(gob)
-		if err(e) {
+		err = rs.Scan(&thid, &gob)
+		th, err := gob2theory(gob, err)
+		if err != nil {
+			report(err)
 			return nil
 		}
 		th.ID = thid
 		m[thid] = *th
 	}
 	return m
+}
+
+func (p *Player) StDone() MapTheoryIDTaskCard {
+	return p.GetDone(p.StudentID)
 }
