@@ -111,7 +111,7 @@ func (p *Player) StSendAnswers(tid TaskID, ans Task) Int {
 	row := dbconn.QueryRow(q, tid, p.StudentID)
 	var n int32
 	var origtask []byte
-	err := row.Scan(&n)
+	err := row.Scan(&n, &origtask)
 	if err != nil {
 		report(err)
 		return -1
