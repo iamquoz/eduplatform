@@ -103,29 +103,39 @@ func (p *Player) StSent() MapTheoryIDTaskIDArray {
 	return a
 }
 
-func (p *Player) StSendAnswers(tid TaskID, task Task) Int {
-	sel := `select tries from appointments where taskid = $1 and sid = $2`
-	row := dbconn.QueryRow(sel, tid, p.StudentID)
+// StSendAnswers is used by a student to send their answers back.
+// Returns a count of remaining attempts for the task student sent, -1 on error and
+// -2 if sent task was answered correctrly.
+func (p *Player) StSendAnswers(tid TaskID, ans Task) Int {
+	q := `select data, tries from appointments inner join tasks on taskid = id and taskid = $1 and sid = 2`
+	row := dbconn.QueryRow(q, tid, p.StudentID)
 	var n int32
+	var origtask []byte
 	err := row.Scan(&n)
 	if err != nil {
 		report(err)
 		return -1
 	}
-	// student haven't sent answers yet
 	if n < MaxAttempts {
-		query := `update appointments 
-			set answer = $1
+		q := `update appointments 
+			set answer = $1, tries = $4
 			where sid = $2 and taskid = $3`
-		tk, err := task2gob(&task, nil)
+		tk, err := task2gob(&ans, nil)
+		orig, err := gob2task(origtask, err)
 		if err != nil {
 			report(err)
 			return -1
 		}
-		_, err = dbconn.Exec(query, tk, p.StudentID, tid)
+		if orig.IsOpen {
+			n = MaxAttempts // open questions have only one attempt
+		}
+		_, err = dbconn.Exec(q, tk, p.StudentID, tid, n+1)
 		if err != nil {
 			report(err)
 			return -1
+		}
+		if orig.Correct == ans.Correct {
+			return -2
 		}
 		return Int(MaxAttempts - n)
 	}
