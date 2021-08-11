@@ -107,7 +107,7 @@ func (p *Player) StSent() MapTheoryIDTaskIDArray {
 // Returns a count of remaining attempts for the task student sent, -1 on error and
 // -2 if sent task was answered correctrly.
 func (p *Player) StSendAnswers(tid TaskID, ans Task) Int {
-	q := `select data, tries from appointments inner join tasks on taskid = id and taskid = $1 and sid = 2`
+	q := `select tries, data from appointments inner join tasks on taskid = id and taskid = $1 and sid = $2`
 	row := dbconn.QueryRow(q, tid, p.StudentID)
 	var n int32
 	var origtask []byte
