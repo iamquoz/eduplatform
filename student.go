@@ -158,25 +158,40 @@ func (p *Player) StDigest() MapTheoryIDTheory {
 	m := make(MapTheoryIDTheory)
 	q := `select id, data from theory *`
 	rs, err := dbconn.Query(q)
+	var thid TheoryID
+	var gob []byte
+	for rs.Next() && err == nil {
+		e := rs.Scan(&thid, &gob)
+		th, e := gob2theory(gob, e)
+		err = e
+		th.ID = thid
+		m[thid] = *th
+	}
 	if err != nil {
 		report(err)
 		return nil
-	}
-	var thid TheoryID
-	var gob []byte
-	for rs.Next() {
-		err = rs.Scan(&thid, &gob)
-		th, err := gob2theory(gob, err)
-		if err != nil {
-			report(err)
-			return nil
-		}
-		th.ID = thid
-		m[thid] = *th
 	}
 	return m
 }
 
 func (p *Player) StDone() MapTheoryIDTaskCard {
 	return p.GetDone(p.StudentID)
+}
+
+func (p *Player) StGetAnswers(tid TaskID) Task {
+	q := `select data, tries from appointments inner join tasks on taskid = id and taskid = $1 and sid = $2`
+	rs := dbconn.QueryRow(q)
+	var tk []byte
+	var trs int
+	err := rs.Scan(&tk, trs)
+	if err != nil {
+		report(err)
+		return Task{ID: -1}
+	}
+	if trs < MaxAttempts {
+		return Task{ID: -2}
+	}
+	task, err := gob2task(tk, nil)
+	task.ID = tid
+	return *task
 }
