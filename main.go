@@ -122,7 +122,7 @@ func init() {
 	var err error
 	// init db connection
 	dbconn, err = pgx.NewConnPool(pgx.ConnPoolConfig{
-		MaxConnections: 2500,
+		MaxConnections: 20,
 		ConnConfig:     getdbcred(),
 		AcquireTimeout: 120 * time.Second,
 	})
