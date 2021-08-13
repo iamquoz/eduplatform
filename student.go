@@ -83,22 +83,24 @@ func (p *Player) StRename(new String) {
 
 type sentstruct struct {
 	TaskID
-	TheoryID
+	Tries int
 }
+type MapTheoryIDSentstructArray map[TheoryID][]sentstruct
 
-func (p *Player) StSent() MapTheoryIDTaskIDArray {
-	query := `select taskid, theoryid from appointments where sid = $1 and complete = false`
+func (p *Player) StSent() MapTheoryIDSentstructArray {
+	query := `select taskid, theoryid, tries from appointments where sid = $1 and complete = false`
 	rows, err := dbconn.Query(query, p.StudentID)
-	a := make(MapTheoryIDTaskIDArray, 10)
+	a := make(MapTheoryIDSentstructArray, 10)
+	for rows.Next() && err == nil {
+		var taskid TaskID
+		var theoryid TheoryID
+		var tries int
+		rows.Scan(&taskid, &theoryid, &tries)
+		a[theoryid] = append(a[theoryid], sentstruct{taskid, tries})
+	}
 	if err != nil {
 		report(err)
 		return nil
-	}
-	for rows.Next() {
-		var taskid TaskID
-		var theoryid TheoryID
-		rows.Scan(&taskid, &theoryid)
-		a[theoryid] = append(a[theoryid], taskid)
 	}
 	return a
 }
@@ -107,39 +109,53 @@ func (p *Player) StSent() MapTheoryIDTaskIDArray {
 // Returns a count of remaining attempts for the task student sent, -1 on error and
 // -2 if sent task was answered correctrly.
 func (p *Player) StSendAnswers(tid TaskID, ans Task) Int {
-	q := `select tries, data from appointments inner join tasks on taskid = id and taskid = $1 and sid = $2`
+	q := `select tries, data, complete from appointments inner join tasks on taskid = id and taskid = $1 and sid = $2`
 	row := dbconn.QueryRow(q, tid, p.StudentID)
 	var n int32
 	var origtask []byte
-	err := row.Scan(&n, &origtask)
+	var compl bool
+	err := row.Scan(&n, &origtask, &compl)
 	if err != nil {
 		report(err)
 		return -1
 	}
-	if n < MaxAttempts {
-		q := `update appointments 
-			set answer = $1, tries = $4
-			where sid = $2 and taskid = $3`
-		tk, err := task2gob(&ans, nil)
-		orig, err := gob2task(origtask, err)
+	if n >= MaxAttempts || compl {
+		// shitcode
+		q = `update appointments 
+			set complete = true
+			where sid = $1 and taskid = $2`
+		_, err = dbconn.Exec(q, p.StudentID, tid, n+1)
 		if err != nil {
 			report(err)
-			return -1
 		}
-		if orig.IsOpen {
-			n = MaxAttempts // open questions have only one attempt
-		}
-		_, err = dbconn.Exec(q, tk, p.StudentID, tid, n+1)
-		if err != nil {
-			report(err)
-			return -1
-		}
-		if orig.Correct == ans.Correct {
-			return -2
-		}
-		return Int(MaxAttempts - n)
+		return 0
 	}
-	return 0
+	tk, err := task2gob(&ans, nil)
+	orig, err := gob2task(origtask, err)
+	if err != nil {
+		report(err)
+		return -1
+	}
+	if orig.IsOpen {
+		n = MaxAttempts // open questions have only one attempt
+	}
+	if orig.Correct == ans.Correct {
+		q := `update appointments 
+			set answer = $1, tries = $4, correct = true, complete = true
+			where sid = $2 and taskid = $3`
+		_, err = dbconn.Exec(q, tk, p.StudentID, tid, n+1)
+		return -2
+	}
+	q = `update appointments 
+		set answer = $1, tries = $4, correct = false, complete = false
+		where sid = $2 and taskid = $3`
+	_, err = dbconn.Exec(q, tk, p.StudentID, tid, n+1)
+	if err != nil {
+		report(err)
+		return -1
+	}
+	return Int(MaxAttempts - n)
+
 }
 
 func (p *Player) StCommentary(tid TaskID) String {
