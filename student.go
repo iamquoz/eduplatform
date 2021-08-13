@@ -180,7 +180,7 @@ func (p *Player) StDone() MapTheoryIDTaskCard {
 
 func (p *Player) StGetAnswers(tid TaskID) Task {
 	q := `select data, tries from appointments inner join tasks on taskid = id and taskid = $1 and sid = $2`
-	rs := dbconn.QueryRow(q)
+	rs := dbconn.QueryRow(q, tid, p.StudentID)
 	var tk []byte
 	var trs int
 	err := rs.Scan(&tk, trs)

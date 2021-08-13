@@ -12,7 +12,7 @@ import (
 // We got this value empirically. Untested though.
 const TaskLength = 6 * 1 << 10
 
-const MaxAttempts = 2
+const MaxAttempts = 3
 
 func report(v ...interface{}) {
 	var tracebuf = make([]byte, 20000)
