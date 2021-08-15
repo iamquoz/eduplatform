@@ -253,7 +253,9 @@ func (p *Player) TheoryNames() MapTheoryIDString {
 		th, e := gob2theory(data, e)
 		err = e
 
-		m[th.ID] = String(th.Header)
+		if err == nil {
+			m[th.ID] = String(th.Header)
+		}
 	}
 	if err != nil {
 		report(err)
