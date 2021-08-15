@@ -138,6 +138,11 @@ func (p *Player) StSendAnswers(tid TaskID, ans Task) Int {
 	}
 	if orig.IsOpen {
 		n = MaxAttempts // open questions have only one attempt
+		q := `update appointments 
+			set answer = $1, tries = $4, comment = null, complete = true	
+			where sid = $2 and taskid = $3`
+		_, err = dbconn.Exec(q, tk, p.StudentID, tid, n+1)
+		return -2
 	}
 	if orig.Correct == ans.Correct {
 		q := `update appointments 
