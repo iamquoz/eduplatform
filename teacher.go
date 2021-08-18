@@ -242,14 +242,14 @@ func (p *Player) LoadAnswer(sid StudentID, tid TaskID) *Task {
 
 func (p *Player) TheoryNames() MapTheoryIDString {
 	m := make(MapTheoryIDString)
-	q := `select (id, data) from theory`
+	q := `select id, data from theory`
 	rows, err := dbconn.Query(q)
 
 	for rows.Next() && err == nil {
 		var data []byte
 		var id int32
 
-		e := rows.Scan(&id, data)
+		e := rows.Scan(&id, &data)
 		th, e := gob2theory(data, e)
 		err = e
 
@@ -307,7 +307,7 @@ func (p *Player) GetDone(s StudentID) MapTheoryIDTaskCard {
 		on sid = $1 and taskid = tasks.id and complete = true`
 	rs, err := dbconn.Query(q, s)
 
-	for rs.Next() && err == nil {
+	for rs.Next() {
 		var data []byte
 		var answer []byte
 		var correct bool
@@ -318,7 +318,9 @@ func (p *Player) GetDone(s StudentID) MapTheoryIDTaskCard {
 		task, e := gob2task(data, e)
 		ans, e := gob2task(answer, e)
 		err = e
-		// if err != nil we add incorrect data here and ignore it all in the next block
+		if err != nil {
+			break
+		}
 		m[thid] = TaskCard{
 			Task:    *task,
 			Answer:  *ans,
@@ -331,4 +333,13 @@ func (p *Player) GetDone(s StudentID) MapTheoryIDTaskCard {
 		return nil
 	}
 	return m
+}
+
+func (p *Player) RenameStudent(id StudentID, new String) {
+	q := `update logins set names = $2 where id = $1`
+	_, err := dbconn.Exec(q, id, new)
+	if err != nil {
+		report(err)
+	}
+	return
 }

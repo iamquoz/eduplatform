@@ -73,11 +73,7 @@ func (p *Player) StRating() MapTaskIDInt {
 }
 
 func (p *Player) StRename(new String) {
-	q := `update logins set names = $2 where id = $1`
-	_, err := dbconn.Exec(q, p.StudentID, new)
-	if err != nil {
-		report(err)
-	}
+	p.RenameStudent(p.StudentID, new)
 	return
 }
 
@@ -123,7 +119,7 @@ func (p *Player) StSendAnswers(tid TaskID, ans Task) Int {
 		// shitcode
 		q = `update appointments 
 			set complete = true
-			where sid = $1 and taskid = $2`
+			where sid = $1 and taskid = $2 and tries = $3`
 		_, err = dbconn.Exec(q, p.StudentID, tid, n+1)
 		if err != nil {
 			report(err)
