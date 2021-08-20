@@ -155,7 +155,7 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray, thid TheoryID) {
 // GetStats returns stats for a student
 func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
 	// select sid, taskid, complete, correct, tries from appointments inner join tasks on tasks.id = appointments.taskid and sid = 2
-	query := `select (taskid, correct, tries) from appointments where sid = $1 and complete = true`
+	query := `select taskid, correct, tries from appointments where sid = $1 and complete = true`
 	rows, err := dbconn.Query(query, sid)
 	if err != nil {
 		report(err)
