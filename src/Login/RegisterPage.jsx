@@ -81,7 +81,7 @@ export default function RegisterPage() {
 				cookies.set('token', res.data, {path: '/', maxAge: 86400});
 				localStorage.setItem('currentUser', JSON.stringify({id: query, token: res.data, time: Date.now()}))
 				axios.post('/api/StRegister', {String: password})
-					.then(res => console.log(res))
+					.then(_ => history.push('/login'))
 					.catch(err => console.log(err))})
 			}
 

@@ -64,10 +64,10 @@ export default function Student() {
 			</Navbar>
 			<TabContent activeTab = {activeTab}>
 				<TabPane tabId = {1}>
-					<Stats student = {{"id": auth.currUserValue.id}} showSidebar = {showSidebar} windowWidth = {windowWidth} width = {width} setShowSidebar = {setShowSidebar}/>
+					<Stats student = {{ID: 0}} showSidebar = {showSidebar} windowWidth = {windowWidth} width = {width} setShowSidebar = {setShowSidebar}/>
 				</TabPane>
 				<TabPane tabId = {2}>
-					<Tasks student = {{"id": auth.currUserValue.id}} showSidebar = {showSidebar} windowWidth = {windowWidth} setShowSidebar = {setShowSidebar}/>
+					<Tasks showSidebar = {showSidebar} windowWidth = {windowWidth} setShowSidebar = {setShowSidebar}/>
 				</TabPane>
 			</TabContent>
 			<div className = "customFooter possiblyHidden">

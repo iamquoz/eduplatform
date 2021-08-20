@@ -6,10 +6,10 @@ export default function DisplayListTheories ({theories, currIDTheory, setCurrIDT
 	return (
 		<>
 		{theories.map(theory => (
-			<NavItem key = {theory.id} 
-			className = {classnames({chosenSidebar: currIDTheory === theory.id})}>	 
-				<NavLink onClick = {() => {setCurrIDTheory(theory.id); setShowSidebar(false)}}>
-						{theory.title}
+			<NavItem key = {theory.ID} 
+			className = {classnames({chosenSidebar: currIDTheory === theory.ID})}>	 
+				<NavLink onClick = {() => {setCurrIDTheory(theory.ID); setShowSidebar(false)}}>
+						{theory.Header}
 				</NavLink>
 			</NavItem>
 		))}

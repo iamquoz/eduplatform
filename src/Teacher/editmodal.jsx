@@ -39,17 +39,11 @@ export default function ModalAdd({isOpen, toggle, student, stList, setStList}) {
 	function request() {
 		if (stName === '')
 			return;
-		
-		// change for the real api
-		axios.put(`https://6099651699011f0017140ca7.mockapi.io/students/${student.id}`, 
-			{stName: stName, id: student.id})
-			.then(function (responce) {
-				console.log(responce);
-				toggle();
-			})
-			.catch(function (responce) {
-				console.log(responce)
-			})
+
+		// fix
+		axios.post('/api/RenameStudent', {StudentID: student.ID, String: stName})
+			.then(res => console.log(res))
+			.catch(err => console.log(err));
 	}
 
 	return (

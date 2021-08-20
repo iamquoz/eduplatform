@@ -19,29 +19,9 @@ export default function Stats({student, showSidebar, windowWidth, width, setShow
 	const [stat, setStat] = useState([]);
 	const [theories, setTheories] = useState([])
 	const [currIDTheory, setCurrIDTheory] = useState(0);
-	const [currIDstudent, setCurrIDstudent] = useState(0);
 
-	
-	const fetchTheories = async () => {
-		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/theories/')
-		return responce.data;
-	}
-
-
-	const fetchStats = async () => {
-		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/stats/' + student.id);
-		return responce.data.stat;
-	}
-	
-	useEffect(() => {
-		setCurrIDstudent(parseInt(student.ID));
-		if (currIDstudent !== parseInt(student.ID)){
-			const getAll = async () => {
-				const fetchedStats = await fetchStats();
-				const tempTheories = await fetchTheories();
-				setTheories(tempTheories);
-				
-				var displayedStat = {id: "0", Total: [0, 0, 0], Correct: [0, 0, 0], TotalAttempts: 0}
+	/*
+	var displayedStat = {id: "0", Total: [0, 0, 0], Correct: [0, 0, 0], TotalAttempts: 0}
 
 				for (let i = 0; i < fetchedStats.length; i++) {
 					displayedStat.TotalAttempts += fetchedStats[i].TotalAttempts;
@@ -54,8 +34,16 @@ export default function Stats({student, showSidebar, windowWidth, width, setShow
 
 				fetchedStats.unshift(displayedStat);
 				setStat(fetchedStats);
-			}
-			getAll();
+	*/
+	
+	useEffect(() => {
+		if (student.ID === 0) {
+		 	axios.post('/api/StSelfStats', {})
+		 	  	.then(res => console.log(res))
+		 	  	.catch(err => console.log(err));
+			axios.post('/api/StDone', {})
+		 	 	.then(res => console.log(res))
+		 	 	.catch(err => console.log(err));
 		}
 	}, [student])
 

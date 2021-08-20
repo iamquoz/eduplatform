@@ -1,3 +1,5 @@
+// up ahead is possibly the worse react/js code you've ever seen
+// im sorry
 import { useEffect, useState } from 'react'
 import axios from 'axios' 
 import { 
@@ -13,67 +15,77 @@ import TheoryList from '../shared/theorylist'
 import ReactMarkdown from 'react-markdown'
 
 
-export default function Tasks({student, showSidebar, windowWidth, setShowSidebar}) {
+export default function Tasks({showSidebar, windowWidth, setShowSidebar}) {
 
 	const [theories, setTheories] = useState([])
 	const [currIDTheory, setCurrIDTheory] = useState(0);
 	const [arrOfTasks, setArrOfTasks] = useState([]);
 
-	const [currentTaskID, setCurrentTaskID] = useState(0);
-	const [countWrong, setCountWrong] = useState(0);
+	const [currentTaskID, setCurrentTaskID] = useState([]);
 
 	const [answer, setAnswer] = useState('');
 
 	const onSubmit = (e) => {
 		e.preventDefault();
 
-		if (answer !== arrOfTasks[currentTaskID]) {
-			setCountWrong(countWrong + 1);
-		}
+		var task = arrOfTasks.filter(elem => elem.TheoryID === currIDTheory)[currentTaskID.find(a => a.TheoryID === currIDTheory).index].Task;
 
-		if (countWrong === 3) {
-			setCurrentTaskID(currentTaskID + 1);
-			setCountWrong(0);
-		}
+		task.Correct = answer;
 
-		alert(answer);
-	}
-	
-	var arrOfTaskIDs = [1, 3, 5, 6, 10, 13, 15, 20];
-
-	const fetchIndivTask = async (id) => {
-		const responce = await axios.get(`https://6099651699011f0017140ca7.mockapi.io/tasks/${id}`)
-		return responce.data;
-	}
-
-	const fetchTheories = async () => {
-		const responce = await axios.get('https://6099651699011f0017140ca7.mockapi.io/theories/')
-		return responce.data;
-	}
-
-	function sleep(ms) {
-		return new Promise(resolve => setTimeout(resolve, ms));
+		axios.post('/api/StSendAnswers', {TaskID: task.ID, Task: task})
+			.then(res => {
+				setCurrentTaskID(currentTaskID.map(element => {
+					return element.TheoryID === currIDTheory ? {...element, attempts: Object.values({...element.attempts, [element.index]: res.data.Int})} : element
+				}))
+				if (res.data.Int === 0) {
+					if (task.IsOpen === false) {
+						axios.post('/api/StGetAnswers', {TaskID: task.ID})
+							.then(res => {
+								setCurrentTaskID(currentTaskID.map(element => {
+									return element.TheoryID === currIDTheory ? {...element, correct: res.data.Task.Answer} : element
+								}))
+							})
+					}
+				}
+				else if (res.data.Int === -2) {
+					
+				}
+			})
+			.catch(err => console.log(err));
 	}
 
 	useEffect(() => {
-		console.log("eff");
-		const getAll = async () => {
-			const tempTheories = await fetchTheories();
-			setTheories(tempTheories);
+		axios.post('/api/StSent', {})
+			.then(res => {
+				var arr = [];
+				for(const prop in res.data.MapTheoryIDSentstructArray) {
+					arr.push({TheoryID: parseInt(prop), TaskIDs: res.data.MapTheoryIDSentstructArray[prop].map(e => e.TaskID)});
+					setCurrentTaskID(currentTaskID => [...currentTaskID, {TheoryID: parseInt(prop), index: 0, correct: '', attempts: res.data.MapTheoryIDSentstructArray[prop].map(e => 3 - e.Tries)}]);
+				}
 
-			for (let i = 0; i < arrOfTaskIDs.length; i++) {
-				var task = await fetchIndivTask(arrOfTaskIDs[i]);
-				setArrOfTasks(arrOfTasks => [...arrOfTasks, task]);
-				await sleep(2000);
-			}
-		}
-			getAll();
+				arr.forEach(element => {
+					axios.post('/api/StGetTheory', {TheoryID: element.TheoryID})
+						.then(res => setTheories(theories => [...theories, res.data.Theory]))
+						.catch(err => console.log(err));
+
+					element.TaskIDs.forEach(elem => {
+						axios.post('/api/StGetTask', {TaskID: elem})
+							.then(res => {
+								res.data.Task.ID = elem;
+								setArrOfTasks(arrOfTasks => [...arrOfTasks, {TheoryID: element.TheoryID, Task: res.data.Task}]);
+							})
+							.catch(err => console.log(err));
+					})
+
+				});
+			})
+			.catch(err => console.log(err));
 	}, [])
 
 	return (
 		<Row style = {{marginRight: "0px"}}>
 			{(showSidebar || windowWidth > 768) && 
-				<Col className = "sidebar">
+			<Col className = "sidebar">
 				<Nav vertical>
 					<TheoryList theories = {theories} currIDTheory = {currIDTheory} setCurrIDTheory = {setCurrIDTheory} setShowSidebar = {setShowSidebar}/>
 				</Nav>
@@ -82,26 +94,38 @@ export default function Tasks({student, showSidebar, windowWidth, setShowSidebar
 			<Col>
 				{ currIDTheory !== 0 &&
 				<div style = {{paddingTop: "20px", paddingLeft: "15px"}}>
-					<ReactMarkdown  parserOptions={{ commonmark: true }} children = {theories.find(theory => theory.id === currIDTheory).text} />
+					<ReactMarkdown  parserOptions={{ commonmark: true }} children = {theories.find(theory => theory.ID === currIDTheory).Body} />
 					<hr />
 					<Form onSubmit = {onSubmit}>
 						<FormGroup>
-							<Label>{arrOfTasks[currentTaskID].text}</Label>
+							<Label>{arrOfTasks.filter(elem => elem.TheoryID === currIDTheory)[currentTaskID.find(a => a.TheoryID === currIDTheory).index].Task.Question}</Label>
 							<hr />
 							<Input onChange = {(e) => setAnswer(e.target.value)}
-							placeholder = "Введите ответ"
-							type = "textarea" key = {currentTaskID}
-							style = {{height: "200px"}}>
+							 placeholder = "Введите ответ"
+							 type = "textarea" key = {currentTaskID}
+							 style = {{height: "200px"}}>
 							</Input>
 						</FormGroup>
 						<Row>
 							<Col style = {{alignSelf: "center"}}>
-								<span> Количество оставшихся попыток: {3 - countWrong} </span>
-								<br />
-								{countWrong === 3 && <span><b>Правильный ответ:</b> {arrOfTasks[currentTaskID].answer}</span>}
+								{
+								!arrOfTasks.filter(elem => elem.TheoryID === currIDTheory)[currentTaskID.find(a => a.TheoryID === currIDTheory).index].Task.IsOpen 
+								? <>
+									{
+										currentTaskID.find(a => a.TheoryID === currIDTheory).attempts[currentTaskID.find(a => a.TheoryID === currIDTheory).index] === -2 ?
+										  <span style = {{color: 'green'}}>Правильный ответ!</span>
+										: <span> Количество оставшихся попыток: {currentTaskID.find(a => a.TheoryID === currIDTheory).attempts[currentTaskID.find(a => a.TheoryID === currIDTheory).index]} </span>
+									}
+									<br />
+									{currentTaskID.find(a => a.TheoryID === currIDTheory).attempts[currentTaskID.find(a => a.TheoryID === currIDTheory).index] === 0 && <span><b>Правильный ответ:</b> {currentTaskID.find(a => a.TheoryID === currIDTheory).correct}</span>}
+								  </>
+								: <span>Открытое задание: одна попытка</span>
+								}
 							</Col>
 							<Col>
-								<Button type = "submit" style = {{float: "right", padding: "10px 20px"}}>{countWrong === 3 ? "Следующий вопрос" : "Ответить"}</Button>
+								<Button type = "submit" style = {{float: "right", padding: "10px 20px"}}>
+									{currentTaskID.find(a => a.TheoryID === currIDTheory).attempts[currentTaskID.find(a => a.TheoryID === currIDTheory).index] === 0 || currentTaskID.find(a => a.TheoryID === currIDTheory).attempts[currentTaskID.find(a => a.TheoryID === currIDTheory).index] === -2 || arrOfTasks.filter(elem => elem.TheoryID === currIDTheory)[currentTaskID.find(a => a.TheoryID === currIDTheory).index].Task.IsOpen  ? "Следующий вопрос" : "Ответить"}
+								</Button>
 							</Col>
 						</Row>
 					</Form>
