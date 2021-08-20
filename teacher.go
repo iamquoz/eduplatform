@@ -175,7 +175,7 @@ func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
 			rows.Scan(&tid, &r, &tries)
 			var compx uint
 			{
-				query := `select data from tasks where taskid = $1`
+				query := `select data from tasks where id = $1`
 				sub := dbconn.QueryRow(query, tid)
 				buf := make([]byte, 0, 255)
 				err = sub.Scan(buf)
