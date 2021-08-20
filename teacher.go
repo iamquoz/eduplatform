@@ -178,7 +178,7 @@ func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
 				query := `select data from tasks where id = $1`
 				sub := dbconn.QueryRow(query, tid)
 				buf := make([]byte, 0, 255)
-				err = sub.Scan(buf)
+				err = sub.Scan(&buf)
 				tk, err := gob2task(buf, err)
 				if err != nil {
 					report(err)
