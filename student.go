@@ -107,9 +107,11 @@ func (p *Player) StSent() MapTheoryIDSentstructArray {
 func (p *Player) StSendAnswers(tid TaskID, ans Task) Int {
 	q := `select tries, data, complete from appointments inner join tasks on taskid = id and taskid = $1 and sid = $2`
 	row := dbconn.QueryRow(q, tid, p.StudentID)
-	var n int32
-	var origtask []byte
-	var compl bool
+	var (
+		n        int32
+		origtask []byte
+		compl    bool
+	)
 	err := row.Scan(&n, &origtask, &compl)
 	if err != nil {
 		report(err)
@@ -181,6 +183,9 @@ func (p *Player) StDigest() MapTheoryIDTheory {
 		e := rs.Scan(&thid, &gob)
 		th, e := gob2theory(gob, e)
 		err = e
+		if err != nil {
+			break
+		}
 		th.ID = thid
 		m[thid] = *th
 	}
@@ -198,8 +203,10 @@ func (p *Player) StDone() MapTheoryIDTaskCard {
 func (p *Player) StGetAnswers(tid TaskID) Task {
 	q := `select data, tries from appointments inner join tasks on taskid = id and taskid = $1 and sid = $2`
 	rs := dbconn.QueryRow(q, tid, p.StudentID)
-	var tk []byte
-	var trs int
+	var (
+		tk  []byte
+		trs int
+	)
 	err := rs.Scan(&tk, trs)
 	if err != nil {
 		report(err)

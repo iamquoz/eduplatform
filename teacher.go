@@ -2,7 +2,7 @@ package main
 
 // Flop is a test method, it returns a string to check that server is working correctly
 func (p *Player) Flop() String {
-	return "i am wanted for war crimes in uganda"
+	return "ń"
 }
 
 // Echo is an another test method, it adds 1 to the input and returns it
@@ -48,8 +48,10 @@ func (p *Player) GetStudents() MapStudentIDString {
 	}
 	m := make(MapStudentIDString)
 	for rows.Next() {
-		var uid StudentID
-		var names string
+		var (
+			uid   StudentID
+			names string
+		)
 		rows.Scan(&uid, &names)
 		m[uid] = names
 	}
@@ -154,48 +156,47 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray, thid TheoryID) {
 
 // GetStats returns stats for a student
 func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
-	// select sid, taskid, complete, correct, tries from appointments inner join tasks on tasks.id = appointments.taskid and sid = 2
-	query := `select taskid, correct, tries from appointments where sid = $1 and complete = true`
+	query := `select appointments.theoryid, data, taskid, correct, tries 
+		from tasks join appointments 
+		on id = taskid and sid = 2 
+		and correct is not null 
+		and complete = true`
 	rows, err := dbconn.Query(query, sid)
+	mm := make(MapTheoryIDStats)
+	for rows.Next() && err != nil {
+		var (
+			totaltries uint = 0
+			totals     [DifficultyLevels]uint
+			corrects   [DifficultyLevels]uint
+
+			thid    TheoryID
+			ans     []byte
+			tid     TaskID
+			correct bool
+			tries   int
+
+			tk *Task
+		)
+		rows.Scan(&thid, &ans, &tid, &correct, &tries)
+		tk, err = gob2task(ans, nil)
+		if err != nil {
+			break
+		}
+		if correct {
+			d := tk.Difficulty - 1
+			corrects[d]++
+			totals[d]++
+			totaltries += uint(tries)
+		}
+		mm[thid] = Stats{
+			Total:         totals[:],
+			Correct:       corrects[:],
+			TotalAttempts: totaltries,
+		}
+	}
 	if err != nil {
 		report(err)
 		return nil
-	}
-	mm := make(MapTheoryIDStats)
-	for id := range p.TheoryNames() {
-		// if there are going to be more levels fix it
-		total := make([]uint, 3)
-		correct := make([]uint, 3)
-		var totaltries uint = 0
-		for rows.Next() {
-			// WILL be ineffective on large scale
-			var r bool
-			var tid int32
-			var tries int32
-			rows.Scan(&tid, &r, &tries)
-			var compx uint
-			{
-				query := `select data from tasks where id = $1`
-				sub := dbconn.QueryRow(query, tid)
-				buf := make([]byte, 0, 255)
-				err = sub.Scan(&buf)
-				tk, err := gob2task(buf, err)
-				if err != nil {
-					report(err)
-					return nil
-				}
-				compx = tk.Difficulty
-			}
-			// see util.go:65
-			{
-				if r {
-					correct[compx-1]++
-				}
-				total[compx-1]++
-				totaltries += uint(tries)
-			}
-		}
-		mm[id] = Stats{Total: total, Correct: correct, TotalAttempts: totaltries}
 	}
 	return mm
 }
@@ -308,11 +309,13 @@ func (p *Player) GetDone(s StudentID) MapTheoryIDTaskCard {
 	rs, err := dbconn.Query(q, s)
 
 	for rs.Next() {
-		var data []byte
-		var answer []byte
-		var correct bool
-		var comment string
-		var thid TheoryID
+		var (
+			data    []byte
+			answer  []byte
+			correct bool
+			comment string
+			thid    TheoryID
+		)
 
 		e := rs.Scan(&data, &answer, &correct, &comment, &thid)
 		task, e := gob2task(data, e)

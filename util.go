@@ -13,6 +13,7 @@ import (
 const TaskLength = 6 * 1 << 10
 
 const MaxAttempts = 3
+const DifficultyLevels = 3
 
 func report(v ...interface{}) {
 	var tracebuf = make([]byte, 20000)
