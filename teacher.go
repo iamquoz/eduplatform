@@ -158,7 +158,7 @@ func (p *Player) Appoint(sida StudentIDArray, tida TaskIDArray, thid TheoryID) {
 func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
 	query := `select appointments.theoryid, data, taskid, correct, tries 
 		from tasks join appointments 
-		on id = taskid and sid = 2 
+		on id = taskid and sid = $1 
 		and correct is not null 
 		and complete = true`
 	rows, err := dbconn.Query(query, sid)
