@@ -163,7 +163,7 @@ func (p *Player) GetStats(sid StudentID) MapTheoryIDStats {
 		and complete = true`
 	rows, err := dbconn.Query(query, sid)
 	mm := make(MapTheoryIDStats)
-	for rows.Next() && err != nil {
+	for rows.Next() && err == nil {
 		var (
 			totaltries uint = 0
 			totals     [DifficultyLevels]uint
