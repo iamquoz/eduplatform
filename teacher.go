@@ -305,7 +305,7 @@ func (p *Player) GetDone(s StudentID) MapTheoryIDTaskCard {
 	m := make(MapTheoryIDTaskCard)
 	q := `select data, answer, correct, comment, appointments.theoryid 
 		from appointments inner join tasks 
-		on sid = $1 and taskid = tasks.id and complete = true`
+		on sid = $1 and taskid = tasks.id and complete = true and correct is not null`
 	rs, err := dbconn.Query(q, s)
 
 	for rs.Next() {
