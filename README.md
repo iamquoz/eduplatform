@@ -5,7 +5,7 @@ Runner up of the ASTU LXXI International student conference
 ## Stack
 React, Reactstrap, React-Chartjs-2, Axios, Beautiful-React-Hooks - Frontend libraries
 
-Golang - Backend
+Golang, Express - Backend
 
 PostgreSQL - Database mgmt
 
@@ -22,6 +22,7 @@ Branch name | Description
 prod | Currently deployed on Heroku build
 front | React frontend
 back | Golang backend
+express | Express rewrite of backend
 
 ## Run locally
 Clone the repository and start a server in the /build directory
@@ -42,3 +43,10 @@ Clone the repository and start a server in the /build directory
 [@seljmov](https://github.com/seljmov) - Coordination
 
 
+## Endpoints and routers
+
+student: allows students and the teacher to access the routes
+
+teacher: routes are only allowed for the teacher
+
+app: endpoints without authorization

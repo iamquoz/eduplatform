@@ -1,28 +1,28 @@
 interface user {
 	id: number;
-    name: string;
+    names: string;
 	role: number;
     hash: string;
 }
 
 interface task {
-	ID: number;
-	IsOpen: boolean;
-	Difficulty: number;
-	Question: string;
-	Correct: string;
+	taskid: number;
+	isOpen: boolean;
+	diff: number;
+	question: string;
+	correct: string;
 }
 
 interface theory {
-	ID: number;
-	Header: string;
-	Body: string;
+	theoryid: number;
+	header: string;
+	body: string;
 }
 
 interface stat {
-	Total: Array<number>;
-	Correct: Array<number>;
-	TotalAttempts: number;
+	total: Array<number>;
+	correct: Array<number>;
+	totalAttempts: number;
 }
 
 export {user, task, theory, stat}
