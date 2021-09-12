@@ -1,7 +1,7 @@
 import express, {Request, Response } from "express";
 import cookieParser from "cookie-parser";
 
-import {login, register, role } from "./auth"
+import {login, register } from "./auth"
 import student from "./student";
 import teacher from "./teacher";
 
@@ -21,7 +21,6 @@ app.use(cookieParser(secret));
 // /login
 // auth the user
 app.post('/auth/login', (req: Request, res: Response) => {
-	console.log(req.body);
 	login(req, res);
 })
 

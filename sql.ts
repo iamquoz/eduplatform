@@ -1,5 +1,5 @@
 import { Pool, QueryResult } from "pg";
-import { user, task, theory } from "./interfaces";
+import { user, task, theory, assignment } from "./interfaces";
 
 require('dotenv').config();
 var parse = require('pg-connection-string').parse;
@@ -90,7 +90,36 @@ export {gettask, alltasks, inserttask, updatetask, deletetask, gettheory, allthe
 // student interaction methods 
 
 function students() : Promise<QueryResult<user>> {
-	return pool.query('SELECT id, names FROM logins WHERE role = 1')
+	return pool.query('SELECT id, names FROM logins WHERE role = 1');
 }
 
-export {students}
+// there has to be a better way, i just don't know of it
+function giveassignment(theoryid: number, taskids: Array<number>, studentids: Array<number>) : Promise<QueryResult<assignment>> {
+	return pool.query(`INSERT INTO assignments(sid, theoryid, taskid) VALUES ` + studentids.map(elem => taskids.map(e => "(" + elem + ", " + theoryid + ", " + e + ")")) + "RETURNING *");
+}
+
+function takeassignment(studentid: number) : Promise<QueryResult<assignment>> {
+	return pool.query('SELECT * FROM assignments WHERE complete = false AND sid = $1', [studentid]);
+}
+
+function answeropen(studentid: number, taskid: number, theoryid: number, answer: string) : Promise<QueryResult<assignment>> {
+	return pool.query('UPDATE assignments WHERE sid = $1 AND taskid = $2 AND theoryid = $3 SET usrAnswer = $4, complete = true RETURNING *', [studentid, taskid, theoryid, answer]);
+}
+
+function checktries(studentid: number, taskid: number, theoryid: number) : Promise<QueryResult<assignment>> {
+	return pool.query('SELECT tries FROM appointments WHERE sid = $1 AND taskid = $2 AND theoryid = $3 RETURNING *', [studentid, taskid, theoryid]);
+}
+
+function closedcorrect(studentid: number, taskid: number, theoryid: number, answer: string) : Promise<QueryResult<assignment>> {
+	return pool.query('UPDATE assignments WHERE sid = $1 AND taskid = $2 AND theoryid = $3 SET usrAnswer = $4, complete = true, correct = true, tries = tries + 1 RETURNING *', [studentid, taskid, theoryid, answer]);
+}
+
+function closedincorrect(studentid: number, taskid: number, theoryid: number, answer: string) : Promise<QueryResult<assignment>> {
+	return pool.query('UPDATE assignments WHERE sid = $1 AND taskid = $2 AND theoryid = $3 SET usrAnswer = $4, complete = true, tries = tries + 1 RETURNING *', [studentid, taskid, theoryid, answer]);
+}
+
+function stats(studentid: number) {
+	return pool.query('SELECT * FROM assignments WHERE sid = $1 AND complete = true', [studentid]);
+}
+
+export {students, giveassignment, takeassignment, answeropen, checktries, closedcorrect, closedincorrect}

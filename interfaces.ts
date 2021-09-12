@@ -25,4 +25,15 @@ interface stat {
 	totalAttempts: number;
 }
 
-export {user, task, theory, stat}
+interface assignment {
+	sid: number;
+	taskid: number;
+	complete: boolean;
+	correct: boolean;
+	comment: string;
+	theoryid: number;
+	tries: number;
+	usrAnswer: string;
+	id: number;
+}
+export {user, task, theory, stat, assignment}

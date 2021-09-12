@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import bcrypt from 'bcrypt';
 
-import { adduser, alltasks, changename, deletetask, deletetheory, inserttask, inserttheory, prune, pruneappt, students, updatetask, updatetheory } from "./sql";
+import { adduser, alltasks, changename, deletetask, deletetheory, giveassignment, inserttask, inserttheory, prune, pruneappt, students, updatetask, updatetheory } from "./sql";
 import { role } from "./auth";
 
 const teacher = express.Router();
@@ -10,12 +10,17 @@ teacher.use((req: Request, res: Response, next: express.NextFunction) => {
 	console.log("teacher");
 	role(req, res)
 		.then(result => {
-			if (result.rows[0].role === 0)
-				next();
-			else 
-				res.status(401).send('Unauthorized')
+			if (result.rows.length === 0) {
+				if (result.rows[0].role === 0)
+					next();
+				else 
+					res.status(401).send('Unauthorized');
+			}
+			else {
+				res.status(401).send('Unauthorized');
+			}
 		})
-		.catch(_ => res.status(500).send('Server error'));
+		.catch(err => res.status(500).send(console.log(err)));
 })
 
 
@@ -148,6 +153,21 @@ teacher.delete('/theories/:id', (req: Request, res: Response) => {
 	if (id)
 		deletetask(id)
 			.then(result => res.status(200).json( {theoryid: result.rows[0].taskid}))
+			.catch(err => res.status(500).send(console.log(err)));
+	else 
+		res.status(400).send('Bad request');
+})
+
+// assignments
+
+teacher.post('/assignment', (req: Request, res: Response) => {
+	const theoryid: number = parseInt(req.body.theoryid);
+	const taskids: Array<number> = req.body.taskids.map((elem: string) => parseInt(elem));
+	const studentids: Array<number> = req.body.studentids.map((elem: string) => parseInt(elem));
+
+	if (theoryid && Array.isArray(taskids) && Array.isArray(studentids))
+		giveassignment(theoryid, taskids, studentids)
+			.then(result => res.status(200).json({ test: result.rows}))
 			.catch(err => res.status(500).send(console.log(err)));
 	else 
 		res.status(400).send('Bad request');

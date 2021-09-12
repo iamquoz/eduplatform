@@ -58,8 +58,7 @@ function update(req: Request, res: Response) {
 
 function role(req: Request, res: Response) : Promise<QueryResult<user>> {
 	const username: number = req.signedCookies.user;
-
-	return usercred(username)
+	return usercred(username);
 }
 
 export {login, register, update, role};
