@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 import { adduser, alltasks, changename, deletetask, deletetheory, giveassignment, inserttask, inserttheory, prune, pruneappt, students, updatetask, updatetheory } from "./sql";
 import { role } from "./auth";
+import { doneWrapper, statsWrapper } from "./util";
 
 const teacher = express.Router();
 
@@ -70,6 +71,26 @@ teacher.get('/students', (req: Request, res: Response) => {
 			studentID: elem.id,
 			studentName: elem.names
 		}))))
+})
+
+teacher.get('/students/:id', (req: Request, res: Response) => {
+	const id: number = parseInt(req.params.id);
+	if (id)
+		statsWrapper(id)
+			.then(result => res.status(200).json(result))
+			.catch(err => console.log(err));
+	else
+		res.status(400).send('Bad request');
+})
+
+teacher.get('/students/:id/done', (req: Request, res: Response) => {
+	const id: number = parseInt(req.params.id);
+	if (id)
+		doneWrapper(id)
+			.then(result => res.status(200).json(result))
+			.catch(err => console.log(err));
+	else
+		res.status(400).send('Bad request');
 })
 
 // theories

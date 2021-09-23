@@ -20,9 +20,45 @@ interface theory {
 }
 
 interface stat {
+	theoryid: number;
 	total: Array<number>;
 	correct: Array<number>;
 	totalAttempts: number;
+}
+
+interface donetype {
+	theoryid: number;
+	taskid: Array<number>;
+	correct: Array<boolean>;
+	tries: Array<number>;
+	comment: Array<string>;
+	usrAnswer: Array<string>;
+	question: Array<string>;
+	diff: Array<number>;
+	answer: Array<string>;
+	isOpen: Array<boolean>;
+}
+
+interface statReq {
+	theoryid: number;
+	taskid: number;
+	correct: boolean;
+	tries: number;
+	diff: number;
+	isOpen: boolean;
+}
+
+interface doneReq {
+	theoryid: number;
+	taskid: number;
+	correct: boolean;
+	tries: number;
+	comment: string;
+	usrAnswer: string;
+	question: string;
+	diff: number;
+	answer: string;
+	isOpen: boolean;
 }
 
 interface assignment {
@@ -36,4 +72,4 @@ interface assignment {
 	usrAnswer: string;
 	id: number;
 }
-export {user, task, theory, stat, assignment}
+export {user, task, theory, stat, assignment, statReq, doneReq, donetype}

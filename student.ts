@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { gettask, gettheory, alltheories, takeassignment, answeropen, checktries, closedcorrect, closedincorrect } from './sql';
 import { role } from "./auth"
 import { task } from "./interfaces";
+import { doneWrapper, statsWrapper } from "./util";
 
 const student = express.Router();
 
@@ -58,7 +59,7 @@ student.get('/assignment', (req: Request, res: Response) => {
 	const id: number = parseInt(req.signedCookies.name);
 
 	takeassignment(id)
-		.then(result => res.status(200).send(result.rows))
+		.then(result => res.status(200).json(result.rows))
 		.catch(err => res.status(500).send(console.log(err)));
 })
 
@@ -70,7 +71,7 @@ student.post('/assignment', (req: Request, res: Response) => {
 	if (task && theoryid) {
 		if (task.isOpen)
 			answeropen(id, task.taskid, theoryid, task.correct)
-				.then(result => res.status(200).json({ message: 'Success' }))
+				.then(result => res.status(200).json({ tries: -2 }))
 				.catch(err => res.status(500).send(console.log(err)));
 		else 
 			checktries(id, task.taskid, theoryid)
@@ -90,6 +91,28 @@ student.post('/assignment', (req: Request, res: Response) => {
 	else 
 		res.status(400).send('Bad request');
 	
+})
+
+student.get('/self', (req: Request, res: Response) => {
+	const id: number = parseInt(req.signedCookies.name);
+
+	if (id)
+		statsWrapper(id)
+			.then(result => res.status(200).json(result))
+			.catch(err => console.log(err));
+	else
+		res.status(400).send('Bad request');
+})
+
+student.get('/self/done', (req: Request, res: Response) => {
+	const id: number = parseInt(req.signedCookies.name);
+
+	if (id)
+		doneWrapper(id)
+			.then(result => res.status(200).json(result))
+			.catch(err => console.log(err));
+	else
+		res.status(400).send('Bad request');
 })
 
 export default student;
