@@ -9,7 +9,6 @@ import {
 	Input, 
 	Alert
 } from 'reactstrap';
-import Cookies from 'universal-cookie'
 
 import { auth } from '../shared/auth.jsx'
 
@@ -17,12 +16,14 @@ export default function LoginPage() {
 
 	
 	const history = useHistory();
-	
-	
-	if (auth.currUserValue)
-		history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
-	
-	
+
+	if (localStorage.getItem('account')) {
+		if (localStorage.getItem('account') === '1')
+			history.push('/teacher')
+		else if (localStorage.getItem('account'))
+			history.push('/student')
+	}
+
 	const [login, setlogin] = useState('');
 	const [password, setpassword] = useState('');
 	const [status, setStatus] = useState('');
@@ -52,18 +53,16 @@ export default function LoginPage() {
 			return;
 		}
 
-		if (password.length === 0) {
-			alert("Введите пароль")
-			document.getElementById("submitbtn").classList.remove("submitbtn");
-			return
-		}
+		// if (password.length === 0) {
+		// 	alert("Введите пароль")
+		// 	document.getElementById("submitbtn").classList.remove("submitbtn");
+		// 	return
+		// }
 
 		auth.login(login, password)
-			.then(res => {
-				const cookies = new Cookies();
-				cookies.set('token', res.data, {path: '/', maxAge: 86400});
-				localStorage.setItem('currentUser', JSON.stringify({id: login, token: res.data, time: Date.now()}))
-				window.location.reload();
+			.then(_ => {
+				localStorage.setItem('account', login);
+				window.location.reload()
 			})
 			.catch(err => {
 				console.log(err); 

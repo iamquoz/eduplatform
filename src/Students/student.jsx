@@ -23,10 +23,6 @@ export default function Student() {
 	
 		
 	const history = useHistory();
-	
-	if (auth.currUserValue === '1')
-		history.push('/teacher')
-	
 
 	const [showSidebar, setShowSidebar] = useState(true);
 	const [windowWidth, setWindowWidth] = useState(window.innerWidth);

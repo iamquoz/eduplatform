@@ -46,22 +46,16 @@ export default function Base() {
 	}
 
 	useEffect(() => {
-		axios.post('/api/StDigest', {})
+		axios.get('/st/theories')
 			.then(res => {
-				var arr = [];
-				for(const prop in res.data.MapTheoryIDTheory)
-					arr.push(res.data.MapTheoryIDTheory[prop]);
-				
-				setTheories(arr);
+				console.log(res);
+				setTheories(res.data);
 			})
 			.catch(err => console.log(err));
-		axios.post('/api/EveryTask', {})
+		axios.get('/api/tasks')
 			.then(res => {
-				var arr = [];
-				for(const prop in res.data.MapTaskIDTask)
-					arr.push(res.data.MapTaskIDTask[prop]);
-				
-				setTasks(arr);
+				console.log(res);
+				setTasks(res.data);
 			})
 			.catch(err => console.log(err));
 	}, [])
@@ -70,14 +64,14 @@ export default function Base() {
 		return (
 			<>
 			{tasks.map(task => (
-				<NavItem key = {task.ID} 
-				className = {classnames({chosenSidebar: currIDTask === task.ID})}>	 
-					<NavLink onClick = {() => {setCurrIDTask(task.ID); setShowSidebar(false)}} id = {"tooltipT" + task.ID}>
-							{task.Question.length > 50 ? 
-							`${task.Question.substring(0, 50)}...` : task.Question}
+				<NavItem key = {task.taskid} 
+				className = {classnames({chosenSidebar: currIDTask === task.taskid})}>	 
+					<NavLink onClick = {() => {setCurrIDTask(task.taskid); setShowSidebar(false)}} id = {"tooltipT" + task.taskid}>
+							{task.question.length > 50 ? 
+							`${task.question.substring(0, 50)}...` : task.question}
 					</NavLink>
 					{ /* causes the transition and findDOMNode warnngs */}
-					<UncontrolledTooltip placement = "bottom" target = {"tooltipT"+ task.ID}>
+					<UncontrolledTooltip placement = "bottom" target = {"tooltipT"+ task.taskid}>
 						{task.Question}			
 					</UncontrolledTooltip>
 				</NavItem>
@@ -90,10 +84,10 @@ export default function Base() {
 		return (
 			<>
 			{theories.map(theory => (
-				<NavItem key = {theory.ID}
-				className = {classnames({chosenSidebar: currIDTheory === theory.ID})}>	 
-					<NavLink onClick = {() => {setCurrIDTheory(theory.ID); setShowSidebar(false)}}>
-							{theory.Header}
+				<NavItem key = {theory.theoryid}
+				className = {classnames({chosenSidebar: currIDTheory === theory.theoryid})}>	 
+					<NavLink onClick = {() => {setCurrIDTheory(theory.theoryid); setShowSidebar(false)}}>
+							{theory.title}
 					</NavLink>
 				</NavItem>
 			))}
@@ -140,7 +134,7 @@ export default function Base() {
 						}
 						{ 
 						currIDTask !== -1 
-						? <EditTask task = {tasks.find(task => task.ID === currIDTask)}
+						? <EditTask task = {tasks.find(task => task.taskid === currIDTask)}
 						   className = {classnames({dontShowMd: showSidebar})}
 						   setTasks = {setTasks} tasks = {tasks}/> 
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >
@@ -168,7 +162,7 @@ export default function Base() {
 						}
 						{ 
 						currIDTheory !== -1 
-						? <EditTheory theory = {theories.find(theory => theory.ID === currIDTheory)}
+						? <EditTheory theory = {theories.find(theory => theory.theoryid === currIDTheory)}
 						   className = {classnames({dontShowMd: showSidebar})}
 						   setTheory = {setTheories} theories = {theories}/>
 						: <Col className = {classnames({dontShowMd: showSidebar}) + " notChosenPlaceholder"} >

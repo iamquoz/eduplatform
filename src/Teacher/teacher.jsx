@@ -34,7 +34,7 @@ export default function Teach() {
 	const history = useHistory();
 
 	const [stList, setStList] = useState([]);
-	const [currentStudent, setcurrentStudent] = useState({"ID": -1, "StName": ""});
+	const [currentStudent, setcurrentStudent] = useState({"studentID": -1, "studentName": ""});
 	const [barOpen, setBarOpen] = useState(false);
 
 	// modal adding
@@ -49,12 +49,13 @@ export default function Teach() {
 	const [activeTab, setActiveTab] = useState(1);
 
 	useEffect(() => {
-		axios.post('/api/GetStudents', {})
+		axios.get('/api/students')
 			.then(res => {
+				console.log(res);
 				var arr = [];
 				for(const prop in res.data.MapStudentIDString)
-					arr.push({ID: parseInt(prop), StName: res.data.MapStudentIDString[prop]});
-				setStList(arr);
+					arr.push({studentID: parseInt(prop), studentName: res.data.MapStudentIDString[prop]});
+				setStList(res.data);
 			})
 			.catch(err => console.log(err));
 	}, [])
@@ -64,11 +65,11 @@ export default function Teach() {
 		return (
 			<>
 			{stList.map(student => (
-				<NavItem key = {student.ID} 
-				className = {classNames({chosenSidebar: currentStudent.ID === parseInt(student.ID )})}>	 
-					<NavLink onClick = {() => {setcurrentStudent(student)}}>
-							{student.StName}
-						<span style = {{float: "right"}} onClick = {toggleEdit}>{currentStudent.ID === parseInt(student.ID) && <Pencil />}</span>
+				<NavItem key = {student.studentID} 
+				className = {classNames({chosenSidebar: currentStudent.studentID === parseInt(student.studentID)})}>	 
+					<NavLink onClick = {() => { console.log(student); setcurrentStudent(student)}}>
+							{student.studentName}
+						<span style = {{float: "right"}} onClick = {toggleEdit}>{currentStudent.studentID === parseInt(student.studentID) && <Pencil />}</span>
 					</NavLink>
 				</NavItem>
 			))}
@@ -80,9 +81,9 @@ export default function Teach() {
 		return (
 			<>
 			{stList.map(student => (
-				<option value = {student.ID} key = {student.ID}
-				selected = {student.ID === currentStudent.ID}>
-					{student.StName}
+				<option value = {student.studentID} key = {student.studentID}
+				selected = {student.studentID === currentStudent.studentID}>
+					{student.studentName}
 				</option>
 			))}
 			</>
@@ -98,7 +99,7 @@ export default function Teach() {
 					{ activeTab === 1 &&
 						<select className = "form-control possiblyHidden" style = {{margin: "10px 0"}}
 							onChange = {(e) => {
-								setcurrentStudent(stList.find(st => st.ID === parseInt(e.target.value)))
+								setcurrentStudent(stList.find(st => st.studentID === parseInt(e.target.value)))
 							}}>
 							<option value = "" disabled selected>Выберите студента</option>
 							<DisplayMobileList />

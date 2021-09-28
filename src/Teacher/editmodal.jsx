@@ -14,12 +14,12 @@ import {
 import axios from 'axios'
 
 export default function ModalAdd({isOpen, toggle, student, stList, setStList}) {
-	const [stName, setStName] = useState(student.stName);
+	const [stName, setStName] = useState(student.studentName);
 
 	const onDelete = () => {
-		axios.post('/api/ZapStudent', {StudentID: student.ID})
+		axios.delete('/api/students/' + student.studentID)
 			.then(_ => {
-				setStList(stList.filter(st => st.ID !== student.ID));
+				setStList(stList.filter(st => st.ID !== student.studentID));
 				toggle();
 			})
 			.catch(err => console.log(err));
@@ -40,9 +40,8 @@ export default function ModalAdd({isOpen, toggle, student, stList, setStList}) {
 		if (stName === '')
 			return;
 
-		// fix
-		axios.post('/api/RenameStudent', {StudentID: student.ID, String: stName})
-			.then(res => console.log(res))
+		axios.patch('/api/students/' + student.studentID, {name: stName})
+			.then(res => setStList(stList.map(e => e.studentID === student.studentID ? {studentID: student.studentID, studentName: stName} : e)))
 			.catch(err => console.log(err));
 	}
 
@@ -59,7 +58,7 @@ export default function ModalAdd({isOpen, toggle, student, stList, setStList}) {
 						<Input type = "textarea" id = "fullname"
 						style = {{height: "80px"}}
 						onChange = {(e) => setStName(e.target.value)}
-						defaultValue = {student.StName}></Input>
+						defaultValue = {student.studentName}></Input>
 					</FormGroup>
 				</ModalBody>
 				<ModalFooter style = {{justifyContent: "space-between"}}>

@@ -32,10 +32,10 @@ export default function ModalAdd({isOpen, toggle, stList, setStList}) {
 		if (stName === '')
 			return;
 
-		axios.post('/api/AddStudent', {String: stName})	
+		axios.post('/api/students', {name: stName})	
 			.then(res => {
-				setStList([...stList, {ID: parseInt(res.data.StudentID), StName: stName}]);
-				setInviteLink(`${window.location.origin + '/register?id=' + res.data.StudentID}`);
+				setStList([...stList, {studentID: res.data.id, studentName: stName}]);
+				setInviteLink(`${window.location.origin + '/register?id=' + res.data.id}`);
 			})
 			.catch(err => console.log(err));
 	}

@@ -1,31 +1,15 @@
 import axios from 'axios'
-import { BehaviorSubject } from 'rxjs'
-import Cookies from 'universal-cookie'
-
-const currUser = new BehaviorSubject(JSON.parse(localStorage.getItem('currentUser')))
-
 
 export const auth = {
 	login, 
 	logout,
-	current: currUser.asObservable(),
-	get currUserValue() { return currUser.value}
 };
 
 function login(u, p) {
-	return axios.get('/Authorize', {
-		params: {
-			id: u,
-			passw: p
-		}})
+	return axios.post('/auth/login', {login: u, password: p})
 }
 
 function logout() {
-	const cookies = new Cookies();
-
-	cookies.remove('token', {path: '/'});
-
-	localStorage.removeItem('currentUser');
-	currUser.next(null);
+	localStorage.removeItem('account');
 	window.location.reload();
 }

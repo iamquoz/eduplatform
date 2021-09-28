@@ -68,31 +68,14 @@ export default function GiveTask() {
 	}
 
 	useEffect(() => {
-		axios.post('/api/StDigest', {})
-			.then(res => {
-				var arr = [];
-				for(const prop in res.data.MapTheoryIDTheory)
-					arr.push(res.data.MapTheoryIDTheory[prop]);
-				
-				settheorylist(arr);
-			})
+		axios.get('/st/theories')
+			.then(res => settheorylist(res.data))
 			.catch(err => console.log(err));
-		axios.post('/api/EveryTask', {})
-			.then(res => {
-				var arr = [];
-				for(const prop in res.data.MapTaskIDTask)
-					arr.push(res.data.MapTaskIDTask[prop]);
-				
-				settasklist(arr);
-			})
+		axios.get('/api/tasks')
+			.then(res => settasklist(res.data))
 			.catch(err => console.log(err));
-		axios.post('/api/GetStudents', {})
-			.then(res => {
-				var arr = [];
-				for(const prop in res.data.MapStudentIDString)
-					arr.push({ID: parseInt(prop), StName: res.data.MapStudentIDString[prop]});
-				setStList(arr);
-			})
+		axios.get('/api/students')
+			.then(res => setStList(res.data))
 			.catch(err => console.log(err));
 	}, [])
 
@@ -125,12 +108,12 @@ export default function GiveTask() {
 		return 	<FormGroup check style = {{marginLeft: "25px"}}>
 					{
 						stList.map(student => (
-							<Label check key = {student.ID}
+							<Label check key = {student.studentID}
 							className = "taskSelection">
-								<Input type = "checkbox" id = {student.ID}
-								checked = {chosenStudents.includes(student.ID)}
+								<Input type = "checkbox" id = {student.studentID}
+								checked = {chosenStudents.includes(student.studentID)}
 								onChange = {onChangeStudents}/>
-								{student.StName}
+								{student.studentName}
 							</Label>
 						))
 					}
@@ -142,14 +125,14 @@ export default function GiveTask() {
 					<h4 className = "taskDifficultyLine">Задания базового уровня сложности</h4>
 					{
 						tasklist.filter(task => {
-							return task.Difficulty === 1
+							return task.diff === 1
 						}).map(task => {
-							return <Label check key = {task.ID}
+							return <Label check key = {task.taskid}
 							className = "taskSelection">
-								<Input type = "checkbox" id = {'t' + task.ID}
-								checked = {chosenTasks.includes(task.ID)}
+								<Input type = "checkbox" id = {'t' + task.taskid}
+								checked = {chosenTasks.includes(task.taskid)}
 								onChange = {onChangeTasks}/>
-								{task.Question}
+								{task.question}
 							</Label>
 						})
 					}
@@ -158,12 +141,12 @@ export default function GiveTask() {
 						tasklist.filter(task => {
 							return task.Difficulty === 2
 						}).map(task => {
-							return <Label check key = {task.ID}
+							return <Label check key = {task.taskid}
 							className = "taskSelection">
-								<Input type = "checkbox" id = {'t' + task.ID}
-								checked = {chosenTasks.includes(task.ID)}
+								<Input type = "checkbox" id = {'t' + task.taskid}
+								checked = {chosenTasks.includes(task.taskid)}
 								onChange = {onChangeTasks}/>
-								{task.Question}
+								{task.question}
 							</Label>
 						})
 					}
@@ -172,12 +155,12 @@ export default function GiveTask() {
 						tasklist.filter(task => {
 							return task.Difficulty === 3
 						}).map(task => {
-							return <Label check key = {task.ID}
+							return <Label check key = {task.taskid}
 							className = "taskSelection">
-								<Input type = "checkbox" id = {'t' + task.ID}
-								checked = {chosenTasks.includes(task.ID)}
+								<Input type = "checkbox" id = {'t' + task.taskid}
+								checked = {chosenTasks.includes(task.taskid)}
 								onChange = {onChangeTasks}/>
-								{task.Question}
+								{task.question}
 							</Label>
 						})
 					}
@@ -187,14 +170,14 @@ export default function GiveTask() {
 	const DisplayTheory = () => {
 		return 	<FormGroup tag = "fieldset" style = {{marginLeft: "50px"}}>
 					{theorylist.map(theory => (
-						<FormGroup key = {theory.ID}>
+						<FormGroup key = {theory.theoryid}>
 							<Label check
 							className = "taskSelection">
 								<Input type = "radio" name = "radiotheory" 
-								checked = {chosenTheory === theory.ID}
-								value = {theory.ID}
+								checked = {chosenTheory === theory.theoryid}
+								value = {theory.theoryid}
 								onChange = {(e) => {setChosenTheory(parseInt(e.target.value))}}/>
-								{theory.Header}
+								{theory.title}
 							</Label>
 						</FormGroup>
 					))}
@@ -207,21 +190,21 @@ export default function GiveTask() {
 				<NavItem>
 					<NavLink
 						className={classnames({ active: activeTab === 1 })}
-						onClick={() => { toggle(1); }} >
+						onClick={() => toggle(1)} >
 						Выбор темы
 					</NavLink>
 				</NavItem>
 				<NavItem>
 					<NavLink
 						className={classnames({ active: activeTab === 2 })} 
-						onClick={() => { toggle(2); }}>
+						onClick={() => toggle(2)}>
 						Выбор заданий
 					</NavLink>
 				</NavItem>
 				<NavItem>
 					<NavLink
 						className={classnames({ active: activeTab === 3 })} 
-						onClick={() => { toggle(3); }}>
+						onClick={() => toggle(3)}>
 						Выбор студентов
 					</NavLink>
 				</NavItem>
@@ -241,9 +224,7 @@ export default function GiveTask() {
 				<div className = "customFooter">
 					<Button style = {{float: "right", marginTop: "15px", marginRight: "20px", width: "170px"}}
 					type = "submit"
-					onClick = {() => {
-							setActiveTab(activeTab + 1);
-						}}>
+					onClick = {() => setActiveTab(activeTab + 1)}>
 							Продолжить
 					</Button>
 				</div>

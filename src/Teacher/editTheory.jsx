@@ -16,9 +16,9 @@ export default function EditTheory({theory, className, setTheories, theories}) {
 
 	if (theory === undefined) {
 		theory = {
-		"ID": 0, 
-		"Header": "",
-		"Body": ""
+		"theoryid": 0, 
+		"title": "",
+		"body": ""
 		}
 	}
 
@@ -26,14 +26,14 @@ export default function EditTheory({theory, className, setTheories, theories}) {
 	const [modal, setModal] = useState(false);
 	const toggle = () => setModal(!modal);
 
-	const [title, setTitle] = useState(theory.Header);
-	const [text, setText] = useState(theory.Body);
+	const [title, setTitle] = useState(theory.title);
+	const [text, setText] = useState(theory.body);
 
 	
 	const onSubmit = (e) => {
 		e.preventDefault();
 
-		console.log(theory.ID, title, text);
+		console.log(theory.theoryid, title, text);
 
 		if (!title) {	
 			alert("Введите название теории!")
@@ -43,29 +43,32 @@ export default function EditTheory({theory, className, setTheories, theories}) {
 			alert("Введите текст теории!")
 			return;
 		}
+		
+		var temp;
 
 		if (theory.ID !== 0) {
-			var j = {TheoryID: (theory.ID), Theory: {Header: title, Body: text}};
-			axios.post('/api/RenewTheory', j)
+			temp = {title: title, body: text};
+			axios.patch('/api/theories/' + theory.theoryid, temp)
+				.then(_ => setTheories(theories.map(e => theory.theoryid === e.theoryid ? {theoryid: theory.theoryid, title: title, body: text} : e)))
 				.catch(err => console.log(err));
 		}
 		else {
-			var jth = {Header: title, Body: text};
-			axios.post('/api/NewTheory', {Theory: jth})
-				.then(res => {jth.ID = res.data.TheoryID; setTheories([...theories, jth])})
+			temp = {title: title, body: text};
+			axios.post('/api/theories', temp)
+				.then(res => {temp.theoryid = res.data.theoryid; setTheories([...theories, temp])})
 				.catch(err => console.log(err));
 		}
 	}
 
 	const onDelete = () => {
-		axios.post('/api/ZapTheory', {TheoryID: theory.ID})
-			.then(res => setTheories(theories.filter(item => item.ID !== theory.ID)))
+		axios.delete('/api/theories' + theory.theoryid)
+			.then(res => setTheories(theories.filter(item => item.theoryid !== theory.theoryid)))
 			.catch(err => console.log(err));
 	}
 
 	useEffect(() => {
-		setTitle(theory.Header)
-		setText(theory.Body);
+		setTitle(theory.title)
+		setText(theory.body);
 	}, [theory])
 
 	return (
@@ -73,17 +76,17 @@ export default function EditTheory({theory, className, setTheories, theories}) {
 			<Form onSubmit = {onSubmit} style = {{marginTop: "10px", marginLeft: "15px"}}>
 				<FormGroup>
 					<Label for = "title">Название темы</Label>
-					<Input type = "textarea" key = {theory.ID}
-					defaultValue = {theory.ID === 0 ? '' : theory.Header} 
-					placeholder = {theory.ID === 0 ? 'Введите название темы' : ''}
+					<Input type = "textarea" key = {theory.theoryid}
+					defaultValue = {theory.theoryid === 0 ? '' : theory.title} 
+					placeholder = {theory.theoryid === 0 ? 'Введите название темы' : ''}
 					onChange = {(e) => setTitle(e.target.value)}></Input>
 				</FormGroup>
 				<FormGroup>
 					<Label for = "title">Текст материала</Label>
 					<span onClick = {toggle}><Question /></span>
-					<Input type = "textarea" key = {theory.ID}
-					defaultValue = {theory.ID === 0 ? '' : theory.Body}
-					placeholder = {theory.ID === 0 ? 'Введите текст материала' : ''}
+					<Input type = "textarea" key = {theory.theoryid}
+					defaultValue = {theory.theoryid === 0 ? '' : theory.body}
+					placeholder = {theory.theoryid === 0 ? 'Введите текст материала' : ''}
 					onChange = {(e) => setText(e.target.value)}
 					style = {{height: "500px"}}></Input>
 				</FormGroup>
@@ -91,7 +94,7 @@ export default function EditTheory({theory, className, setTheories, theories}) {
 				{theory.ID !== 0 && 
 				<Button className = "redBtn" onClick = {onDelete}>Удалить теорию</Button>
 				}
-				<Button type='submit' style = {{float: "right"}}>Добавить теорию</Button>
+				<Button type='submit' style = {{float: "right"}}>{theory.theoryid === 0 ? "Добавить теорию" : "Изменить теорию"}</Button>
 			</Form>
 			<MdTooltip isOpen = {modal} toggle = {toggle} />
 		</Col>

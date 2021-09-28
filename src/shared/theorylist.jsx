@@ -5,11 +5,11 @@ import classnames from 'classnames'
 export default function DisplayListTheories ({theories, currIDTheory, setCurrIDTheory, setShowSidebar}) {
 	return (
 		<>
-		{theories.map(theory => (
-			<NavItem key = {theory.ID} 
-			className = {classnames({chosenSidebar: currIDTheory === theory.ID})}>	 
-				<NavLink onClick = {() => {setCurrIDTheory(theory.ID); setShowSidebar(false)}}>
-						{theory.Header}
+		{theories.map(theory => ( 
+			<NavItem key = {theory.theoryid} 
+			className = {classnames({chosenSidebar: currIDTheory === theory.theoryid})}>	 
+				<NavLink onClick = {() => {setCurrIDTheory(theory.theoryid); setShowSidebar(false)}}>
+						{theory.title}
 				</NavLink>
 			</NavItem>
 		))}

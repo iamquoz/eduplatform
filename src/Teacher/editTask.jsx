@@ -15,27 +15,27 @@ import MdTooltip from '../shared/mdtooltip'
 export default function EditTask({task, className, setTasks, tasks}) {
 	if (task === undefined) {
 		task = {
-			"ID": 0,
-			"IsOpen": false,
-			"Question": "",
-			"Correct": "",
-			"Difficulty": 1
+			"taskid": 0,
+			"isOpen": false,
+			"question": "",
+			"correct": "",
+			"diff": 1
 		}
 	}
-	
+
 	// modal
 	const [modal, setModal] = useState(false);
 	const toggle = () => setModal(!modal);
 	
-	const [text, setText] = useState(task.Question);
-	const [isOpen, setIsOpen] = useState(task.IsOpen);
-	const [diff, setDiff] = useState(task.Difficulty);
-	const [answ, setAnsw] = useState(task.Correct);
+	const [text, setText] = useState(task.question);
+	const [isOpen, setIsOpen] = useState(task.isOpen);
+	const [diff, setDiff] = useState(task.diff);
+	const [answ, setAnsw] = useState(task.correct);
 
 	const onSubmit = (e) => {
 		e.preventDefault();
 
-		console.log(task.ID, text, isOpen, diff, answ);
+		console.log(task.taskid, text, isOpen, diff, answ);
 
 		if (!text) {
 			alert("Введите текст задания!") 
@@ -47,53 +47,48 @@ export default function EditTask({task, className, setTasks, tasks}) {
 		}
 
 		if (isOpen && answ) setAnsw('')
+		var temp; 
 
-		if (task.ID !== 0) {
-			axios.post('/api/RenewTask', 
-			{
-				TaskID: task.ID,
-				Task: 
-				{
-					IsOpen: isOpen,
-					Difficulty: diff,
-					Question: text,
-					Variants: [],
-					Correct: answ
-				},
-				TheoryID: 0
+		if (task.taskid !== 0) {
+			temp = {
+				isOpen: isOpen,
+				question: text,
+				correct: answ,
+				diff: diff
 			}
-			).then(res => console.log(res))
+			temp.isOpen = isOpen;
+			temp.question = text;
+			temp.correct = answ;
+			temp.diff = diff;
+
+			axios.patch('/api/tasks/' + task.taskid, temp)
+			 .then(res => setTasks(tasks.map(e => e.taskid === task.taskid ? temp : e)))
 			 .catch(err => console.log(err));
 		}
 		else {
-			var tempTask = {
-				IsOpen: isOpen,
-				Difficulty: parseInt(diff),
-				Question: text,
-				Variants: [],
-				Correct: answ
-			};
-			axios.post('/api/NewTask', 
-			{
-				Task: tempTask,
-				TheoryID: 0
+			temp = {
+				isOpen: isOpen,
+				question: text,
+				correct: answ,
+				diff: diff
 			}
-			).then(res => {tempTask.ID = res.data.TaskID; setTasks([...tasks, tempTask])})
+			axios.post('/api/tasks', task)
+			 .then(res => {task.taskid = res.data.taskid; setTasks([...tasks, task])})
 			 .catch(err => console.log(err));
 		}
 	}
 
 	const onDelete = () => {
-		axios.post('/api/ZapTask', {TaskID: task.ID})
-			.then(res => setTasks(tasks.filter(item => item.ID !== task.ID)))
+		axios.delete('/api/tasks' + task.taskid)
+			.then(res => setTasks(tasks.filter(item => item.taskid !== task.taskid)))
 			.catch(err => console.log(err));
 	}
 
 	useEffect(() => {
-		setText(task.Question);
-		setIsOpen(task.IsOpen);
-		setDiff(task.Difficulty);
-		setAnsw(task.Correct);
+		setText(task.question);
+		setIsOpen(task.isOpen);
+		setDiff(task.diff);
+		setAnsw(task.correct);
 	}, [task])
 
 
@@ -106,39 +101,39 @@ export default function EditTask({task, className, setTasks, tasks}) {
 					<Label for = "diff">Сложность задания</Label>
 					<select className = "form-control" id = "diff"
 						onChange = {(e) => setDiff(e.target.value)}>
-							<option value = {1} selected = {task.Difficulty === 1}>Базовый</option>
-							<option value = {2} selected = {task.Difficulty === 2}>Продвинутый</option>
-							<option value = {3} selected = {task.Difficulty === 3}>Высокий</option>
+							<option value = {1} selected = {task.diff === 1}>Базовый</option>
+							<option value = {2} selected = {task.diff === 2}>Продвинутый</option>
+							<option value = {3} selected = {task.diff === 3}>Высокий</option>
 					</select>
 				</FormGroup>
 				<FormGroup>
-					<Label for = "text">Текст задания</Label> <span onClick = {toggle}><Question /></span>
-					<Input type = "textarea" id = "text" key = {task.ID}
-					defaultValue = {task.ID === 0 ? '' : task.Question}
-					placeholder  = {task.ID === 0 ? 'Введите текст задания' : ''}
+					<Label for = "text">Текст задания</Label> <span onClick = {toggle}><Question/></span>
+					<Input type = "textarea" id = "text" key = {task.taskid}
+					defaultValue = {task.taskid === 0 ? '' : task.question}
+					placeholder  = {task.taskid === 0 ? 'Введите текст задания' : ''}
 					style = {{height: "250px"}}
 					onChange = {(e) => setText(e.target.value)}></Input>
 				</FormGroup>
 				<FormGroup check inline 
 				style = {{marginBottom: "25px"}}>
 					<Label check>
-						<Input type = "checkbox" checked = {isOpen} key = {task.ID}
+						<Input type = "checkbox" checked = {isOpen} key = {task.taskid}
 						onChange = {(e) => setIsOpen(e.currentTarget.checked)}/>
 						Открытый вопрос (ответ отправляется преподавателю)
 					</Label>
 				</FormGroup>
 				{!isOpen && <FormGroup>
 					<Label for = "answ">Ответ на задание</Label>
-					<Input type = "textarea" id = "answ" key = {task.ID}
-					defaultValue = {task.ID === 0 ? '' : task.Correct}
-					placeholder  = {task.ID === 0 ? 'Введите ответ' : ''}
+					<Input type = "textarea" id = "answ" key = {task.taskid}
+					defaultValue = {task.taskid === 0 ? '' : task.correct}
+					placeholder  = {task.taskid === 0 ? 'Введите ответ' : ''}
 					style = {{height: "250px"}}
 					onChange = {(e) => setAnsw(e.target.value)}></Input>
 				</FormGroup> }
 				<br></br>
-				{task.ID !== 0 && 
+				{task.taskid !== 0 && 
 				<Button className = "redBtn" onClick = {onDelete}>Удалить задание</Button>}
-				<Button type='submit' style = {{float: "right"}}>Добавить задание</Button>
+				<Button type='submit' style = {{float: "right"}}>{task.taskid === 0 ? "Добавить задание" : "Изменить задание"}</Button>
 			</Form>
 			<MdTooltip isOpen = {modal} toggle = {toggle} />
 		</Col>
