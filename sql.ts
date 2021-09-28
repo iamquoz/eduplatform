@@ -6,6 +6,7 @@ var parse = require('pg-connection-string').parse;
 
 var config = parse(process.env.DATABASE_URL);
 config.ssl = { rejectUnauthorized: false };
+
 var pool = new Pool(config);
 // user methods
 
@@ -127,7 +128,7 @@ function alltasks() : Promise<QueryResult<task>> {
  * @returns task value
  */
 function inserttask(isOpen: boolean, diff: number, question: string, correct: string) : Promise<QueryResult<task>> {
-	return pool.query('INSERT INTO tasks(isOpen, diff, question, correct) VALUES($1, $2, $3, $4) RETURNING *', [isOpen, diff, question, correct]);
+	return pool.query('INSERT INTO tasks("isOpen", diff, question, correct) VALUES($1, $2, $3, $4) RETURNING *', [isOpen, diff, question, correct]);
 }
 /**
  * UPDATE tasks 
@@ -142,7 +143,7 @@ function inserttask(isOpen: boolean, diff: number, question: string, correct: st
  * @returns task value
  */
 function updatetask(isOpen: boolean, diff: number, question: string, correct: string, id: number) : Promise<QueryResult<task>> {
-	return pool.query('UPDATE tasks SET isOpen = $1, diff = $2, question = $3, correct = $4 WHERE taskid = $5 RETURNING *', [isOpen, diff, question, correct, id]);
+	return pool.query('UPDATE tasks SET "isOpen" = $1, diff = $2, question = $3, correct = $4 WHERE taskid = $5 RETURNING *', [isOpen, diff, question, correct, id]);
 }
 
 /**
@@ -238,7 +239,7 @@ function giveassignment(theoryid: number, taskids: Array<number>, studentids: Ar
 	return pool.query(`INSERT INTO assignments(sid, theoryid, taskid) VALUES ` + studentids.map(elem => taskids.map(e => "(" + elem + ", " + theoryid + ", " + e + ")")) + "RETURNING *");
 }
 /**
- * SELECT theoryid, array_agg(taskid) 
+ * SELECT theoryid, array_agg(taskid) AS tasks, array_agg(tries) AS tries
  * FROM assignments 
  * WHERE complete = false AND sid = studentid 
  * GROUP BY theoryid
@@ -246,7 +247,7 @@ function giveassignment(theoryid: number, taskids: Array<number>, studentids: Ar
  * @returns \{theoryid: number, taskid: [number]}
  */
 function takeassignment(studentid: number) : Promise<QueryResult> {
-	return pool.query('SELECT theoryid, array_agg(taskid) FROM assignments WHERE complete = false AND sid = $1 GROUP BY theoryid', [studentid]);
+	return pool.query('SELECT theoryid, array_agg(taskid) AS tasks, array_agg(tries) AS tries FROM assignments WHERE complete = false AND sid = $1 GROUP BY theoryid', [studentid]);
 }
 
 /**

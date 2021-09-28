@@ -25,7 +25,7 @@ function login(req: Request, res: Response) {
 }
 
 function register(req: Request, res: Response) {
-	const username: number = parseInt(req.signedCookies.name);
+	const username: number = parseInt(req.signedCookies.user);
 	const password: string = req.body.password;
 
 	if (username && password.length !== 0)

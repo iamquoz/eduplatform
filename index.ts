@@ -7,7 +7,7 @@ import teacher from "./teacher";
 
 const app = express();
 
-const port = process.env.port || 5000;
+const port = process.env.port || 8080;
 const secret = process.env.secret || 'secret';
 
 app.use(express.json());
@@ -33,4 +33,4 @@ app.post('/auth/register', (req: Request, res: Response) => {
 
 
 app.use('/api', teacher);
-app.use('/api/st', student);
+app.use('/st', student);

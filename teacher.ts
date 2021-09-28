@@ -11,7 +11,7 @@ teacher.use((req: Request, res: Response, next: express.NextFunction) => {
 	console.log("teacher");
 	role(req, res)
 		.then(result => {
-			if (result.rows.length === 0) {
+			if (result.rows.length >= 0) {
 				if (result.rows[0].role === 0)
 					next();
 				else 
@@ -142,38 +142,38 @@ teacher.get('/tasks', (req: Request, res: Response) => {
 teacher.post('/tasks', (req: Request, res: Response) => {
 	const isOpen: boolean = req.body.isOpen;
 	const diff: number = parseInt(req.body.diff);
-	const question: string = req.body.title;
-	const correct: string = req.body.body;
+	const question: string = req.body.question;
+	const correct: string = req.body.correct;
 
-	if (isOpen && diff && question && correct)
+	if (diff && question && (correct || isOpen))
 		inserttask(isOpen, diff, question, correct)
-			.then(result => res.status(200).json( {theoryid: result.rows[0].taskid}))
+			.then(result => res.status(200).json( {taskid: result.rows[0].taskid}))
 			.catch(err => res.status(500).send(console.log(err)));
 	else 
 		res.status(400).send('Bad request');
 })
 
-teacher.patch('/theories/:id', (req: Request, res: Response) => {
+teacher.patch('/tasks/:id', (req: Request, res: Response) => {
 	const id: number = parseInt(req.params.id);
 	const isOpen: boolean = req.body.isOpen;
 	const diff: number = parseInt(req.body.diff);
-	const question: string = req.body.title;
-	const correct: string = req.body.body;
+	const question: string = req.body.question;
+	const correct: string = req.body.correct;
 
-	if (isOpen && diff && question && correct)
+	if (diff && question && (correct || isOpen))
 		updatetask(isOpen, diff, question, correct, id)
-			.then(result => res.status(200).json( {theoryid: result.rows[0].taskid}))
+			.then(result => res.status(200).json( {taskid: result.rows[0].taskid}))
 			.catch(err => res.status(500).send(console.log(err)));
 	else 
 		res.status(400).send('Bad request');
 })
 
-teacher.delete('/theories/:id', (req: Request, res: Response) => {
+teacher.delete('/tasks/:id', (req: Request, res: Response) => {
 	const id: number = parseInt(req.params.id);
 
 	if (id)
 		deletetask(id)
-			.then(result => res.status(200).json( {theoryid: result.rows[0].taskid}))
+			.then(result => res.status(200).json( {taskid: result.rows[0].taskid}))
 			.catch(err => res.status(500).send(console.log(err)));
 	else 
 		res.status(400).send('Bad request');

@@ -10,7 +10,7 @@ student.use((req: Request, res: Response, next: express.NextFunction) => {
 	console.log("student");
 	role(req, res)
 		.then(result => {
-			if (result.rows.length === 0) {
+			if (result.rows.length >= 0) {
 				if (result.rows[0].role === 0 || result.rows[0].role === 1)
 					next();
 				else 
@@ -56,15 +56,14 @@ student.get('/tasks/:id', (req: Request, res: Response) => {
 })
 
 student.get('/assignment', (req: Request, res: Response) => {
-	const id: number = parseInt(req.signedCookies.name);
-
+	const id: number = parseInt(req.signedCookies.user);
 	takeassignment(id)
 		.then(result => res.status(200).json(result.rows))
 		.catch(err => res.status(500).send(console.log(err)));
 })
 
 student.post('/assignment', (req: Request, res: Response) => {
-	const id: number = parseInt(req.signedCookies.name);
+	const id: number = parseInt(req.signedCookies.user);
 	const task: task = req.body.task;
 	const theoryid: number = parseInt(req.body.theoryid);
 
@@ -94,7 +93,7 @@ student.post('/assignment', (req: Request, res: Response) => {
 })
 
 student.get('/self', (req: Request, res: Response) => {
-	const id: number = parseInt(req.signedCookies.name);
+	const id: number = parseInt(req.signedCookies.user);
 
 	if (id)
 		statsWrapper(id)
@@ -105,7 +104,7 @@ student.get('/self', (req: Request, res: Response) => {
 })
 
 student.get('/self/done', (req: Request, res: Response) => {
-	const id: number = parseInt(req.signedCookies.name);
+	const id: number = parseInt(req.signedCookies.user);
 
 	if (id)
 		doneWrapper(id)
