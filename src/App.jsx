@@ -13,11 +13,6 @@ const Student = lazy(() => import('./Students/student'))
 
 function App() {
 	
-	if (localStorage.getItem('currentUser')) {//&& JSON.parse(localStorage.getItem('currentUser')).time > Date.now()){
-		console.log(JSON.parse(localStorage.getItem('currentUser')).time, Date.now())
-		//localStorage.removeItem('currentUser')
-	}
-
 	return (
 			<Router>
 				<Suspense fallback = {<div className = "container"><img src = {Loading} style = {{maxWidth: "100%"}} alt = "Подождите"/></div>}>

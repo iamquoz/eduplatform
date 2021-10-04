@@ -12,8 +12,6 @@ import {
 	Nav,
 	Row, 
 	Col,
-	TabContent,
-	TabPane
 } from 'reactstrap'
 
 
@@ -35,8 +33,8 @@ const PieWrapper = ({datum, className, width}) => {
 		labels: myLabels,
 		datasets: [{
 			data: [
-				datum.Correct.reduce((a, b) => a + b, 0), 
-				datum.Total.reduce((a, b) => a + b, 0) - datum.Correct.reduce((a, b) => a + b, 0)
+				datum.correct.reduce((a, b) => a + b, 0), 
+				datum.total.reduce((a, b) => a + b, 0) - datum.correct.reduce((a, b) => a + b, 0)
 			],
 			backgroundColor: bgColor
 		}]
@@ -45,7 +43,7 @@ const PieWrapper = ({datum, className, width}) => {
 	var formattedEasy = {
 		labels: myLabels,
 		datasets: [{
-			data: [datum.Correct[0], datum.Total[0] - datum.Correct[0]],
+			data: [datum.correct[0], datum.total[0] - datum.correct[0]],
 			backgroundColor: bgColor
 		}]
 	}
@@ -53,7 +51,7 @@ const PieWrapper = ({datum, className, width}) => {
 	var formattedMedium = {
 		labels: myLabels,
 		datasets: [{
-			data: [datum.Correct[1], datum.Total[1] - datum.Correct[1]],
+			data: [datum.correct[1], datum.total[1] - datum.correct[1]],
 			backgroundColor: bgColor
 		}]
 	}
@@ -61,7 +59,7 @@ const PieWrapper = ({datum, className, width}) => {
 	var formattedHard = {
 		labels: myLabels,
 		datasets: [{
-			data: [datum.Correct[2], datum.Total[2] - datum.Correct[2]],
+			data: [datum.correct[2], datum.total[2] - datum.correct[2]],
 			backgroundColor: bgColor
 		}]
 	}
@@ -119,7 +117,7 @@ const PieWrapper = ({datum, className, width}) => {
 					<br></br>
 					Высокий уровень: {formattedHard.datasets[0].data[0] + formattedHard.datasets[0].data[1]} / {formattedHard.datasets[0].data[0]} / {formattedHard.datasets[0].data[1]}
 					<br></br>
-					<b>Количество неудачных попыток: {datum.TotalAttempts}</b>
+					<b>Количество неудачных попыток: {datum.totalAttempts}</b>
 				</div>
 		</div>
 }
@@ -130,52 +128,42 @@ export default function Stats({student, showSidebar, windowWidth, width, setShow
 	const [theories, setTheories] = useState([])
 	const [currIDTheory, setCurrIDTheory] = useState(0);
 
-	const [tab, setTab] = useState(1);
-
 	function statWrapper(res) {
-		console.log(res);
-		var arr = [];
-		for (const prop in res.data.MapTheoryIDStats) {
-			arr.push(
-				{
-				   	TheoryID: parseInt(prop), 
-					Correct: res.data.MapTheoryIDStats[prop].Correct, 
-					Total: res.data.MapTheoryIDStats[prop].Total, 
-					TotalAttempts: res.data.MapTheoryIDStats[prop].TotalAttempts
-				})
-		}
-		var displayedStat = {TheoryID: 0, Total: [0, 0, 0], Correct: [0, 0, 0], TotalAttempts: 0};
-		console.log(arr);
-		arr.forEach(element => {
-			axios.post('/api/StGetTheory', {TheoryID: element.TheoryID})
-				.then(res => setTheories(theories => [...theories, res.data.Theory]))
+
+		var displayedStat = {theoryid: 0, total: [0, 0, 0], correct: [0, 0, 0], totalAttempts: 0};
+
+		res.data.forEach(element => {
+			axios.get('/st/theories/' + element.theoryid)
+				.then(res => setTheories(theories => [...theories, res.data]))
 				.catch(err => console.log(err));
-			displayedStat.TotalAttempts += element.TotalAttempts;
+			displayedStat.totalAttempts += element.totalAttempts;
 			for (let j = 0; j < 3; j++) {
-				displayedStat.Total[j] += element.Total[j];
-				displayedStat.Correct[j] += element.Correct[j];
+				displayedStat.total[j] += element.total[j];
+				displayedStat.correct[j] += element.correct[j];
 			}
 		})
-		arr.unshift(displayedStat);
-		console.log(arr);
-		setStat(arr);
+		// res.data.unshift(displayedStat);
+		// console.log(arr);
+		// setStat(arr);
+		setStat([displayedStat, ...res.data]);
 	}
 
 	useEffect(() => {
-		// setTheories([]);
-		// if (student.ID === 0) {
-		//  	axios.get('/st/self')
-		//  	  	.then(res => statWrapper(res))
-		//  	  	.catch(err => console.log(err));
-		// 	axios.get('/st/self/done')
-		//  	  	.then(res => console.log(res))
-		//  	  	.catch(err => console.log(err));
-		// }
-		// else {
-		// 	axios.get('/api/students/' + student.ID)
-		// 		.then(res => statWrapper(res))
-		//  	  	.catch(err => console.log(err));
-		// }
+		setTheories([]);
+		console.log(student);
+		if (student.studentID === 0) {
+		 	axios.get('/st/self')
+		 	  	.then(res => statWrapper(res))
+		 	  	.catch(err => console.log(err));
+			axios.get('/st/self/done')
+		 	  	.then(res => console.log(res))
+		 	  	.catch(err => console.log(err));
+		}
+		else {
+			axios.get('/api/students/' + student.studentID)
+				.then(res => statWrapper(res))
+		 	  	.catch(err => console.log(err));
+		}
 	}, [student])
 
 	return (
@@ -194,30 +182,7 @@ export default function Stats({student, showSidebar, windowWidth, width, setShow
 				</Col>
 				}
 				<Col>
-					<Nav tabs className = "tabWrapper">
-						<NavItem>
-							<NavLink
-								className={classnames({ active: tab === 1 })}
-								onClick={() => { setTab(1); }} >
-								Статистика
-							</NavLink>
-						</NavItem>
-						<NavItem>
-							<NavLink
-								className={classnames({ active: tab === 2 })} 
-								onClick={() => { setTab(2); }}>
-								Все задания
-							</NavLink>
-						</NavItem>
-					</Nav>
-					<TabContent activeTab={tab}>
-						<TabPane tabId = {1}>
-							<PieWrapper datum = {stat.find(elem => elem.TheoryID === currIDTheory)} className = {classnames({dontShowMd: showSidebar})} width = {width}/>
-						</TabPane>
-						<TabPane tabId = {2}>
-							{student.StName}
-						</TabPane>
-					</TabContent>
+					<PieWrapper datum = {stat.find(elem => elem.theoryid === currIDTheory)} className = {classnames({dontShowMd: showSidebar})} width = {width}/>
 				</Col>
 			</Row>
 		</div>

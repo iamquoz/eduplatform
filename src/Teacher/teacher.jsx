@@ -51,10 +51,6 @@ export default function Teach() {
 	useEffect(() => {
 		axios.get('/api/students')
 			.then(res => {
-				console.log(res);
-				var arr = [];
-				for(const prop in res.data.MapStudentIDString)
-					arr.push({studentID: parseInt(prop), studentName: res.data.MapStudentIDString[prop]});
 				setStList(res.data);
 			})
 			.catch(err => console.log(err));
@@ -67,8 +63,8 @@ export default function Teach() {
 			{stList.map(student => (
 				<NavItem key = {student.studentID} 
 				className = {classNames({chosenSidebar: currentStudent.studentID === parseInt(student.studentID)})}>	 
-					<NavLink onClick = {() => { console.log(student); setcurrentStudent(student)}}>
-							{student.studentName}
+					<NavLink onClick = {() => setcurrentStudent(student)}>
+							{student.studentName} {student.pending && <span style = {{color: 'red'}}>*</span>}
 						<span style = {{float: "right"}} onClick = {toggleEdit}>{currentStudent.studentID === parseInt(student.studentID) && <Pencil />}</span>
 					</NavLink>
 				</NavItem>
@@ -153,7 +149,7 @@ export default function Teach() {
 							</Nav>
 						</Col>
 						{ 
-						currentStudent.ID !== -1
+						currentStudent.studentID !== -1
 						? <ViewStudent student = {currentStudent} />
 						: <Col className = "notChosenPlaceholder">
 							<p className = "dontShowMd">Нажмите на элемент слева для начала работы</p>

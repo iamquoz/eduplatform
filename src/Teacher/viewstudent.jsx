@@ -13,6 +13,7 @@ import {
 import { useGlobalEvent } from 'beautiful-react-hooks'
 
 import Stats from '../shared/stats.jsx'
+import StudentTasks from './studenttasks.jsx'
 
 export default function ViewStudent({student}) {
 	const [activeTab, setActiveTab] = useState(1);
@@ -62,7 +63,7 @@ export default function ViewStudent({student}) {
 					<Stats student = {student} showSidebar = {showSidebar} windowWidth = {windowWidth} width = {width} setShowSidebar = {setShowSidebar}/>
 				</TabPane>
 				<TabPane tabId = {2}>
-					{student.StName}
+					<StudentTasks studentid = {student.studentID}/>
 				</TabPane>
 			</TabContent>
 			<div className = "customFooter possiblyHidden">

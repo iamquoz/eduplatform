@@ -1,9 +1,6 @@
 import { useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import Cookies from 'universal-cookie'
-
-import { auth } from '../shared/auth.jsx'
 
 import { 
 	Button, 
@@ -14,37 +11,33 @@ import {
 	Input
 } from 'reactstrap';
 
+import CustomToast from '../shared/toast'
+import { auth } from '../shared/auth.jsx'
+
 export default function RegisterPage() {
 	let query = new URLSearchParams(window.location.search);
 	query = query.get('id');
 	const history = useHistory();
-
-	if (auth.currUserValue)
-		history.push(auth.currUserValue.id === '1' ? '/teacher' : '/student')
 
 	// get name of a register
 	const [fullname, setFullname] = useState('')
 	const [isStudent, setIsStudent] = useState(false);
 
 	useEffect(() => {
-		const getName = async () => {
-			if (query === null)
-				return
-			axios.get(`/Peek?id=${query}`)
-				.then(res => {
-					if (res.data !== '') {
-						setFullname(res.data);
+		if (query === null || fullname.length !== 0)
+			return
+
+		console.log(query);
+		auth.login(query, '')
+			.then(res => {
+				localStorage.setItem('account', query);
+				axios.get('/st/name')
+				.then(result => {
+						console.log(result);
 						setIsStudent(true);
-					}
-					else 
-						setIsStudent(false);
-				})
-				.catch(err => {setIsStudent(false); console.log(err)});
-		}
-		// workaround for the 2nd useEffect i do later
-		// i don't want to fucking hammer the server with a request for each keystoke lmao
-		if (fullname.length === 0)
-			getName();
+						setFullname(result.data);
+					})
+			})
 	})
 
 	const [password, setpassword] = useState('')
@@ -57,33 +50,39 @@ export default function RegisterPage() {
 	// 2 means passwords differ
 	const [validConfirm, setvalidConfirm] = useState(0);
 
+	const [toastOpen, setToastOpen] = useState(false);
+	const [message, setMessage] = useState('');
+	const [error, setError] = useState(false);
+
+
 	const onSubmit = (e) => {
 		e.preventDefault();
 
 		if (password.length === 0) {
-			alert("Введите пароль")
+			setMessage("Введите пароль")
+			setError(true);
+			setToastOpen(true);
 			return
 		}
 		
 		if (confirmPW.length === 0) {
-			alert("Введите подтверждение пароля")
+			setMessage("Введите подтверждение пароля")
+			setError(true);
+			setToastOpen(true);
 			return
 		}
 
 		if (password !== confirmPW) {
-			alert("Пароли не совпадают")
+			setMessage("Пароли не совпадают")
+			setError(true);
+			setToastOpen(true);
 			return
 		}
 
-		auth.login(query, '')
-			.then(res => {
-				const cookies = new Cookies();
-				cookies.set('token', res.data, {path: '/', maxAge: 86400});
-				localStorage.setItem('currentUser', JSON.stringify({id: query, token: res.data, time: Date.now()}))
-				axios.post('/api/StRegister', {String: password})
-					.then(_ => history.push('/login'))
-					.catch(err => console.log(err))})
-			}
+		axios.post('/auth/register', {password: password})
+			.then(_ => history.push('/login'))
+			.catch(err => console.log(err));
+	}
 
 	useEffect(() => {
 		if (password.length === 0)
@@ -138,6 +137,7 @@ export default function RegisterPage() {
 				<Button style = {{marginTop: "10%", width: "100%"}}  onClick = {() => history.push('/')}>Назад</Button>
 			</Form>
 			}
+			<CustomToast message = {message} error = {error} isOpen = {toastOpen} setIsOpen = {setToastOpen}/>
 		</div>
     )
 }

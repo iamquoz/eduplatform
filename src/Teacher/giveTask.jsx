@@ -14,6 +14,7 @@ import {
 	Input,
 	Label
 } from 'reactstrap'
+import CustomToast from '../shared/toast'
 
 export default function GiveTask() {
 
@@ -25,26 +26,35 @@ export default function GiveTask() {
 	const [chosenTasks, setChosenTasks] = useState([]);
 	const [chosenStudents, setChosenStudents] = useState([])
 
+	const [toastOpen, setToastOpen] = useState(false);
+	const [message, setMessage] = useState('');
+	const [error, setError] = useState(false);
 
 	const onSubmit = (e) => {
 		e.preventDefault();
 
 		if (activeTab === 4) {
 			if (chosenTheory === -1) {
-				alert('Ни одна теория не была выбрана!');
+				setMessage('Ни одна теория не выбрана');
+				setError(true);
+				setToastOpen(true);
 				setActiveTab(1);
 				return;
 			}
 
 			if (chosenStudents.length === 0) {
-				alert('Не один студент не выбран!');
+				setMessage('Не один студент не выбран!');
 				setActiveTab(2);
+				setError(true);
+				setToastOpen(true);
 				return;
 			}
 
 			if (chosenTasks.length === 0) {
-				alert('Ни одна задача не была выбрана!');
+				setMessage('Ни одна задача не была выбрана!');
 				setActiveTab(3);
+				setError(true);
+				setToastOpen(true);
 				return;
 			}
 		}
@@ -52,13 +62,19 @@ export default function GiveTask() {
 		if (activeTab !== 4)
 			return;
 			
-		axios.post('/api/Appoint', {
-			StudentIDArray: chosenStudents,
-			TaskIDArray: chosenTasks,
-			TheoryID: chosenTheory
+		axios.post('/api/assignment', {
+			theoryid: chosenTheory,
+			studentids: chosenStudents,
+			taskids: chosenTasks
 		})
-			.then(_ => alert("Успешно!"))
-			.catch(err => console.log(err));
+			.then(_ => {
+				setMessage('Задания были выданы!');
+				setError(false);
+				setToastOpen(true);
+			})
+			.catch(err => {
+				setMessage(err.message)
+			});
 		
 		setChosenTasks([]);
 		setChosenStudents([]);
@@ -229,6 +245,7 @@ export default function GiveTask() {
 					</Button>
 				</div>
 			</Form>
+			<CustomToast message = {message} error = {error} isOpen = {toastOpen} setIsOpen = {setToastOpen}/>
 		</div>
 	)
 }

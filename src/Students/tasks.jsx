@@ -57,11 +57,8 @@ export default function Tasks({showSidebar, windowWidth, setShowSidebar}) {
 	useEffect(() => {
 		setTheories([]);
 		axios.get('/st/assignment')
-			.then(res => {
-				console.log(res);
-				var arr = res.data;
-			
-				arr.forEach(element => {
+			.then(res => {			
+				res.data.forEach(element => {
 					setCurrentTaskID(currentTaskID => [...currentTaskID, {theoryid: element.theoryid, index: 0, correct: '', tries: element.tries.map(e => 3 - e)}])
 					axios.get('/st/theories/' + element.theoryid)
 						.then(res => setTheories(theories => [...theories, res.data]))
