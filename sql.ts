@@ -215,13 +215,15 @@ export {gettask, alltasks, inserttask, updatetask, deletetask, gettheory, allthe
 
 // student interaction methods 
 /**
- * SELECT id, names
- * FROM logins
- * WHERE role = 1
- * @returns arr of user values
+ * SELECT logins.id AS "studentID", names AS "studentName", array_agg(assignments.correct) = array_agg(null::boolean) AS pending
+ * FROM logins 
+ * LEFT JOIN assignments ON logins."id" = sid AND assignments.complete = true 
+ * WHERE logins.role = 1 
+ * GROUP BY logins.id
+ * @returns arr of user values + tasks pending checking
  */
 function students() : Promise<QueryResult<user>> {
-	return pool.query('SELECT id, names FROM logins WHERE role = 1');
+	return pool.query('SELECT logins.id AS "studentID", names AS "studentName", array_agg(assignments.correct) = array_agg(null::boolean) AS pending FROM logins LEFT JOIN assignments ON logins."id" = sid AND assignments.complete = true WHERE logins.role = 1 GROUP BY logins.id');
 }
 
 /**
@@ -263,6 +265,22 @@ function takeassignment(studentid: number) : Promise<QueryResult> {
  */
 function answeropen(studentid: number, taskid: number, theoryid: number, answer: string) : Promise<QueryResult<assignment>> {
 	return pool.query('UPDATE assignments WHERE sid = $1 AND taskid = $2 AND theoryid = $3 SET usrAnswer = $4, complete = true RETURNING *', [studentid, taskid, theoryid, answer]);
+}
+
+/**
+ * UPDATE assignments 
+ * WHERE sid = $1 AND taskid = $2 AND theoryid = $3 
+ * SET comment = $4, correct = $5 
+ * RETURNING *
+ * @param studentid student who's answering
+ * @param taskid task we're reviewing
+ * @param theoryid theory student answered on
+ * @param comment optional comment
+ * @param correct correct or not
+ * @returns 
+ */
+function checkopen(studentid: number, taskid: number, theoryid: number, comment: string, correct: boolean) : Promise<QueryResult<assignment>> {
+	return pool.query('UPDATE assignments WHERE sid = $1 AND taskid = $2 AND theoryid = $3 SET comment = $4, correct = $5 RETURNING *', [studentid, taskid, theoryid, comment, correct]);
 }
 
 /**
@@ -329,7 +347,19 @@ function stats(studentid: number) : Promise<QueryResult<statReq>> {
  * @returns 
  */
 function done(studentid: number) : Promise <QueryResult<doneReq>> {
-	return pool.query('SELECT theoryid, tasks.taskid, assignments.correct, tries, comment, "usrAnswer", tasks.question, tasks.diff ,tasks.correct as answer, tasks."isOpen" FROM assignments JOIN tasks ON tasks.taskid = assignments.taskid AND assignments.complete = true AND assignments.correct IS NOT NULL WHERE sid = $1', [studentid]);
+	return pool.query('SELECT theoryid, tasks.taskid, assignments.correct, tries, comment, "usrAnswer", tasks.question, tasks.diff, tasks.correct as answer, tasks."isOpen" FROM assignments JOIN tasks ON tasks.taskid = assignments.taskid AND assignments.complete = true AND assignments.correct IS NOT NULL WHERE sid = $1', [studentid]);
 }
 
-export {students, giveassignment, takeassignment, answeropen, checktries, closedcorrect, closedincorrect, stats, done}
+/**
+ * SELECT theoryid, tasks.taskid, assignments.correct, tries, comment, "usrAnswer", tasks.question, tasks.diff ,tasks.correct as answer, tasks."isOpen" 
+ * FROM assignments 
+ * JOIN tasks ON tasks.taskid = assignments.taskid AND assignments.complete = true AND assignments.correct IS NULL 
+ * WHERE sid = studentid
+ * @param studentid student who's tasks we're checking 
+ * @returns 
+ */
+function getpending(studentid: number) : Promise <QueryResult<doneReq>> {
+	return pool.query('SELECT theoryid, tasks.taskid, assignments.correct, tries, comment, "usrAnswer", tasks.question, tasks.diff, tasks.correct as answer, tasks."isOpen" FROM assignments JOIN tasks ON tasks.taskid = assignments.taskid AND assignments.complete = true AND assignments.correct IS NULL WHERE sid = $1', [studentid]);
+}
+
+export {students, giveassignment, takeassignment, answeropen, checktries, closedcorrect, closedincorrect, stats, done, checkopen, getpending}

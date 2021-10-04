@@ -10,17 +10,19 @@ function login(req: Request, res: Response) {
 	const username: number = parseInt(req.body.login);
 	const password: string = req.body.password;
 
-	if (username)
+	if (username && password)
 		usercred(username)
 			.then(result => {
 				bcrypt.compare(password, result.rows[0].hash)
 					.then(bool => bool 
-						? res.status(200).cookie('user', username, { httpOnly: true, signed: true })
+						? res.status(200).cookie('user', username, { httpOnly: true, signed: true, maxAge: 2 * 7 * 24 * 3600 * 1000 })
 						  .json({ message: 'Success' })
 						: res.status(401).json({ message: 'Wrong password' }))
 					.catch(err => res.status(500).json(err));
 			})
 			.catch(_ => res.status(404).json({ message: 'Account doesn`t exist' }));
+	else 
+		res.send(400).send({message: 'Bad request'})
 	
 }
 
@@ -28,7 +30,7 @@ function register(req: Request, res: Response) {
 	const username: number = parseInt(req.signedCookies.user);
 	const password: string = req.body.password;
 
-	if (username && password.length !== 0)
+	if (username && password)
 		check(username).then(result => {
 			if (result.rows.length === 1)
 				bcrypt.hash(password, saltRounds)
@@ -47,7 +49,7 @@ function update(req: Request, res: Response) {
 	const username: number = req.signedCookies.user;
 	const password: string = req.body.password;
 
-	if (username && password.length !== 0)
+	if (username && password)
 		bcrypt.hash(password, saltRounds)
 			.then(hash => {
 				changepw(username, hash)

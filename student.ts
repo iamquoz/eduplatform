@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { gettask, gettheory, alltheories, takeassignment, answeropen, checktries, closedcorrect, closedincorrect } from './sql';
+import { gettask, gettheory, alltheories, takeassignment, answeropen, checktries, closedcorrect, closedincorrect, usercred } from './sql';
 import { role } from "./auth"
 import { task } from "./interfaces";
 import { doneWrapper, statsWrapper } from "./util";
@@ -21,6 +21,19 @@ student.use((req: Request, res: Response, next: express.NextFunction) => {
 			}
 		})
 		.catch(_ => res.status(401).send('Unauthorized'));
+})
+
+student.get('/name', (req: Request, res: Response) => {
+	const id: number = parseInt(req.signedCookies.user);
+
+	usercred(id)
+		.then(result => {
+			if (result.rows.length === 0) 
+				res.status(404).send('Not found')
+			else 
+				res.status(200).send(result.rows[0].names)
+		})
+		.catch(err => res.send(console.log(err)));
 })
 
 student.get('/theories', (req: Request, res: Response) => {
@@ -80,7 +93,7 @@ student.post('/assignment', (req: Request, res: Response) => {
 							.then(result => {
 								if (result.rows[0].correct === task.correct)
 									closedcorrect(id, task.taskid, theoryid, task.correct)
-										.then(_ => res.status(200).json({ tries: -2}))
+										.then(_ => res.status(200).json({ tries: -2 }))
 								else
 									closedincorrect(id, task.taskid, theoryid, task.correct)
 										.then(r => res.status(200).json({ tries: r.rows[0].tries} ))

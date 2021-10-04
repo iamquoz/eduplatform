@@ -31,6 +31,16 @@ app.post('/auth/register', (req: Request, res: Response) => {
 	register(req, res);
 })
 
+app.get('/auth/check', (req: Request, res: Response) => {
+	if (req.signedCookies.user)
+		res.status(200).send({loggedIn: true})
+	else
+		res.status(401).send({loggedIn: false})
+})
+
+app.post('/auth/logout', (req: Request, res: Response) => {
+	res.status(200).clearCookie('user').send('Done');
+})
 
 app.use('/api', teacher);
 app.use('/st', student);

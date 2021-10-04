@@ -1,7 +1,24 @@
 import express, { Request, Response } from "express";
 import bcrypt from 'bcrypt';
 
-import { adduser, alltasks, changename, deletetask, deletetheory, giveassignment, inserttask, inserttheory, prune, pruneappt, students, updatetask, updatetheory } from "./sql";
+import { 
+	adduser, 
+	alltasks, 
+	changename, 
+	checkopen, 
+	deletetask, 
+	deletetheory, 
+	getpending, 
+	giveassignment, 
+	inserttask, 
+	inserttheory, 
+	prune,
+	pruneappt, 
+	students, 
+	updatetask, 
+	updatetheory 
+} 
+from "./sql";
 import { role } from "./auth";
 import { doneWrapper, statsWrapper } from "./util";
 
@@ -67,10 +84,7 @@ teacher.delete('/students/:id', (req: Request, res: Response) => {
 
 teacher.get('/students', (req: Request, res: Response) => {
 	students()
-		.then(result => res.status(200).json(result.rows.map(elem => ({
-			studentID: elem.id,
-			studentName: elem.names
-		}))))
+		.then(result => res.status(200).json(result.rows))
 })
 
 teacher.get('/students/:id', (req: Request, res: Response) => {
@@ -191,6 +205,31 @@ teacher.post('/assignment', (req: Request, res: Response) => {
 			.then(result => res.status(200).json({ test: result.rows}))
 			.catch(err => res.status(500).send(console.log(err)));
 	else 
+		res.status(400).send('Bad request');
+})
+
+teacher.patch('/assignment', (req: Request, res: Response) => {
+	const studentid: number = parseInt(req.body.studentid);
+	const taskid: number = req.body.taskid;
+	const theoryid: number = parseInt(req.body.theoryid);
+	const comment: string = req.body.comment;
+	const correct: boolean = req.body.correct;
+
+	if (theoryid && taskid && comment && studentid && correct) 
+		checkopen(studentid, taskid, theoryid, comment, correct)
+			.then(result => res.status(200).send(result.rows[0]))
+			.catch(err => res.status(500).send(console.log(err)))
+	else 
+		res.status(400).send('Bad request');
+})
+
+teacher.get('/assignment/:id', (req: Request, res: Response) => {
+	const studentid: number = parseInt(req.params.id);
+	if (studentid)
+		getpending(studentid)
+			.then(result => res.status(200).send(result.rows))
+			.catch(err => res.status(500).send(console.log(err)))
+	else
 		res.status(400).send('Bad request');
 })
 

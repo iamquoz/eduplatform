@@ -5,19 +5,20 @@ import { done, stats } from "./sql"
 async function statsWrapper(id: number) {
 	const result = (await stats(id)).rows;
 
-	var retVal: Array<stat>;
+	var retVal: Array<stat> = [];
 
 	result.forEach(elem => {
 		var i = retVal.findIndex(e => e.theoryid === elem.theoryid);
 
-		if (i === -1)
+		if (i === -1) {
 			i = retVal.length;
-
-		retVal[i].total[elem.diff]++;
+			retVal.push({ theoryid: 0, total: [0, 0, 0], correct: [0, 0, 0], totalAttempts: 0 })
+		}
+		retVal[i].total[elem.diff - 1]++;
 		retVal[i].theoryid = elem.theoryid;
 
-		if (elem.correct) 
-			retVal[i].correct[elem.diff]++;
+		if (elem.correct)
+			retVal[i].correct[elem.diff - 1]++;
 
 		if (!elem.isOpen)
 			retVal[i].totalAttempts += elem.tries;
@@ -29,18 +30,30 @@ async function statsWrapper(id: number) {
 async function doneWrapper(id: number) {
 	const result = (await done(id)).rows;
 
-	var retVal: Array<donetype>;
+	var retVal: Array<donetype> = [];
 
 	result.forEach(elem => {
 		var i = retVal.findIndex(e => e.theoryid === elem.theoryid)
 
-		if (i === -1)
+		if (i === -1) {
 			i = retVal.length;
-
+			retVal.push({ 
+				theoryid: 0, 
+				taskid: [], 
+				correct: [], 
+				tries: [], 
+				diff: [], 
+				comment: [], 
+				usrAnswer: [],
+				question: [], 
+				answer: [], 
+				isOpen: [] 
+			})
+		}
 		retVal[i].theoryid = elem.theoryid;
 
 		var j = retVal[i].taskid.findIndex(e => e === elem.taskid);
-		
+
 		if (j === -1)
 			j = retVal[i].taskid.length;
 
